@@ -1,0 +1,7 @@
+<config>
+	<gateserver>
+		<data>
+			<port>4510</port>
+		</data>
+	</gateserver>
+</config>
