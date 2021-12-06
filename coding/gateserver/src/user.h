@@ -5,10 +5,7 @@
 
 namespace UserBuffer
 {
-	/*
-		4M 够了 由于开发机可用内存只有几个G，所以并发socket只有2000多， 如果buffer size适当调低，可达到万级并发读写无压力【已测试过】
-	*/
-	const int g_nReadBufferSize = 1024 * 1024 * 4;		
+	const int g_nReadBufferSize = 1024 * 50;	// 每次读取最多50K	
 }
 
 class User : public boost::enable_shared_from_this<User>

@@ -62,11 +62,6 @@ void User::onAyncRead(
 		return;
 	}
 	
-	LOG_GATESERVER.printLog("read msg[%s]", m_readBuffer);
-
-	std::string str = "hello im server";
-	ayncSend(str.data(),str.size());
-
 	ayncRead();
 }
 
