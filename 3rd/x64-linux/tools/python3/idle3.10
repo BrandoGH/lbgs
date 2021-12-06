@@ -1,0 +1,5 @@
+#!/home/opt/vcpkg/installed/x64-linux/tools/python3/bin/python3.10
+
+from idlelib.pyshell import main
+if __name__ == '__main__':
+    main()

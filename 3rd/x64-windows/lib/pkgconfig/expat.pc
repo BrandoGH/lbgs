@@ -1,0 +1,12 @@
+prefix=${pcfiledir}/../..
+
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libexpat
+Version: 2.4.1
+Description: expat XML parser
+URL: http://www.libexpat.org
+Libs: -L"${libdir}" -llibexpat
+Cflags: -I"${includedir}"

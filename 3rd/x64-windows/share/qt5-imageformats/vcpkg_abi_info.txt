@@ -1,0 +1,13 @@
+CONTROL 13f0fe2cdfe27dab75efed8584cab0f8d9202615
+cmake 3.20.2
+features core
+jasper ca8deddd571f33041a856e365a99ead7d4d919f5
+libwebp 68d49a657a35857505538056921c4bb9c4f93ad1
+portfile.cmake 6a731aaef0546757e9831774f9954402fe875136
+ports.cmake acbdb0c75aa1c0571ad039ecdb4d4c85c14911fa
+post_build_checks 2
+powershell 7.1.3
+qt5-base a50ad00792e03f90cd1d396f07915013e4e8a691
+tiff fb91eb11e43f42fc657ab31c452753f041e6cb63
+triplet x64-windows
+triplet_abi 3eab5c64d9cf628fc0aec277fde66dbdc69b8516-a1c0eabb0c5177b6a8fb97a58ae398880c47b352-b9e2480dca17932aec14cc7258376a7b281aa769

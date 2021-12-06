@@ -1,0 +1,16 @@
+#libevent pkg-config source file
+
+prefix=D:/vcpkg/packages/libevent_x64-windows
+exec_prefix=D:/vcpkg/packages/libevent_x64-windows
+libdir=D:/vcpkg/packages/libevent_x64-windows/lib
+includedir=D:/vcpkg/packages/libevent_x64-windows/include
+
+Name: libevent_extra
+Description: libevent_extra
+Version: 2.1.12
+Requires:
+Conflicts:
+Libs: -L${libdir} -levent_extra
+Libs.private:  -Lws2_32 -Lshell32 -Ladvapi32
+Cflags: -I${includedir}
+

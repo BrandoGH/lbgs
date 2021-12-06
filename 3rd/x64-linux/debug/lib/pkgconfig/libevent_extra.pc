@@ -1,0 +1,16 @@
+#libevent pkg-config source file
+
+prefix=/home/opt/vcpkg/packages/libevent_x64-linux/debug
+exec_prefix=/home/opt/vcpkg/packages/libevent_x64-linux/debug
+libdir=/home/opt/vcpkg/packages/libevent_x64-linux/debug/lib
+includedir=/home/opt/vcpkg/packages/libevent_x64-linux/debug/include
+
+Name: libevent_extra
+Description: libevent_extra
+Version: 2.1.12
+Requires:
+Conflicts:
+Libs: -L${libdir} -levent_extra
+Libs.private: 
+Cflags: -I${includedir}
+

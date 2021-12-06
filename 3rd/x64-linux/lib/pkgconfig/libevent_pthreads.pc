@@ -1,0 +1,16 @@
+#libevent pkg-config source file
+
+prefix=/home/opt/vcpkg/packages/libevent_x64-linux
+exec_prefix=/home/opt/vcpkg/packages/libevent_x64-linux
+libdir=/home/opt/vcpkg/packages/libevent_x64-linux/lib
+includedir=/home/opt/vcpkg/packages/libevent_x64-linux/include
+
+Name: libevent_pthreads
+Description: libevent_pthreads adds pthreads-based threading support to libevent
+Version: 2.1.12
+Requires: libevent
+Conflicts:
+Libs: -L${libdir} -levent_pthreads
+Libs.private:  
+Cflags: -I${includedir} 
+

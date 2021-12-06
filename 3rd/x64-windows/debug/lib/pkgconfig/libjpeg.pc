@@ -1,0 +1,11 @@
+prefix=${pcfiledir}/../..
+
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/../include
+
+Name: libjpeg
+Description: A SIMD-accelerated JPEG codec that provides the libjpeg API
+Version: 2.0.6
+Libs: -L"${libdir}" -ljpegd
+Cflags: -I"${includedir}"
