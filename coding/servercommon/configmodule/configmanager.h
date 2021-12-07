@@ -5,7 +5,7 @@
 
 #define DENUM(className) TYPE_##className
 #define GET_CONFIG(className)\
-	className* Get##className(){ return (className*)m_iConfig[DENUM(className)];}
+	className* Get##className(){ return (className*)m_pArrConfigs[DENUM(className)];}
 
 class ConfigInterface;
 class GateServerConfig;
@@ -34,7 +34,7 @@ private:
 	void initAllConfig();
 
 private:
-	ConfigInterface* m_iConfig[TYPE_MAX];
+	ConfigInterface* m_pArrConfigs[TYPE_MAX];
 	std::string m_cfgPath[TYPE_MAX];
 };
 #define CONFIG_MGR ConfigManager::instance()

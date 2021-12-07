@@ -8,16 +8,16 @@
 
 namespace 
 {
-	const char* g_strDailyLogName = "dailyLog";
-	const char* g_strRotatingLogName = "RotatingLog";
+const char* g_strDailyLogName = "dailyLog";
+const char* g_strRotatingLogName = "RotatingLog";
 }
 
 namespace CommonLog
 {
-	std::vector<LogModule*> g_vecLogModule;
+std::vector<LogModule*> g_vecLogModule;
 
-	LogModule g_logGateServer("/gateserver/gateserver.log");
-	LogModule g_logServerCommonConfig("/servercommonconfig/servercommonconfig.log");
+LogModule g_logGateServer("/gateserver/gateserver.log");
+LogModule g_logServerCommonConfig("/servercommonconfig/servercommonconfig.log");
 }
 
 
@@ -108,7 +108,7 @@ LogModule& LogModule::setLogHeader(
 
 void LogModule::printLog(const char * format, ...)
 {
-	CommonBoost::UniqueLock lock(m_mutex);
+	CommonBoost::UniqueLock lock(m_contentMutex);
 	if (m_level < LV_INFO || m_level > LV_ERROR)
 	{
 		m_level = LV_INFO;

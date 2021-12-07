@@ -3,7 +3,7 @@
 #include <gateserver/config/config.h>
 #include <logmodule/logdef.h>
 
-#define NEW_CONFIG(className)	m_iConfig[DENUM(className)] = new className
+#define NEW_CONFIG(className)	m_pArrConfigs[DENUM(className)] = new className
 
 ConfigManager::ConfigManager()
 {
@@ -15,9 +15,9 @@ ConfigManager::ConfigManager()
 	// check
 	for (int i = 0; i < TYPE_MAX; ++i)
 	{
-		if (m_iConfig[i] == NULL)
+		if (m_pArrConfigs[i] == NULL)
 		{
-			LOG_SERVER_COMMON_CONFIG.printLog("m_iConfig[%d] is NULL", i);
+			LOG_SERVER_COMMON_CONFIG.printLog("m_pArrConfigs[%d] is NULL", i);
 			BOOST_ASSERT(0); // ²»Ó¦¸Ã
 		}
 	}
@@ -29,11 +29,11 @@ ConfigManager::~ConfigManager()
 {
 	for (int i = 0; i < TYPE_MAX; ++i)
 	{
-		if (m_iConfig[i])
+		if (m_pArrConfigs[i])
 		{
-			delete m_iConfig[i];
-			m_iConfig[i] = NULL;
-			LOG_SERVER_COMMON_CONFIG.printLog("m_iConfig[%d] has delete", i);
+			delete m_pArrConfigs[i];
+			m_pArrConfigs[i] = NULL;
+			LOG_SERVER_COMMON_CONFIG.printLog("m_pArrConfigs[%d] has delete", i);
 		}
 	}
 }
@@ -48,14 +48,14 @@ void ConfigManager::initAllConfig()
 {
 	for (int i = 0; i < TYPE_MAX; ++i)
 	{
-		if (!m_iConfig[i])
+		if (!m_pArrConfigs[i])
 		{
 			continue;
 		}
 
-		if (m_iConfig[i]->init(m_cfgPath[i]) != ConfigInterface::INIT_OK)
+		if (m_pArrConfigs[i]->init(m_cfgPath[i]) != ConfigInterface::INIT_OK)
 		{
-			LOG_SERVER_COMMON_CONFIG.printLog("m_iConfig[%d] init error,path[%s]", i, m_cfgPath[i].data());
+			LOG_SERVER_COMMON_CONFIG.printLog("m_pArrConfigs[%d] init error,path[%s]", i, m_cfgPath[i].data());
 		}
 
 	}

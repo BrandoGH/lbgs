@@ -15,8 +15,8 @@
 
 namespace
 {
-	const int g_nPrintMaxSize = 1024;
-	const int g_nPrintHeaderMaxSize = 128;
+const int g_nPrintMaxSize = 1024;
+const int g_nPrintHeaderMaxSize = 128;
 }
 
 class LogModule
@@ -78,16 +78,16 @@ private:
 	CommonBoost::LoggerPtr m_pLog;
 	std::string m_logString;
 
-	CommonBoost::Mutex m_mutex;
+	CommonBoost::Mutex m_contentMutex;
 	CommonBoost::Mutex m_headerMutex;
 };
 
 namespace CommonLog
 {
-	extern 	std::vector<LogModule*> g_vecLogModule;
+extern 	std::vector<LogModule*> g_vecLogModule;
 
-	extern LogModule g_logGateServer;
-	extern LogModule g_logServerCommonConfig;
+extern LogModule g_logGateServer;
+extern LogModule g_logServerCommonConfig;
 }
 
 #endif // !__LOG_H__
