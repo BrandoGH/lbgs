@@ -13,9 +13,9 @@
 #include <memory>
 
 
-#ifdef WIN32
+#ifdef WIN_OS
 #include <windows.h>
-#elif __linux__
+#elif LINUX_OS
 #include <sys/types.h>
 #include <sys/syscall.h>
 #include <unistd.h>
