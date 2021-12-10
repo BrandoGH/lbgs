@@ -32,16 +32,6 @@
 #define TO_STRING(param) #param
 #define MSG_BUFFER boost::asio::buffer
 
-#define THREAD_POOL_POST(poolHandle,func)	\
-do											\
-{											\
-	if (poolHandle)							\
-	{										\
-	boost::asio::post(*poolHandle, func);	\
-	}										\
-}while(0)
-
-
 #ifdef WIN_OS
 #define THREAD_ID GetCurrentThreadId()
 #define PROCESS_ID GetCurrentProcessId()
