@@ -84,6 +84,7 @@ void GateServer::accept()
 
 	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server);
 	m_pAcceptor->async_accept(*(newUser->getSocket()), BIND(&GateServer::onAcceptHandler, this, boost::placeholders::_1, newUser));
+	LOG_GATESERVER.printLog("new user has create");
 
 }
 
@@ -91,7 +92,7 @@ void GateServer::initData()
 {
 	m_pAcceptor = NULL;
 	m_pCfgInfo = NULL;
-	m_nConnectCount = 1;
+	m_nConnectCount = 0;
 	m_nPort = 0;
 }
 
@@ -118,8 +119,8 @@ void GateServer::onAcceptHandler(
 		return;
 	}
 
-	LOG_GATESERVER.printLog("new client connect succ,count[%d]", m_nConnectCount);
 	++m_nConnectCount;
+	LOG_GATESERVER.printLog("new client connect succ,count[%d]", m_nConnectCount.load());
 
 	user->ayncRead();
 	accept();

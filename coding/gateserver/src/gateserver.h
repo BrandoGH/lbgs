@@ -4,6 +4,7 @@
 #include "user.h"
 
 #include <boostcommondef/basedef.h>
+#include <boost/atomic.hpp>
 #include <vector>
 
 struct ConfigInfo;
@@ -31,7 +32,7 @@ private:
 	CommonBoost::IOServer m_server;
 	CommonBoost::Acceptor* m_pAcceptor;
 	ConfigInfo* m_pCfgInfo;
-	int m_nConnectCount;
+	boost::atomic<int> m_nConnectCount;
 	int m_nPort;
 };
 

@@ -62,6 +62,10 @@ void User::onAyncRead(
 		return;
 	}
 	
+	static int count = 1;
+	LOG_GATESERVER.printLog("read msg:[%s],count[%d]", m_readBuffer, count);
+	++count;
+
 	ayncRead();
 }
 
