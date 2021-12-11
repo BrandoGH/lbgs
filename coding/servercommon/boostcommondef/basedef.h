@@ -9,37 +9,13 @@
 #include <boost/bind/bind.hpp>
 #include <boost/thread.hpp>
 
-#include <spdlog/spdlog.h>
-#include <memory>
-
-
-#ifdef WIN_OS
-#include <windows.h>
-#elif LINUX_OS
-#include <sys/types.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-#include <pthread.h>  
-#endif
-
-
 #define READ_XML boost::property_tree::xml_parser::read_xml
 #define CAST_TO(type,value) boost::lexical_cast<type>((value))
 #define CPU_MAX_THREAD boost::thread::hardware_concurrency()
 #define CPU_MAX_CORE boost::thread::physical_concurrency()
 #define BIND boost::bind
 #define MOVE boost::move
-#define TO_STRING(param) #param
 #define MSG_BUFFER boost::asio::buffer
-
-#ifdef WIN_OS
-#define THREAD_ID GetCurrentThreadId()
-#define PROCESS_ID GetCurrentProcessId()
-#elif LINUX_OS
-#define THREAD_ID syscall(SYS_gettid)
-#define PROCESS_ID getpid()
-
-#endif
 #define THREAD_SLEEP(msec) boost::this_thread::sleep_for(boost::chrono::milliseconds(msec))
 
 
@@ -67,8 +43,7 @@ typedef boost::shared_ptr<IOServer::work>	WorkPtr;
 // config
 typedef boost::property_tree::ptree			PTree;
 
-// log
-typedef std::shared_ptr<spdlog::logger> LoggerPtr;
+
 }
 
 

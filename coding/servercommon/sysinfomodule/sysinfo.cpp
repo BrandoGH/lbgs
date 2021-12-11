@@ -50,7 +50,7 @@ unsigned long double SystemInfo::getAvailableMemory(int mode)
 	return availPhys;
 }
 #elif LINUX_OS
-unsigned long SystemInfo::getAvailableMemory(int mode)
+ulong SystemInfo::getAvailableMemory(int mode)
 {
 	struct sysinfo info;
 	int error = sysinfo(&info);
@@ -59,7 +59,7 @@ unsigned long SystemInfo::getAvailableMemory(int mode)
 		LOG_SERVER_COMMON_CONFIG.printLog("error[%d], default return 0", error);
 		return 0;
 	}
-	unsigned long availPhys = info.freeram;
+	ulong availPhys = info.freeram;
 
 	switch (mode)
 	{
@@ -94,9 +94,9 @@ unsigned long double SystemInfo::division(unsigned long double num, int recursio
 	return localNum;
 }
 #elif LINUX_OS
-unsigned long SystemInfo::division(unsigned long num, int recursionCount, double beDivided)
+ulong SystemInfo::division(ulong num, int recursionCount, double beDivided)
 {
-	unsigned long localNum = num;
+	ulong localNum = num;
 	for (int i = 0; i < recursionCount; ++i)
 	{
 		localNum = localNum / beDivided;

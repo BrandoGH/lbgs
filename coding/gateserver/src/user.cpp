@@ -37,7 +37,7 @@ void User::ayncRead()
 		);
 }
 
-void User::ayncSend(const char * str, unsigned int size)
+void User::ayncSend(const char * str, uint size)
 {
 	m_pSocket->async_write_some(
 		MSG_BUFFER(str, size),
@@ -47,7 +47,7 @@ void User::ayncSend(const char * str, unsigned int size)
 
 void User::onAyncRead(
 	const CommonBoost::ErrorCode& ec,
-	unsigned int readSize
+	uint readSize
 	)
 {
 	if (ec)
@@ -75,7 +75,7 @@ CommonBoost::SocketPtr & User::getSocket()
 	return m_pSocket;
 }
 
-void User::onAyncSend(const CommonBoost::ErrorCode & ec, unsigned int readSize)
+void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)
 {
 	if (ec)
 	{

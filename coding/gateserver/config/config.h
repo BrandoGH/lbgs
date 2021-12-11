@@ -5,7 +5,7 @@
 
 struct ConfigInfo
 {
-	unsigned short port;
+	ushort port;
 };
 
 class GateServerConfig : public ConfigInterface

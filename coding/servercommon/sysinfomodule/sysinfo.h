@@ -19,14 +19,14 @@ public:
 #ifdef WIN_OS
 	static unsigned long double getAvailableMemory(int mode = SystemInfo::UNIT_B);
 #elif LINUX_OS
-	static unsigned long getAvailableMemory(int mode = SystemInfo::UNIT_B);
+	static ulong getAvailableMemory(int mode = SystemInfo::UNIT_B);
 #endif
 
 private:
 #ifdef WIN_OS
 	static unsigned long double division(unsigned long double num, int recursionCount = 1, double beDivided = 1024.0);
 #elif LINUX_OS
-	static unsigned long division(unsigned long num, int recursionCount = 1, double beDivided = 1024.0);
+	static ulong division(ulong num, int recursionCount = 1, double beDivided = 1024.0);
 #endif
 };
 

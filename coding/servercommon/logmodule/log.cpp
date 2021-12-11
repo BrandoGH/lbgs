@@ -61,7 +61,7 @@ void LogModule::setLogDir(const std::string dir)
 {
 	m_logDir = dir;
 
-	CommonBoost::LoggerPtr log;
+	Common::LoggerPtr log;
 	if (m_logType == TYPE_DAILY)
 	{
 		log = spdlog::daily_logger_mt(g_strDailyLogName + m_logDir, m_logDir + m_logFilePath, m_nHours, m_nMin);

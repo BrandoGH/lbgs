@@ -2,6 +2,7 @@
 #define __USER_H__
 
 #include <servercommon/boostcommondef/basedef.h>
+#include <servercommon/basedef.h>
 
 namespace UserBuffer
 {
@@ -15,17 +16,17 @@ public:
 	~User();
 
 	void ayncRead();
-	void ayncSend(const char* str, unsigned int size);
+	void ayncSend(const char* str, uint size);
 	CommonBoost::SocketPtr& getSocket();
 
 HANDLER:
 	void onAyncRead(
 		const CommonBoost::ErrorCode& ec,
-		unsigned int readSize
+		uint readSize
 	);
 	void onAyncSend(
 		const CommonBoost::ErrorCode& ec,
-		unsigned int readSize
+		uint readSize
 	);
 
 private:

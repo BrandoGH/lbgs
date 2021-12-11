@@ -23,7 +23,7 @@ int GateServerConfig::initInfoCfg(CommonBoost::PTree& rootNode)
 	{
 		CommonBoost::PTree dataNode = it->second;
 		
-		m_info.port = CAST_TO(unsigned short, dataNode.get_child("port").data());
+		m_info.port = CAST_TO(ushort, dataNode.get_child("port").data());
 
 		if (m_info.port <= 0 || m_info.port > 65535)
 		{

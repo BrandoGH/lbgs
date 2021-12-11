@@ -2,6 +2,7 @@
 #define __LOG_H__
 
 #include "boostcommondef/basedef.h"
+#include "basedef.h"
 
 /************************************************************************/
 /* ÈÕÖ¾Ä£¿é
@@ -75,7 +76,7 @@ private:
 	char m_strPrintHeader[g_nPrintHeaderMaxSize];
 	char m_strPrintCont[g_nPrintMaxSize];
 
-	CommonBoost::LoggerPtr m_pLog;
+	Common::LoggerPtr m_pLog;
 	std::string m_logString;
 
 	CommonBoost::Mutex m_contentMutex;
