@@ -1,4 +1,4 @@
-SET(CODE_FILE 
+set(CODE_FILE 
 main.cpp
 ./src/gateserver.h
 ./src/gateserver.cpp
@@ -17,7 +17,6 @@ include_directories(
 	../
 	../servercommon
 	${3RD_PATH}
-
 )
 
 #Ìí¼Ó¿âËÑË÷Ä¿Â¼

@@ -1,5 +1,4 @@
-﻿
-SET(CODE_FILE 
+﻿set(CODE_FILE 
 ./basedef.h
 ./boostcommondef/basedef.h
 ./logmodule/log.h
@@ -23,7 +22,13 @@ include_directories(
 	./
 	../
 	${3RD_PATH}
+)
 
+#添加库搜索目录
+link_directories(
+	${STATIC_RC_LIB_PATH_3RD}
+	${SHARED_RC_LIB_PATH_3RD}
+	${SERVERCOMMON_LIB}
 )
 
 add_library(servercommon STATIC 

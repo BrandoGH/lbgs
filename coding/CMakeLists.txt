@@ -10,7 +10,7 @@ set(LBGS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE) #不加这个CMAKE_BUILD_TYPE不起作用
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(EXECUTABLE_OUTPUT_PATH ${LBGS_ROOT_DIR}/build/exe)		#二进制执行文件统一这个文件夹
+set(EXECUTABLE_OUTPUT_PATH ${LBGS_ROOT_DIR}/build/exe)		#二进制执行文件生成路径[所有服务器生成的文件都放一起]
 set(LIBRARY_OUTPUT_PATH_BASE_DIR ${LBGS_ROOT_DIR}/build/library) #库生成根路径
 set(CONFIG_BASE_DIR ${LBGS_ROOT_DIR}/config/)
 
@@ -39,6 +39,7 @@ add_definitions(
 -DHANDLER=private
 )
 
+message("----- If you wanna re-cmake,please delete[${LBGS_ROOT_DIR}/build/CMakeCache.txt],otherwise the result may be incorrect")
 message("---------------Please make sure you first compile the dependency library in compilation project---------------")
 message("---------------you can set add_subdirectory order---------------")
 message("CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}")
@@ -50,5 +51,15 @@ message("EXE_DIR : ${EXE_DIR}")
 message("CONFIG_BASE_DIR : ${CONFIG_BASE_DIR}")
 message("LIBRARY_OUTPUT_PATH_BASE_DIR : ${LIBRARY_OUTPUT_PATH_BASE_DIR}")
 
+
 add_subdirectory(./servercommon)
 add_subdirectory(./gateserver)
+
+#param传入 导入模拟客户端工程
+if (WIN32)
+	if(OPEN_SIMULATION_CLIENT)
+		add_subdirectory(./simulationclient)
+		message("OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
+	endif()
+endif()
+
