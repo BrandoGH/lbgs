@@ -1,6 +1,8 @@
 #ifndef __SYSINFO_H__
 #define __SYSINFO_H__
 
+#include "basedef.h"
+
 class SystemInfo
 {
 public:
