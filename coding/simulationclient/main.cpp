@@ -1,8 +1,15 @@
+#include "src/mainwidget.h"
+
 #include <iostream>
+#include <QtWidgets/QApplication>
+
 
 int main(int argc, char* argv[])
 {
-	std::cout << "simulationclient" << std::endl;
-	getchar();
-	return 0;
+	QApplication app(argc, argv);
+
+	MainWidget mw;
+	mw.show();
+
+	return app.exec();
 }

@@ -58,6 +58,8 @@ add_subdirectory(./gateserver)
 #param传入 导入模拟客户端工程
 if (WIN32)
 	if(OPEN_SIMULATION_CLIENT)
+		set(3RD_QT5_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/include/qt5)
+
 		add_subdirectory(./simulationclient)
 		message("OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
 	endif()
