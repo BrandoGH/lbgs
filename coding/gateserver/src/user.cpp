@@ -66,6 +66,9 @@ void User::onAyncRead(
 	LOG_GATESERVER.printLog("read msg:[%s],count[%d]", m_readBuffer, count);
 	++count;
 
+	std::string sendMsg = "halo ,i'm gateserver";
+	ayncSend(sendMsg.data(), sendMsg.size());
+
 	ayncRead();
 }
 

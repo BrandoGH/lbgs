@@ -20,6 +20,7 @@ public:
 private:
 	void accept();
 	void initData();
+	void initData2();
 
 HANDLER:
 	void onAcceptHandler(
@@ -31,7 +32,7 @@ HANDLER:
 private:
 	CommonBoost::IOServer m_server;
 	CommonBoost::Acceptor* m_pAcceptor;
-	ConfigInfo* m_pCfgInfo;
+	const ConfigInfo* m_pCfgInfo;
 	boost::atomic<int> m_nConnectCount;
 	int m_nPort;
 };
