@@ -4,6 +4,8 @@
 #include "servercommon/basedef.h"
 #include <QtWidgets/QWidget>
 #include <QtCore/QVector>
+#include <QtCore/QRunnable>
+#include <QtCore/QObject>
 
 class QHBoxLayout;
 class QLineEdit;
@@ -20,11 +22,13 @@ public:
 	ConnectWidget(QWidget* parent = NULL);
 	~ConnectWidget();
 
-	const QString& getIpAddress();
+	QString getIpAddress();
 	uint getPort();
 	uint getConnectCount();
 	QPlainTextEdit* getMsgPlantText() { return m_pMsgPlantText; }
 	QPlainTextEdit* getLogPlantText() { return m_pLogPlantText; }
+	uint& getUserId() { return m_userId; }
+	QVector<User*>& getVecUser() { return m_vecUser; }
 
 private:
 	void initUi();
@@ -34,6 +38,11 @@ private:
 private slots:
 	void onConnectBtClicked(bool checked);
 	void onDisConnectBtClicked(bool checked);
+	void onSendData(bool checked);
+	void onClearLog(bool checked);
+	void onUserConnect(uint userId);
+	void onError(uint userId, int eCode);
+	void onReadData(uint userId, const QString& data);
 
 private:
 	QVBoxLayout* m_pMainVLayout;
@@ -43,6 +52,8 @@ private:
 	QLineEdit* m_pEditConnectCount;
 	QPushButton* m_pConnectBt;
 	QPushButton* m_pDisConnectBt;
+	QPushButton* m_pSendDataBt;
+	QPushButton* m_pClearLogBt;
 	QPlainTextEdit* m_pMsgPlantText;
 	QPlainTextEdit* m_pLogPlantText;
 

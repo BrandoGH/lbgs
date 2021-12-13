@@ -4,7 +4,6 @@
 #include <QtCore/QObject>
 #include <QtNetwork/QTcpSocket>
 
-class ConnectWidget;
 class QPlainTextEdit;
 
 class User : public QObject
@@ -12,7 +11,11 @@ class User : public QObject
 	Q_OBJECT
 
 public:
-	User(QObject* parent = NULL);
+	User(
+		const QString& ip,
+		uint port,
+		QObject* parent = NULL
+		);
 	~User();
 	const QString& getReadData() { return m_strMsg; }
 	void setUserId(uint id) { m_nUserId = id; }
@@ -20,13 +23,17 @@ public:
 
 	void send(const QString& msg);
 
+signals:
+	void sigConnect(uint userId);
+	void sigError(uint userId, int eCode);
+	void sigReadData(uint userId, const QString& data);
+
 private slots:
 	void onConnected();
-	void onError(QAbstractSocket::SocketError ecode);
+	void onError(QAbstractSocket::SocketError eCode);
 	void onReadData();
 
 private:
-	ConnectWidget* m_pConnectWidget;
 	QTcpSocket* m_pTcpSoc;
 	QString m_strMsg;
 	uint m_nUserId;
