@@ -2,6 +2,7 @@
 
 #include <logmodule/logdef.h>
 #include <boost/asio/socket_base.hpp>
+#include <boost/atomic.hpp>
 
 User::User(CommonBoost::IOServer& ioserver)
 {
@@ -62,9 +63,9 @@ void User::onAyncRead(
 		return;
 	}
 	
-	static int count = 1;
-	LOG_GATESERVER.printLog("read msg:[%s],count[%d]", m_readBuffer, count);
+	static boost::atomic<int> count = 0;
 	++count;
+	LOG_GATESERVER.printLog("read msg:[%s],count[%d]", m_readBuffer, count.load());
 
 	std::string sendMsg = "halo ,i'm gateserver";
 	ayncSend(sendMsg.data(), sendMsg.size());
