@@ -3,6 +3,7 @@
 
 #include <servercommon/boostcommondef/basedef.h>
 #include <servercommon/basedef.h>
+#include <boost/atomic.hpp>
 
 namespace UserBuffer
 {
@@ -32,6 +33,7 @@ HANDLER:
 private:
 	CommonBoost::SocketPtr m_pSocket;
 	char m_readBuffer[UserBuffer::g_nReadBufferSize];
+ 	boost::atomic<int> m_msgCount;
 };
 
 #endif // !__USER_H__

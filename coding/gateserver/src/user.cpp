@@ -2,9 +2,10 @@
 
 #include <logmodule/logdef.h>
 #include <boost/asio/socket_base.hpp>
-#include <boost/atomic.hpp>
+
 
 User::User(CommonBoost::IOServer& ioserver)
+  : m_msgCount(0)
 {
 	memset(m_readBuffer, 0, sizeof(m_readBuffer));
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
@@ -63,9 +64,8 @@ void User::onAyncRead(
 		return;
 	}
 	
-	static boost::atomic<int> count = 0;
-	++count;
-	LOG_GATESERVER.printLog("read msg:[%s],count[%d]", m_readBuffer, count.load());
+	++m_msgCount;
+	LOG_GATESERVER.printLog("read msg:[%s],count[%d]", m_readBuffer, m_msgCount.load());
 
 	std::string sendMsg = "halo ,i'm gateserver";
 	ayncSend(sendMsg.data(), sendMsg.size());
