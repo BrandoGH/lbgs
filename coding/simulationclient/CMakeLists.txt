@@ -9,12 +9,6 @@ main.cpp
 
 )
 
-#qt5
-set(Qt5_INCLUDE_DIR ${3RD_QT5_PATH})
-set(Qt5_DIR ${LBGS_ROOT_DIR}/3rd/x64-windows/share/cmake/Qt5)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-
 #工程目录和文件目录一致
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
 

@@ -58,6 +58,13 @@ add_subdirectory(./gateserver)
 #param传入 导入模拟客户端工程
 if (WIN32)
 	if(OPEN_SIMULATION_CLIENT)
+		
+		#qt5
+		set(Qt5_INCLUDE_DIR ${3RD_QT5_PATH})
+		set(Qt5_DIR ${LBGS_ROOT_DIR}/3rd/x64-windows/share/cmake/Qt5)
+		set(CMAKE_AUTOMOC ON)
+		set(CMAKE_AUTOUIC ON)
+
 		set(3RD_QT5_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/include/qt5)
 
 		add_subdirectory(./simulationclient)
