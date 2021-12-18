@@ -28,6 +28,9 @@ private:
 	void accept();
 	void initData();
 
+SLOTS:
+	void onUserError(const std::string& ip, ushort port);
+
 HANDLER:
 	void onAcceptHandler(
 		const CommonBoost::ErrorCode& err,

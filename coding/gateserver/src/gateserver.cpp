@@ -88,6 +88,7 @@ void GateServer::accept()
 	}
 
 	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server);
+	newUser->slotConnect(this, "GateServer");
 	m_pAcceptor->async_accept(*(newUser->getSocket()), BIND(&GateServer::onAcceptHandler, this, boost::placeholders::_1, newUser));
 }
 
@@ -100,6 +101,15 @@ void GateServer::initData()
 	m_pAcceptor = NULL;
 	m_nConnectCount = 0;
 	m_nPort = 0;
+}
+
+void GateServer::onUserError(const std::string& ip, ushort port)
+{
+	--m_nConnectCount;
+	LOG_GATESERVER.printLog("client[%s : %d] closed,current connect[%d]",
+		ip.data(), port, m_nConnectCount.load()
+		);
+
 }
 
 void GateServer::onThreadRunAcceptorIOServer()

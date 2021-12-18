@@ -2,6 +2,7 @@
 #define __USER_H__
 
 #include <servercommon/boostmodule/basedef.h>
+#include <servercommon/boostmodule/signalcommunication.h>
 #include <servercommon/basedef.h>
 
 namespace UserBuffer
@@ -9,7 +10,8 @@ namespace UserBuffer
 	const int g_nReadBufferSize = 1024 * 50;	// 每次读取最多50K	
 }
 
-class User : public boost::enable_shared_from_this<User>
+class GateServer;
+class User : public boost::enable_shared_from_this<User> ,public SignalSender
 {
 public:
 	User(CommonBoost::IOServer& ioserver);
@@ -20,6 +22,11 @@ public:
 	CommonBoost::SocketPtr& getSocket();
 	const std::string getLinkIP();
 	ushort getLinkPort();
+
+SIGNALS:
+	virtual int slotConnect(void* receiver, const std::string& className);
+
+	DEFINE_SIGNAL(void(const std::string&, ushort), sigError);
 
 HANDLER:
 	void onAyncRead(

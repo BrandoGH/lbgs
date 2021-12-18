@@ -37,6 +37,8 @@ add_definitions(
 
 #common
 -DHANDLER=private
+-DSIGNALS=public
+-DSLOTS=public
 )
 
 message("----- If you wanna re-cmake,please delete[${LBGS_ROOT_DIR}/build/CMakeCache.txt],otherwise the result may be incorrect")

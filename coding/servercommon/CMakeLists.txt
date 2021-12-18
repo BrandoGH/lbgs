@@ -1,6 +1,7 @@
 ﻿set(CODE_FILE 
 ./basedef.h
 ./boostmodule/basedef.h
+./boostmodule/signalcommunication.h
 ./logmodule/log.h
 ./logmodule/log.cpp
 ./logmodule/logdef.h
