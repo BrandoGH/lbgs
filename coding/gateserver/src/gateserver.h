@@ -3,7 +3,7 @@
 
 #include "user.h"
 
-#include <boostcommondef/basedef.h>
+#include <boostmodule/basedef.h>
 #include <boost/atomic.hpp>
 #include <vector>
 

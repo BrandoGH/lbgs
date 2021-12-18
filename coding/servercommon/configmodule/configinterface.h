@@ -1,7 +1,7 @@
 #ifndef __CONFIG_INTERFACE_H__
 #define __CONFIG_INTERFACE_H__
 
-#include "boostcommondef/basedef.h"
+#include "boostmodule/basedef.h"
 
 #include <logmodule/logdef.h>
 

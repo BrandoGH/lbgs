@@ -1,6 +1,6 @@
 #include "connectwidget.h"
 #include "user.h"
-#include "servercommon/boostcommondef/basedef.h"
+#include "servercommon/boostmodule/basedef.h"
 
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QHBoxLayout>

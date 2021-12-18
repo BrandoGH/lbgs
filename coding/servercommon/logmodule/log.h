@@ -1,7 +1,7 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#include "boostcommondef/basedef.h"
+#include "boostmodule/basedef.h"
 #include "basedef.h"
 
 /************************************************************************/

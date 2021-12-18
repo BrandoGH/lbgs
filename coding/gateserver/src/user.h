@@ -1,7 +1,7 @@
 #ifndef __USER_H__
 #define __USER_H__
 
-#include <servercommon/boostcommondef/basedef.h>
+#include <servercommon/boostmodule/basedef.h>
 #include <servercommon/basedef.h>
 
 namespace UserBuffer
