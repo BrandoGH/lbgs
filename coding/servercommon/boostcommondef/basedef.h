@@ -8,6 +8,8 @@
 #include <boost/asio/thread_pool.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/thread.hpp>
+#include <boost/asio/socket_base.hpp>
+
 
 #define READ_XML boost::property_tree::xml_parser::read_xml
 #define CAST_TO(type,value) boost::lexical_cast<type>((value))
@@ -28,6 +30,7 @@ typedef boost::asio::ip::tcp			TCP;
 typedef boost::asio::ip::tcp::acceptor	Acceptor;
 typedef boost::asio::ip::tcp::socket	Socket;
 typedef boost::asio::ip::tcp::endpoint	Endpoint;
+typedef boost::asio::ip::tcp::no_delay	NoDelay;
 
 // thread
 typedef boost::thread						Thread;

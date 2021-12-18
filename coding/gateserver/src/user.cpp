@@ -1,18 +1,16 @@
 #include "user.h"
 
 #include <logmodule/logdef.h>
-#include <boost/asio/socket_base.hpp>
 
 
 User::User(CommonBoost::IOServer& ioserver)
-  : m_msgCount(0)
 {
 	memset(m_readBuffer, 0, sizeof(m_readBuffer));
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
 	assert(m_pSocket != NULL);
 
 	CommonBoost::ErrorCode ec;
-	boost::asio::ip::tcp::no_delay no_delay(true);
+	CommonBoost::NoDelay no_delay(true);
 	m_pSocket->set_option(no_delay, ec);
 	m_pSocket->set_option(boost::asio::socket_base::linger(true, 0), ec);
 	m_pSocket->set_option(boost::asio::socket_base::reuse_address(true), ec);
@@ -64,9 +62,6 @@ void User::onAyncRead(
 		return;
 	}
 	
-	++m_msgCount;
-	LOG_GATESERVER.printLog("read msg:[%s],count[%d]", m_readBuffer, m_msgCount.load());
-
 	std::string sendMsg = "halo ,i'm gateserver";
 	ayncSend(sendMsg.data(), sendMsg.size());
 
@@ -77,6 +72,16 @@ void User::onAyncRead(
 CommonBoost::SocketPtr & User::getSocket()
 {
 	return m_pSocket;
+}
+
+const std::string User::getLinkIP()
+{
+	return m_pSocket->remote_endpoint().address().to_string();
+}
+
+ushort User::getLinkPort()
+{
+	return m_pSocket->remote_endpoint().port();
 }
 
 void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)

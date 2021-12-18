@@ -18,6 +18,7 @@ GateServer::GateServer()
 	: m_pCfgInfo(CONFIG_MGR->GetGateServerConfig()->getConfigInfo())
 
 {
+	m_nInitMode = INIT_GATESERVER_VOID;
 	initData();
 	if (CONFIG_MGR->GetGateServerConfig() &&
 		m_pCfgInfo
@@ -35,7 +36,8 @@ GateServer::GateServer()
 
 GateServer::GateServer(int port)
 {
-	initData2();
+	m_nInitMode = INIT_GATESERVER_INT;
+	initData();
 	m_nPort = port;
 	m_pAcceptor = new CommonBoost::Acceptor(
 		m_server,
@@ -87,21 +89,15 @@ void GateServer::accept()
 
 	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server);
 	m_pAcceptor->async_accept(*(newUser->getSocket()), BIND(&GateServer::onAcceptHandler, this, boost::placeholders::_1, newUser));
-	LOG_GATESERVER.printLog("new user has create");
-
 }
 
 void GateServer::initData()
 {
+	if (m_nInitMode == INIT_GATESERVER_INT)
+	{
+		m_pCfgInfo = NULL;
+	}
 	m_pAcceptor = NULL;
-	m_nConnectCount = 0;
-	m_nPort = 0;
-}
-
-void GateServer::initData2()
-{
-	m_pAcceptor = NULL;
-	m_pCfgInfo = NULL;
 	m_nConnectCount = 0;
 	m_nPort = 0;
 }
@@ -129,10 +125,14 @@ void GateServer::onAcceptHandler(
 		return;
 	}
 
-	++m_nConnectCount;
-	LOG_GATESERVER.printLog("new client connect succ,count[%d]", m_nConnectCount.load());
-
 	user->ayncRead();
+
+	++m_nConnectCount;
+	LOG_GATESERVER.printLog("new client[%s : %d] connect succ, client has link count[%d]",
+		user->getLinkIP().data(),
+		user->getLinkPort(),
+		m_nConnectCount.load());
+
 	accept();
 }
 

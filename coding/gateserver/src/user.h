@@ -3,7 +3,6 @@
 
 #include <servercommon/boostcommondef/basedef.h>
 #include <servercommon/basedef.h>
-#include <boost/atomic.hpp>
 
 namespace UserBuffer
 {
@@ -19,6 +18,8 @@ public:
 	void ayncRead();
 	void ayncSend(const char* str, uint size);
 	CommonBoost::SocketPtr& getSocket();
+	const std::string getLinkIP();
+	ushort getLinkPort();
 
 HANDLER:
 	void onAyncRead(
@@ -33,7 +34,6 @@ HANDLER:
 private:
 	CommonBoost::SocketPtr m_pSocket;
 	char m_readBuffer[UserBuffer::g_nReadBufferSize];
- 	boost::atomic<int> m_msgCount;
 };
 
 #endif // !__USER_H__

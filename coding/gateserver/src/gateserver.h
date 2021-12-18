@@ -11,6 +11,13 @@ struct ConfigInfo;
 class GateServer
 {
 public:
+	enum EnInitMode
+	{
+		INIT_GATESERVER_VOID,
+		INIT_GATESERVER_INT,
+	};
+
+public:
 	GateServer();
 	GateServer(int port);
 	~GateServer();
@@ -20,7 +27,6 @@ public:
 private:
 	void accept();
 	void initData();
-	void initData2();
 
 HANDLER:
 	void onAcceptHandler(
@@ -35,6 +41,7 @@ private:
 	const ConfigInfo* m_pCfgInfo;
 	boost::atomic<int> m_nConnectCount;
 	int m_nPort;
+	char m_nInitMode;
 };
 
 #endif
