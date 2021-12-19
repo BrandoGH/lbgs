@@ -144,7 +144,7 @@ void LogModule::printLog(const char * format, ...)
 #ifdef WIN_OS
 	printf("%s\n", m_logString.data());
 
-#else LINUX_OS
+#elif LINUX_OS
 	switch (m_level)
 	{
 	case LV_INFO:
