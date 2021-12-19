@@ -60,7 +60,7 @@ GateServer::~GateServer()
 void GateServer::start()
 {
 	LOG_GATESERVER.printLog("gateserver has start,run sub thread count[%d]", CPU_MAX_THREAD - 1);
-	printf("----------------------gateserver has start,port[%d],max link count[%d]----------------------\n",
+	LOG_GATESERVER.printLog("gateserver has start,port[%d],max link count[%d]",
 		m_nPort, 
 		g_nConnectMaxCount
 	);
