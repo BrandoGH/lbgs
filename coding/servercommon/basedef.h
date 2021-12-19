@@ -22,7 +22,7 @@
 #define PROCESS_ID getpid()
 #endif
 
-typedef unsigned char			uchar;
+typedef unsigned char			uchar,	byte;
 typedef unsigned short			ushort;
 typedef unsigned int			uint;
 typedef unsigned long			ulong;
