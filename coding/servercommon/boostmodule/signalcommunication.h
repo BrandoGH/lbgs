@@ -16,7 +16,7 @@ public:
 
 public:
 	template<class ReceiveType>
-	int slotConnect(ReceiveType* receiver) {}
+	int slotConnect(ReceiveType* receiver) { return SignalSender::CONNECT_OK; }
 };
 
 #endif // !__SIGNAL_COMMUNICATION_H__
