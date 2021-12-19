@@ -141,6 +141,10 @@ void LogModule::printLog(const char * format, ...)
 	m_logString.clear();
 	m_logString.append(m_strPrintHeader).append(m_strPrintCont);
 
+#ifdef WIN_OS
+	printf("%s\n", m_logString.data());
+
+#else LINUX_OS
 	switch (m_level)
 	{
 	case LV_INFO:
@@ -157,5 +161,5 @@ void LogModule::printLog(const char * format, ...)
 	}
 
 	m_pLog->flush();
-
+#endif
 }
