@@ -14,6 +14,11 @@
 #endif
 
 #define TO_STRING(param) #param
+#define DEFINE_BYTE_ARRAY(name,len)	\
+	char name[len];					\
+	memset(name,0,len)
+
+
 #ifdef WIN_OS
 #define THREAD_ID GetCurrentThreadId()
 #define PROCESS_ID GetCurrentProcessId()

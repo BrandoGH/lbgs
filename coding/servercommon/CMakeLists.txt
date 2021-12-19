@@ -12,7 +12,10 @@
 ./sysinfomodule/sysinfo.h
 ./sysinfomodule/sysinfo.cpp
 ./msgmodule/msgcommondef.h
-
+./commontool/commontool.h
+./commontool/commontool.cpp
+./commontool/msgtool/msgtool.h
+./commontool/msgtool/msgtool.cpp
 )
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
