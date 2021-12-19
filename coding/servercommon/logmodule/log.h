@@ -1,9 +1,6 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#include "boostmodule/basedef.h"
-#include "basedef.h"
-
 /************************************************************************/
 /* 日志模块
 /* 注意：每次调用前，先调用setLogHeader()函数，保证记录到局部信息：文件名，函数名，函数等
@@ -13,6 +10,9 @@
 	2.在logdef.h 里可以定义宏来简化
 
 /************************************************************************/
+
+#include "boostmodule/basedef.h"
+#include "basedef.h"
 
 namespace
 {
