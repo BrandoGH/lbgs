@@ -55,6 +55,12 @@ add_definitions(
 -DSLOTS=public
 )
 
+#是否开启调试日志，如果开启，日志将在屏幕打出
+if(ENABLE_DEBUG_LOG)
+	add_definitions(-DDLOG)
+	message("-- ENABLE_DEBUG_LOG : ${ENABLE_DEBUG_LOG}")
+endif()
+
 message("-- If you wanna re-cmake,please delete[${LBGS_ROOT_DIR}/build/CMakeCache.txt],otherwise the result may be incorrect")
 message("-- Please make sure you first compile the dependency library in compilation project")
 message("-- you can set add_subdirectory order")
@@ -90,4 +96,3 @@ if (WIN32)
 		message("-- OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
 	endif()
 endif()
-

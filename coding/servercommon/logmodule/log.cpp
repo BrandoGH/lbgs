@@ -141,10 +141,10 @@ void LogModule::printLog(const char * format, ...)
 	m_logString.clear();
 	m_logString.append(m_strPrintHeader).append(m_strPrintCont);
 
-#ifdef WIN_OS
+#ifdef DLOG
 	printf("%s\n", m_logString.data());
 
-#elif LINUX_OS
+#else
 	switch (m_level)
 	{
 	case LV_INFO:
