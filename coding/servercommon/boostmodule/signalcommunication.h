@@ -15,7 +15,8 @@ public:
 	};
 
 public:
-	virtual int slotConnect(void* receiver, const std::string& className) = 0;
+	template<class ReceiveType>
+	int slotConnect(ReceiveType* receiver) {}
 };
 
 #endif // !__SIGNAL_COMMUNICATION_H__

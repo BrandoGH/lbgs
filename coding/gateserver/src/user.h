@@ -4,6 +4,8 @@
 #include <servercommon/boostmodule/basedef.h>
 #include <servercommon/boostmodule/signalcommunication.h>
 #include <servercommon/basedef.h>
+#include <logmodule/logdef.h>
+
 
 namespace UserBuffer
 {
@@ -24,7 +26,23 @@ public:
 	ushort getLinkPort();
 
 SIGNALS:
-	virtual int slotConnect(void* receiver, const std::string& className);
+	template<class ReceiveType>
+	int slotConnect(ReceiveType* receiver)
+	{
+		if (!receiver)
+		{
+			LOG_GATESERVER.printLog("receiver == NULL, connect slot error!");
+			return SignalSender::CONNECT_ERROR;
+		}
+		
+		sigError.connect(BIND(
+			&ReceiveType::onUserError,
+			(ReceiveType*)receiver,
+			boost::placeholders::_1,
+			boost::placeholders::_2));
+
+		return SignalSender::CONNECT_OK;
+	}
 
 	DEFINE_SIGNAL(void(const std::string&, ushort), sigError);
 

@@ -88,7 +88,7 @@ void GateServer::accept()
 	}
 
 	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server);
-	newUser->slotConnect(this, "GateServer");
+	newUser->slotConnect(this);
 	m_pAcceptor->async_accept(*(newUser->getSocket()), BIND(&GateServer::onAcceptHandler, this, boost::placeholders::_1, newUser));
 }
 

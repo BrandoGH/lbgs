@@ -1,8 +1,6 @@
 #include "user.h"
 #include "gateserver.h"
 
-#include <logmodule/logdef.h>
-
 
 User::User(CommonBoost::IOServer& ioserver)
 {
@@ -85,25 +83,6 @@ const std::string User::getLinkIP()
 ushort User::getLinkPort()
 {
 	return m_pSocket->remote_endpoint().port();
-}
-
-int User::slotConnect(void* receiver, const std::string& className)
-{
-	if (!receiver)
-	{
-		LOG_GATESERVER.printLog("receiver == NULL, connect slot error!");
-		return SignalSender::CONNECT_ERROR;
-	}
-	if (className == "GateServer")
-	{
-		sigError.connect(BIND(
-			&GateServer::onUserError, 
-			(GateServer*)receiver, 
-			boost::placeholders::_1,
-			boost::placeholders::_2));
-	}
-
-	return SignalSender::CONNECT_OK;
 }
 
 void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)
