@@ -11,6 +11,8 @@
 ./configmodule/configmanager.cpp
 ./sysinfomodule/sysinfo.h
 ./sysinfomodule/sysinfo.cpp
+./msgmodule/msgcommondef.h
+
 )
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
