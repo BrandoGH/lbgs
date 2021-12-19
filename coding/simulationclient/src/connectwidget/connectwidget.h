@@ -7,10 +7,8 @@
 #include <QtCore/QRunnable>
 #include <QtCore/QObject>
 
-class QHBoxLayout;
 class QLineEdit;
 class QPushButton;
-class QVBoxLayout;
 class QPlainTextEdit;
 class User;
 
@@ -45,8 +43,6 @@ private slots:
 	void onReadData(uint userId, const QString& data);
 
 private:
-	QVBoxLayout* m_pMainVLayout;
-	QHBoxLayout* m_pHLayout;
 	QLineEdit* m_pEditIP;
 	QLineEdit* m_pEditPort;
 	QLineEdit* m_pEditConnectCount;

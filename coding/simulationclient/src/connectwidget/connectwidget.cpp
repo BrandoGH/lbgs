@@ -48,16 +48,16 @@ uint ConnectWidget::getConnectCount()
 
 void ConnectWidget::initUi()
 {
-	m_pMainVLayout = new QVBoxLayout(this);
+	QVBoxLayout* mainVLayout = new QVBoxLayout(this);
 	{
-		m_pHLayout = new QHBoxLayout(this);
+		QHBoxLayout* hLayout = new QHBoxLayout(this);
 		{
 			m_pEditIP = new QLineEdit(this);
 			m_pEditPort = new QLineEdit(this);
 			m_pEditConnectCount = new QLineEdit(this);
 			m_pConnectBt = new QPushButton("connect all", this);
 			m_pDisConnectBt = new QPushButton("disconnect", this);
-			m_pSendDataBt = new QPushButton("send data", this);
+			m_pSendDataBt = new QPushButton("send string data", this);
 			m_pClearLogBt = new QPushButton("clear log", this);
 
 			m_pDisConnectBt->setEnabled(false);
@@ -68,27 +68,29 @@ void ConnectWidget::initUi()
 			m_pEditPort->setText("4510");
 			m_pEditConnectCount->setPlaceholderText("connect count");
 			m_pEditConnectCount->setText("1");
+
+			hLayout->addWidget(m_pEditIP);
+			hLayout->addWidget(m_pEditPort);
+			hLayout->addWidget(m_pEditConnectCount);
+			hLayout->addWidget(m_pConnectBt);
+			hLayout->addWidget(m_pDisConnectBt);
+			hLayout->addWidget(m_pSendDataBt);
+			hLayout->addWidget(m_pClearLogBt);
 		}
-		m_pHLayout->addWidget(m_pEditIP);
-		m_pHLayout->addWidget(m_pEditPort);
-		m_pHLayout->addWidget(m_pEditConnectCount);
-		m_pHLayout->addWidget(m_pConnectBt);
-		m_pHLayout->addWidget(m_pDisConnectBt);
-		m_pHLayout->addWidget(m_pSendDataBt);
-		m_pHLayout->addWidget(m_pClearLogBt);
+		
 
 		m_pMsgPlantText = new QPlainTextEdit(this);
 		m_pMsgPlantText->setPlainText("test msg");
 		m_pLogPlantText = new QPlainTextEdit(this);
 		m_pLogPlantText->setReadOnly(true);
+
+		mainVLayout->addLayout(hLayout);
+		mainVLayout->addWidget(m_pMsgPlantText);
+		mainVLayout->addWidget(m_pLogPlantText);
 	}
 	
 
-	m_pMainVLayout->addLayout(m_pHLayout);
-	m_pMainVLayout->addWidget(m_pMsgPlantText);
-	m_pMainVLayout->addWidget(m_pLogPlantText);
-
-	setLayout(m_pMainVLayout);
+	setLayout(mainVLayout);
 
 	connect(m_pConnectBt, SIGNAL(clicked(bool)), this, SLOT(onConnectBtClicked(bool)));
 	connect(m_pDisConnectBt, SIGNAL(clicked(bool)), this, SLOT(onDisConnectBtClicked(bool)));
