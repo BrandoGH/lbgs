@@ -54,22 +54,22 @@ add_definitions(
 -DSLOTS=public
 )
 
-message("----- If you wanna re-cmake,please delete[${LBGS_ROOT_DIR}/build/CMakeCache.txt],otherwise the result may be incorrect")
-message("---------------Please make sure you first compile the dependency library in compilation project---------------")
-message("---------------you can set add_subdirectory order---------------")
-message("CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}")
-message("LBGS_ROOT_DIR : ${LBGS_ROOT_DIR}")
-message("3RD_PATH : ${3RD_PATH}")
-message("STATIC_RC_LIB_PATH_3RD : ${STATIC_RC_LIB_PATH_3RD}")
-message("SHARED_RC_LIB_PATH_3RD : ${SHARED_RC_LIB_PATH_3RD}")
-message("EXE_DIR : ${EXE_DIR}")
-message("CONFIG_BASE_DIR : ${CONFIG_BASE_DIR}")
-message("LIBRARY_OUTPUT_PATH_BASE_DIR : ${LIBRARY_OUTPUT_PATH_BASE_DIR}")
-message("CMAKE_CXX_FLAGS_RELEASE : ${CMAKE_CXX_FLAGS_RELEASE}")
-message("CMAKE_EXE_LINKER_FLAGS_RELEASE : ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
-message("CMAKE_SHARED_LINKER_FLAGS_RELEASE : ${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
+message("-- If you wanna re-cmake,please delete[${LBGS_ROOT_DIR}/build/CMakeCache.txt],otherwise the result may be incorrect")
+message("-- Please make sure you first compile the dependency library in compilation project")
+message("-- you can set add_subdirectory order")
+message("-- CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}")
+message("-- LBGS_ROOT_DIR : ${LBGS_ROOT_DIR}")
+message("-- 3RD_PATH : ${3RD_PATH}")
+message("-- STATIC_RC_LIB_PATH_3RD : ${STATIC_RC_LIB_PATH_3RD}")
+message("-- SHARED_RC_LIB_PATH_3RD : ${SHARED_RC_LIB_PATH_3RD}")
+message("-- EXE_DIR : ${EXE_DIR}")
+message("-- CONFIG_BASE_DIR : ${CONFIG_BASE_DIR}")
+message("-- LIBRARY_OUTPUT_PATH_BASE_DIR : ${LIBRARY_OUTPUT_PATH_BASE_DIR}")
+message("-- CMAKE_CXX_FLAGS_RELEASE : ${CMAKE_CXX_FLAGS_RELEASE}")
+message("-- CMAKE_EXE_LINKER_FLAGS_RELEASE : ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
+message("-- CMAKE_SHARED_LINKER_FLAGS_RELEASE : ${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
 
-
+#顺序比较重要，先编译通用库
 add_subdirectory(./servercommon)
 add_subdirectory(./gateserver)
 
@@ -86,7 +86,7 @@ if (WIN32)
 		set(3RD_QT5_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/include/qt5)
 
 		add_subdirectory(./simulationclient)
-		message("OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
+		message("-- OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
 	endif()
 endif()
 

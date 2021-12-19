@@ -34,7 +34,7 @@ ${CODE_FILE}
 
 find_package(Qt5 COMPONENTS core widgets gui network)
 if(!Qt5_FOUND)
-	message("Qt5 found fail!!")
+	message("-- Qt5 found fail!!")
 endif()
 
 
@@ -58,13 +58,13 @@ foreach(
 	if(EXISTS ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll)
 		file(COPY ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll DESTINATION ${EXE_DIR})
 	else()
-		message("${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll not found")
+		message("-- ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll not found")
 	endif()
 
 	if(EXISTS ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb)
 		file(COPY ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb DESTINATION ${EXE_DIR})
 	else()
-		message("${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb not found")
+		message("-- ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb not found")
 	endif()
 endforeach()
 
