@@ -15,16 +15,13 @@ namespace
 using CommonBoost::Endpoint;
 using CommonBoost::TCP;
 GateServer::GateServer()
-	: m_pCfgInfo(CONFIG_MGR->GetGateServerConfig()->getConfigInfo())
 
 {
-	m_nInitMode = INIT_GATESERVER_VOID;
 	initData();
-	if (CONFIG_MGR->GetGateServerConfig() &&
-		m_pCfgInfo
-		)
+	const ConfigInfo* pCfgInfo = CONFIG_MGR->GetGateServerConfig()->getConfigInfo();
+	if (CONFIG_MGR->GetGateServerConfig() && pCfgInfo)
 	{
-		m_nPort = m_pCfgInfo->port;
+		m_nPort = pCfgInfo->port;
 		m_pAcceptor = new CommonBoost::Acceptor(
 			m_server,
 			CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
@@ -36,7 +33,6 @@ GateServer::GateServer()
 
 GateServer::GateServer(int port)
 {
-	m_nInitMode = INIT_GATESERVER_INT;
 	initData();
 	m_nPort = port;
 	m_pAcceptor = new CommonBoost::Acceptor(
@@ -94,10 +90,6 @@ void GateServer::accept()
 
 void GateServer::initData()
 {
-	if (m_nInitMode == INIT_GATESERVER_INT)
-	{
-		m_pCfgInfo = NULL;
-	}
 	m_pAcceptor = NULL;
 	m_nConnectCount = 0;
 	m_nPort = 0;
