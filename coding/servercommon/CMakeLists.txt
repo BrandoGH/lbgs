@@ -18,10 +18,12 @@
 ./commontool/msgtool/msgtool.cpp
 )
 
+set(LIB_NAME servercommon)
+
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
 
 #输出路径设置
-set(LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_BASE_DIR}/servercommon)
+set(LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_BASE_DIR}/${LIB_NAME})
 
 #附加目录 头文件查找
 include_directories(
@@ -37,41 +39,20 @@ link_directories(
 	${SERVERCOMMON_LIB}
 )
 
-add_library(servercommon STATIC 
+add_library(${LIB_NAME} STATIC 
 	${CODE_FILE}
 )
 
 if (WIN32)
-	#link shared lib
-	foreach(
-	shared_name
-	spdlog
-	fmt
-	)
-		if(EXISTS ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll)
-			file(COPY ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll DESTINATION ${EXE_DIR})
-		else()
-			message("-- ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll not found")
-		endif()
-
-		if(EXISTS ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb)
-			file(COPY ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb DESTINATION ${EXE_DIR})
-		else()
-			message("-- ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb not found")
-		endif()
-	endforeach()
-
 	#link static lib
-	target_link_libraries(servercommon 
-	boost_thread-vc140-mt
-	#log
+	target_link_libraries(${LIB_NAME} 
 	spdlog
 	fmt
 	)
 
 elseif(UNIX)
 	#link static lib
-	target_link_libraries(servercommon 
+	target_link_libraries(${LIB_NAME} 
 	libspdlog.a
 	libfmt.a
 	)

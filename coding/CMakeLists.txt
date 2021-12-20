@@ -96,3 +96,11 @@ if (WIN32)
 		message("-- OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
 	endif()
 endif()
+
+#copy dll 到二进制执行文件
+if (WIN32)
+	#拷贝需要的动态库到可执行文件夹下
+	file(GLOB DLL_PATH ${SHARED_RC_LIB_PATH_3RD}/*)
+	file(COPY ${DLL_PATH} DESTINATION ${EXE_DIR})
+	message("-- windows mode: 3rd dll has copy to ${EXE_DIR}")
+endif()

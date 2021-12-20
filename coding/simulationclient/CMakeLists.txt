@@ -9,6 +9,8 @@ main.cpp
 
 )
 
+set(BIN_NAME simulationclient)
+
 #工程目录和文件目录一致
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
 
@@ -28,7 +30,7 @@ link_directories(
 	${SERVERCOMMON_LIB}
 )
 
-add_executable(simulationclient 
+add_executable(${BIN_NAME} 
 ${CODE_FILE}
 )
 
@@ -37,39 +39,8 @@ if(!Qt5_FOUND)
 	message("-- Qt5 found fail!!")
 endif()
 
-
-#link shared lib
-foreach(
-	shared_name
-	Qt5Core
-	Qt5Widgets
-	Qt5Gui
-	icuin69
-	harfbuzz
-	icuuc69
-	pcre2-16
-	zstd
-	freetype
-	icudt69
-	bz2
-	brotlidec
-	brotlicommon
-)
-	if(EXISTS ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll)
-		file(COPY ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll DESTINATION ${EXE_DIR})
-	else()
-		message("-- ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.dll not found")
-	endif()
-
-	if(EXISTS ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb)
-		file(COPY ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb DESTINATION ${EXE_DIR})
-	else()
-		message("-- ${SHARED_RC_LIB_PATH_3RD}/${shared_name}.pdb not found")
-	endif()
-endforeach()
-
 #link static lib
-target_link_libraries(simulationclient
+target_link_libraries(${BIN_NAME} 
 	servercommon
 	#qt5
 	Qt5core
