@@ -1,0 +1,1 @@
+cmake -S "./" -B "../build" -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DENABLE_DEBUG_LOG=ON -DOPEN_SIMULATION_CLIENT=ON %*

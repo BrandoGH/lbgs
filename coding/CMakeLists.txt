@@ -1,46 +1,73 @@
 cmake_minimum_required (VERSION 3.20)
 
-project (lbgs)
+set(PROJECT_NAME lbgs)
+project (${PROJECT_NAME})
+
+message("-- current system info: ${CMAKE_SYSTEM_NAME} : ${CMAKE_SYSTEM_VERSION}")
+
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-#common
-set(LBGS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+#cmake 参数设置的自定义变量
+#{  -- start
+#通用
+#ENABLE_DEBUG_LOG		ON/OFF			是否开启调试日志，如果开启，日志将在屏幕打出
+
+#windows
+#OPEN_SIMULATION_CLIENT		ON/OFF		是否导入模拟客户端工程
+
+#linux
+#ENABLE_DEBUG_MODE			ON/OFF		是否开启可调式模式
+#}  -- end
+
+#common cmake
 set(CMAKE_BUILD_TYPE Release)
 SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE) #不加这个CMAKE_BUILD_TYPE不起作用
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(LBGS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(EXECUTABLE_OUTPUT_PATH ${LBGS_ROOT_DIR}/build/exe)		#二进制执行文件生成路径[所有服务器生成的文件都放一起]
 set(LIBRARY_OUTPUT_PATH_BASE_DIR ${LBGS_ROOT_DIR}/build/library) #库生成根路径
 set(CONFIG_BASE_DIR ${LBGS_ROOT_DIR}/config/)
 
 if (WIN32)
+	message("-- MSVC_VERSION : ${MSVC_VERSION}")
 	add_definitions(-DWIN_OS)
-	#visual studio优化选项，release也可调试【本质上复用了relwithdebinfo的值】【win 开发机应该调试】
-	set(CMAKE_CXX_FLAGS_RELEASE "-Zi -Od -Ob1 -DNDEBUG")
-	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
-	set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}")
+	#visual studio优化选项，release也可调试【本质上复用了relwithdebinfo的值】【win 开发机默认可调试】
+	#如果是 visual studio 2022 添加代码可热更选项
+	if(MSVC_VERSION EQUAL 1930)
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} /ZI /JMC")
+		message("-- visual studio version is 2022, support hot reload !!")
+	else()
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG}")
+	endif()
+	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+	set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+
 	set(EXE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
 	set(3RD_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/include)
 	set(SERVERCOMMON_LIB ${LBGS_ROOT_DIR}/build/library/servercommon/${CMAKE_BUILD_TYPE})
 	set(STATIC_RC_LIB_PATH_3RD ${LBGS_ROOT_DIR}/3rd/x64-windows/lib)
 	set(SHARED_RC_LIB_PATH_3RD ${LBGS_ROOT_DIR}/3rd/x64-windows/bin)
+
+	#拷贝需要的动态库到可执行文件夹下【只适用于windows】
+	file(GLOB DLL_PATH ${SHARED_RC_LIB_PATH_3RD}/*)
+	file(COPY ${DLL_PATH} DESTINATION ${EXE_DIR})
+	message("-- 3rd dll has copy to ${EXE_DIR}")
 elseif(UNIX)
 	add_definitions(-DLINUX_OS)
+	#服务器按需设置,开启debug可调试，默认最大优化
+	if(ENABLE_DEBUG_MODE)
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG}")
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+		set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+    endif()
+	message("-- LINUX_LBGS_ENABLE_DEBUG_MODE : ${ENABLE_DEBUG_MODE}")
+
 	set(EXE_DIR ${EXECUTABLE_OUTPUT_PATH})
 	set(3RD_PATH ${LBGS_ROOT_DIR}/3rd/x64-linux/include)
 	set(SERVERCOMMON_LIB ${LBGS_ROOT_DIR}/build/library/servercommon)
 	set(STATIC_RC_LIB_PATH_3RD ${LBGS_ROOT_DIR}/3rd/x64-linux/lib)
-
-	#服务器按需设置,开启debug可调试，默认最大优化
-	if(ENABLE_DEBUG_MODE)
-		set(CMAKE_CXX_FLAGS_RELEASE "-Og -DNDEBUG -g") # 默认release O3最大优化，调试Og禁用
-		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
-		set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}")
-		message("-- ENABLE_DEBUG_MODE : ${ENABLE_DEBUG_MODE}")
-    endif()
-
-	
 endif()
 
 #宏定义
@@ -55,7 +82,6 @@ add_definitions(
 -DSLOTS=public
 )
 
-#是否开启调试日志，如果开启，日志将在屏幕打出
 if(ENABLE_DEBUG_LOG)
 	add_definitions(-DDLOG)
 	message("-- ENABLE_DEBUG_LOG : ${ENABLE_DEBUG_LOG}")
@@ -95,12 +121,4 @@ if (WIN32)
 		add_subdirectory(./simulationclient)
 		message("-- OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
 	endif()
-endif()
-
-#copy dll 到二进制执行文件
-if (WIN32)
-	#拷贝需要的动态库到可执行文件夹下
-	file(GLOB DLL_PATH ${SHARED_RC_LIB_PATH_3RD}/*)
-	file(COPY ${DLL_PATH} DESTINATION ${EXE_DIR})
-	message("-- windows mode: 3rd dll has copy to ${EXE_DIR}")
 endif()
