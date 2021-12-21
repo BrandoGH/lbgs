@@ -84,8 +84,9 @@ add_definitions(
 
 if(ENABLE_DEBUG_LOG)
 	add_definitions(-DDLOG)
-	message("-- ENABLE_DEBUG_LOG : ${ENABLE_DEBUG_LOG}")
 endif()
+message("-- ENABLE_DEBUG_LOG : ${ENABLE_DEBUG_LOG}")
+
 
 message("-- If you wanna re-cmake,please delete[${LBGS_ROOT_DIR}/build/CMakeCache.txt],otherwise the result may be incorrect")
 message("-- Please make sure you first compile the dependency library in compilation project")
