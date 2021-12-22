@@ -33,7 +33,7 @@ set(CONFIG_BASE_DIR ${LBGS_ROOT_DIR}/config/)
 if (WIN32)
 	message("-- MSVC_VERSION : ${MSVC_VERSION}")
 	add_definitions(-DWIN_OS)
-	#visual studio优化选项，release也可调试【本质上复用了relwithdebinfo的值】【win 开发机默认可调试】
+	#visual studio优化选项，release也可调试【本质上复用了debug的值】【win 开发机默认可调试】
 	#如果是 visual studio 2022 添加代码可热更选项
 	if(MSVC_VERSION EQUAL 1930)
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} /ZI /JMC")

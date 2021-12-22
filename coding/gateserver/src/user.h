@@ -22,8 +22,9 @@ public:
 	void ayncRead();
 	void ayncSend(const char* str, uint size);
 	CommonBoost::SocketPtr& getSocket();
-	const std::string getLinkIP();
-	ushort getLinkPort();
+	void getLinkIP(std::string& outIp);
+	void getLinkPort(ushort& outPort);
+	void closeSocket();
 
 SIGNALS:
 	template<class ReceiveType>
@@ -44,7 +45,9 @@ SIGNALS:
 		return SignalSender::CONNECT_OK;
 	}
 
-	DEFINE_SIGNAL(void(const std::string&, ushort), sigError);
+	DEFINE_SIGNAL(void(
+		boost::shared_ptr<User>&,
+		const CommonBoost::ErrorCode&), sigError);
 
 HANDLER:
 	void onAyncRead(

@@ -85,6 +85,11 @@ void GateServer::accept()
 
 	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server);
 	newUser->slotConnect(this);
+	if (newUser->getSocket().get() == NULL)
+	{
+		LOG_GATESERVER.printLog("newUser->getSocket().get() == NULL");
+		return;
+	}
 	m_pAcceptor->async_accept(*(newUser->getSocket()), BIND(&GateServer::onAcceptHandler, this, boost::placeholders::_1, newUser));
 }
 
@@ -95,12 +100,49 @@ void GateServer::initData()
 	m_nPort = 0;
 }
 
-void GateServer::onUserError(const std::string& ip, ushort port)
+void GateServer::onUserError(
+	boost::shared_ptr<User>& user,
+	const CommonBoost::ErrorCode& ec)
 {
 	--m_nConnectCount;
-	LOG_GATESERVER.printLog("client[%s : %d] closed,current connect[%d]",
-		ip.data(), port, m_nConnectCount.load()
-		);
+	LOG_GATESERVER.printLog("current connect count: [%d]", m_nConnectCount.load());
+
+	std::string getIp;
+	ushort getPort = 0;
+
+	bool bUserValid = false;
+	if (user.get() != NULL)
+	{
+		bUserValid = true;
+		user->getLinkIP(getIp);
+		user->getLinkPort(getPort);
+	}
+
+	// 客户端正常关闭
+	if (ec.value() == GateServer::LOGOUT)
+	{
+		LOG_GATESERVER.printLog("client[%s : %d] closed",
+			getIp.data(), 
+			getPort);
+		return;
+	}
+	else
+	{
+		// 其他错误
+		if (bUserValid)
+		{
+			LOG_GATESERVER.printLog("client[%s : %d] error! ecode[%d],messages[%s]",
+				getIp.data(), 
+				getPort, 
+				ec.value(),
+				ec.message().data());
+		}
+		else
+		{
+			LOG_GATESERVER.printLog("ecode[%d],messages[%s]", ec.value(),ec.message().data());
+		}
+
+	}
 
 }
 
@@ -130,10 +172,19 @@ void GateServer::onAcceptHandler(
 	user->ayncRead();
 
 	++m_nConnectCount;
-	LOG_GATESERVER.printLog("new client[%s : %d] connect succ, client has link count[%d]",
-		user->getLinkIP().data(),
-		user->getLinkPort(),
-		m_nConnectCount.load());
+
+	std::string ip;
+	ushort port = 0;
+	user->getLinkIP(ip);
+	user->getLinkPort(port);
+	if (!ip.empty() && port != 0)
+	{
+		LOG_GATESERVER.printLog("new client[%s : %d] connect succ, client has link count[%d]",
+			ip.data(),
+			port,
+			m_nConnectCount.load());
+	}
+	
 
 	accept();
 }

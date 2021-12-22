@@ -7,18 +7,11 @@ User::User(CommonBoost::IOServer& ioserver)
 	memset(m_readBuffer, 0, sizeof(m_readBuffer));
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
 	assert(m_pSocket != NULL);
-
-	CommonBoost::ErrorCode ec;
-	CommonBoost::NoDelay no_delay(true);
-	m_pSocket->set_option(no_delay, ec);
-	m_pSocket->set_option(boost::asio::socket_base::linger(true, 0), ec);
-	m_pSocket->set_option(boost::asio::socket_base::reuse_address(true), ec);
-
 }
 
 User::~User()
 {
-	m_pSocket->close();
+	closeSocket();
 }
 
 void User::ayncRead()
@@ -38,6 +31,12 @@ void User::ayncRead()
 
 void User::ayncSend(const char * str, uint size)
 {
+	if (!m_pSocket)
+	{
+		LOG_GATESERVER.printLog("m_pSocket == NULL");
+		return;
+	}
+
 	m_pSocket->async_write_some(
 		MSG_BUFFER(str, size),
 		BIND(&User::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
@@ -51,10 +50,7 @@ void User::onAyncRead(
 {
 	if (ec)
 	{
-		LOG_GATESERVER.printLog("error value[%d], message[%s]", ec.value(), ec.message().data());
-
-		sigError(getLinkIP(), getLinkPort());
-		m_pSocket->close();
+		sigError(shared_from_this(), ec);
 		return;
 	}
 	if (readSize <= 0 || readSize > UserBuffer::g_nReadBufferSize)
@@ -75,14 +71,30 @@ CommonBoost::SocketPtr & User::getSocket()
 	return m_pSocket;
 }
 
-const std::string User::getLinkIP()
+void User::getLinkIP(std::string& outIp)
 {
-	return m_pSocket->remote_endpoint().address().to_string();
+	if (m_pSocket)
+	{
+		outIp = m_pSocket->remote_endpoint().address().to_string();
+	}
 }
 
-ushort User::getLinkPort()
+void User::getLinkPort(ushort& outPort)
 {
-	return m_pSocket->remote_endpoint().port();
+	if (m_pSocket)
+	{
+		outPort = m_pSocket->remote_endpoint().port();
+	}
+}
+
+void User::closeSocket()
+{
+	if (!m_pSocket)
+	{
+		LOG_GATESERVER.printLog("socket close error!");
+		return;
+	}
+	m_pSocket->close();
 }
 
 void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)

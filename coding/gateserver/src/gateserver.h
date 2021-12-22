@@ -11,6 +11,12 @@ struct ConfigInfo;
 class GateServer
 {
 public:
+	enum UserStatus
+	{
+		LOGOUT = 2,
+	};
+
+public:
 	GateServer();
 	GateServer(int port);
 	~GateServer();
@@ -22,7 +28,9 @@ private:
 	void initData();
 
 SLOTS:
-	void onUserError(const std::string& ip, ushort port);
+	void onUserError(
+		boost::shared_ptr<User>& user,
+		const CommonBoost::ErrorCode& ec);
 
 HANDLER:
 	void onAcceptHandler(

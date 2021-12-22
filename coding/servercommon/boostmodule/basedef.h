@@ -10,7 +10,6 @@
 #include <boost/thread.hpp>
 #include <boost/asio/socket_base.hpp>
 
-
 #define READ_XML boost::property_tree::xml_parser::read_xml
 #define CAST_TO(type,value) boost::lexical_cast<type>((value))
 #define CPU_MAX_THREAD boost::thread::hardware_concurrency()
