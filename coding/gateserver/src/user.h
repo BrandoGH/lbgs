@@ -46,7 +46,7 @@ SIGNALS:
 	}
 
 	DEFINE_SIGNAL(void(
-		boost::shared_ptr<User>&,
+		boost::shared_ptr<User>,
 		const CommonBoost::ErrorCode&), sigError);
 
 HANDLER:

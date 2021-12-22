@@ -29,7 +29,7 @@ private:
 
 SLOTS:
 	void onUserError(
-		boost::shared_ptr<User>& user,
+		boost::shared_ptr<User> user,
 		const CommonBoost::ErrorCode& ec);
 
 HANDLER:
