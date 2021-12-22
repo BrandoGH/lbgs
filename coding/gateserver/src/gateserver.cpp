@@ -153,25 +153,25 @@ void GateServer::onThreadRunAcceptorIOServer()
 	LOG_GATESERVER.printLog("server has run");
 	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_server));
  
-  /*
-    捕获异常，可能会出现一个错误，这个错误的原因在于客户端建立连接以后一瞬间，服务端调用remote_endpoint前，就断开了链接，导致返回失败
-    错误信息如下：
-      terminate called after throwing an instance of 'boost::wrapexcept<boost::system::system_error>'
-      what():  remote_endpoint: Transport endpoint is not connected
-      Aborted
-  */
-  while(1)
-  {
-    try
-    {
-      m_server.run();
-    }
-     catch (std::exception& e)
-    {
-      // 如果出现这个情况，建议这台网关服重启,因为有可能会影响到一些数据不正确，比如客户端连接数（当连接数万级以上时）
-      LOG_GATESERVER.printLog("m_server run exception!! server will re-start!!");
-    }
-  }
+	/*
+	捕获异常，可能会出现一个错误，这个错误的原因在于客户端建立连接以后一瞬间，服务端调用remote_endpoint前，就断开了链接，导致返回失败
+	错误信息如下：
+		terminate called after throwing an instance of 'boost::wrapexcept<boost::system::system_error>'
+		what():  remote_endpoint: Transport endpoint is not connected
+		Aborted
+	*/
+	while(1)
+	{
+		try
+		{
+			m_server.run();
+		}
+			catch (std::exception& e)
+		{
+			// 如果出现这个情况，建议这台网关服重启,因为有可能会影响到一些数据不正确，比如客户端连接数（当连接数万级以上时）
+			LOG_GATESERVER.printLog("m_server run exception!! server will re-start!!");
+		}
+	}
 	
 }
 
