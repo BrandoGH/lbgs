@@ -8,9 +8,9 @@
 
 namespace 
 {
-	// 单台服务器最大连接数可用内存的最大连接数的3/4
+	// 单台服务器最大连接数可用内存的最大连接数
 	const int g_nConnectMaxCount = 
-		int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / UserBuffer::g_nReadBufferSize * 1.0) * 3 / 4; 
+		int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / UserBuffer::g_nReadBufferSize * 1.0); 
 }
 
 using CommonBoost::Endpoint;
@@ -73,14 +73,7 @@ void GateServer::accept()
 {
 	if (!m_pAcceptor)
 	{
-		LOG_GATESERVER.printLog("m_pAcceptor is NULL");
-		return;
-	}
-
-	if (m_nConnectCount > g_nConnectMaxCount)
-	{
-		LOG_GATESERVER.printLog("connect size has over [%d]", g_nConnectMaxCount);
-		printf("connect size has over [%d]\n", g_nConnectMaxCount);
+		LOG_GATESERVER.printLog("m_pAcceptor is NULL");		// 这里都能跑到，还写什么代码，不如去搬砖
 		return;
 	}
 
@@ -88,7 +81,7 @@ void GateServer::accept()
 	newUser->slotConnect(this);
 	if (newUser->getSocket().get() == NULL)
 	{
-		LOG_GATESERVER.printLog("newUser->getSocket().get() == NULL");
+		LOG_GATESERVER.printLog("newUser->getSocket().get() == NULL");			// 都跑到这里了，服务器是不是有问题
 		return;
 	}
 	m_pAcceptor->async_accept(*(newUser->getSocket()), BIND(&GateServer::onAcceptHandler, this, boost::placeholders::_1, newUser));
@@ -180,14 +173,23 @@ void GateServer::onAcceptHandler(
 	const boost::shared_ptr<User>& user
 	)
 {
+	if (m_nConnectCount > g_nConnectMaxCount)
+	{
+		LOG_GATESERVER.printLog("connect size has over [%d]", g_nConnectMaxCount);
+		accept();
+		return;
+	}
+
 	if (err)
 	{
 		LOG_GATESERVER.printLog("new client connect error value[%d],message[%s]", err.value(), err.message().data());
+		accept();
 		return;
 	}
 	if (!user)
 	{
 		LOG_GATESERVER.printLog("linking user is NULL");
+		accept();
 		return;
 	}
 
@@ -206,7 +208,6 @@ void GateServer::onAcceptHandler(
 			port,
 			m_nConnectCount.load());
 	}
-	
 
 	accept();
 }
