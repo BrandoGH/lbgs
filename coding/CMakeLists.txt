@@ -106,6 +106,7 @@ message("-- CMAKE_SHARED_LINKER_FLAGS_RELEASE : ${CMAKE_SHARED_LINKER_FLAGS_RELE
 #顺序比较重要，先编译通用库
 add_subdirectory(./servercommon)
 add_subdirectory(./gateserver)
+add_subdirectory(./test)
 
 #param传入 导入模拟客户端工程
 if (WIN32)
