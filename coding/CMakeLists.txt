@@ -116,8 +116,10 @@ if (WIN32)
 		set(Qt5_DIR ${LBGS_ROOT_DIR}/3rd/x64-windows/share/cmake/Qt5)
 		set(CMAKE_AUTOMOC ON)
 		set(CMAKE_AUTOUIC ON)
-
 		set(3RD_QT5_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/include/qt5)
+		#需要把qt的插件放到exe目录下，不然启动会有问题
+		file(GLOB QT_PLUGIN_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/tools/qt5/bin/plugins/*)
+		file(COPY ${QT_PLUGIN_PATH} DESTINATION ${EXE_DIR})
 
 		add_subdirectory(./simulationclient)
 		message("-- OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
