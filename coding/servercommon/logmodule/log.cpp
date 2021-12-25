@@ -5,11 +5,13 @@
 
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/daily_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace 
 {
 const char* g_strDailyLogName = "dailyLog";
 const char* g_strRotatingLogName = "RotatingLog";
+const char* g_strConsoleLogName = "ConsoleLog";
 }
 
 namespace CommonLog
@@ -36,6 +38,9 @@ LogModule::LogModule(const std::string& logFilePath, int level, int logType):
 	memset(m_strPrintHeader, 0, sizeof(m_strPrintHeader));
 	memset(m_strPrintCont, 0, sizeof(m_strPrintCont));
 
+#ifdef DLOG
+	m_pLog = spdlog::stdout_color_mt(g_strConsoleLogName + m_logFilePath);
+#else
 	if (m_logType == TYPE_DAILY)
 	{
 		m_pLog = spdlog::daily_logger_mt(g_strDailyLogName + m_logFilePath, m_logDir + m_logFilePath, m_nHours, m_nMin);
@@ -44,7 +49,7 @@ LogModule::LogModule(const std::string& logFilePath, int level, int logType):
 	{
 		m_pLog = spdlog::rotating_logger_mt(g_strRotatingLogName + m_logFilePath, m_logDir + m_logFilePath, m_rotatingLogMaxSize, g_rotatingLogMaxFiles);
 	}
-
+#endif
 	assert(m_pLog);
 
 	m_pLog->set_pattern("[%Y-%m-%d %H:%M:%S:%e][%l]%v");
@@ -62,6 +67,9 @@ void LogModule::setLogDir(const std::string dir)
 	m_logDir = dir;
 
 	Common::LoggerPtr log;
+#ifdef DLOG
+	log = spdlog::stdout_color_mt(g_strConsoleLogName + m_logDir);
+#else
 	if (m_logType == TYPE_DAILY)
 	{
 		log = spdlog::daily_logger_mt(g_strDailyLogName + m_logDir, m_logDir + m_logFilePath, m_nHours, m_nMin);
@@ -70,7 +78,7 @@ void LogModule::setLogDir(const std::string dir)
 	{
 		log = spdlog::rotating_logger_mt(g_strRotatingLogName + m_logDir, m_logDir + m_logFilePath, m_rotatingLogMaxSize, g_rotatingLogMaxFiles);
 	}
-
+#endif
 	if (log)
 	{
 		m_pLog = log;
@@ -108,6 +116,12 @@ LogModule& LogModule::setLogHeader(
 
 void LogModule::printLog(const char * format, ...)
 {
+	if (m_pLog.get() == NULL)
+	{
+		printf("[%s:%d-%s thread(%d)]: m_pLog.get() == NULL",
+			__FILE__,__LINE__,__FUNCTION__, THREAD_ID);
+		return;
+	}
 	CommonBoost::UniqueLock lock(m_contentMutex);
 	if (m_level < LV_INFO || m_level > LV_ERROR)
 	{
@@ -141,10 +155,6 @@ void LogModule::printLog(const char * format, ...)
 	m_logString.clear();
 	m_logString.append(m_strPrintHeader).append(m_strPrintCont);
 
-#ifdef DLOG
-	printf("%s\n", m_logString.data());
-
-#else
 	switch (m_level)
 	{
 	case LV_INFO:
@@ -161,5 +171,4 @@ void LogModule::printLog(const char * format, ...)
 	}
 
 	m_pLog->flush();
-#endif
 }
