@@ -23,10 +23,6 @@ public:
 
 	void start();
 
-private:
-	void accept();
-	void initData();
-
 SLOTS:
 	void onUserError(
 		boost::shared_ptr<User> user,
@@ -38,6 +34,10 @@ HANDLER:
 		const boost::shared_ptr<User>& user
 		);
 	void onThreadRunAcceptorIOServer();
+
+private:
+	void accept();
+	void initData();
 
 private:
 	CommonBoost::IOServer m_server;

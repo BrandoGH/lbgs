@@ -8,9 +8,9 @@
 
 namespace 
 {
-	// 单台服务器最大连接数可用内存的最大连接数
-	const int g_nConnectMaxCount = 
-		int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / UserBuffer::g_nReadBufferSize * 1.0); 
+// 单台服务器最大连接数可用内存的最大连接数
+const int g_nConnectMaxCount = 
+	int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / UserBuffer::g_nReadBufferSize * 1.0); 
 }
 
 using CommonBoost::Endpoint;
