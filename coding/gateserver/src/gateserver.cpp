@@ -162,7 +162,7 @@ void GateServer::onThreadRunAcceptorIOServer()
 			catch (std::exception& e)
 		{
 			// 如果出现这个情况，建议这台网关服重启,因为有可能会影响到一些数据不正确，比如客户端连接数（当连接数万级以上时）
-			LOG_GATESERVER.printLog("m_server run exception!! server will re-start!!");
+			LOG_GATESERVER.printLog("m_server run exception!! info[%s] server will re-start!!",e.what());
 		}
 	}
 	
