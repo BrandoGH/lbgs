@@ -56,12 +56,12 @@ GateServer::~GateServer()
 
 void GateServer::start()
 {
-	LOG_GATESERVER.printLog("gateserver has start,run sub thread count[%d]", CPU_MAX_THREAD - 1);
+	LOG_GATESERVER.printLog("gateserver has start,run sub thread count[%d]", CPU_MAX_THREAD);
 	LOG_GATESERVER.printLog("gateserver has start,port[%d],max link count[%d]",
 		m_nPort, 
 		g_nConnectMaxCount
 	);
-	for (int i = 0; i < CPU_MAX_THREAD - 1; ++i)
+	for (int i = 0; i < CPU_MAX_THREAD; ++i)
 	{
 		boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
 		tAccServer.detach();
