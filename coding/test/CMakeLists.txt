@@ -39,5 +39,7 @@ elseif(UNIX)
 	#link static lib
 	target_link_libraries(${BIN_NAME} 
 	libservercommon.a
+ 	libgtest.a
+ 	libgmock.a
 	)
 endif()
