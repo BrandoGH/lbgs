@@ -42,5 +42,6 @@ elseif(UNIX)
 	libservercommon.a
  	libgtest.a
  	libgmock.a
+ 	libfmt.a
 	)
 endif()
