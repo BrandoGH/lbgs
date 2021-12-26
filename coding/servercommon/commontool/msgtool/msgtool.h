@@ -15,15 +15,15 @@ namespace MsgTool
 bool isLittleEndian();
 
 // 低字节 -> 高字节 【目前只支持 两字节和四字节】
-template<class InputNum, class ArrayType>
-bool Little2Big(InputNum num, ArrayType& outByte)
+template<class InputNumType, class ByteArrayType>
+bool Little2Big(InputNumType num, ByteArrayType& outByte)
 {
 	int len = getArraySize(outByte);
 	if (sizeof(outByte[0]) != 1)
 	{
 		return false;
 	}
-	if (len != sizeof(InputNum))
+	if (len != sizeof(InputNumType))
 	{
 		return false;
 	}

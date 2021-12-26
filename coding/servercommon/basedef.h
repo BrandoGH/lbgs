@@ -1,6 +1,8 @@
 #ifndef __BASEDEF_H__
 #define __BASEDEF_H__
 
+#include "basedef.h"
+
 #include <spdlog/spdlog.h>
 #include <memory>
 
@@ -15,7 +17,7 @@
 
 #define TO_STRING(param) #param
 #define DEFINE_BYTE_ARRAY(name,len)	\
-	char name[len];					\
+	byte name[len];					\
 	memset(name,0,len)
 
 
