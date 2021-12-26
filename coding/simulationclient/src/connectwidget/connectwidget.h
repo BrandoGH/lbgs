@@ -10,6 +10,8 @@
 class QLineEdit;
 class QPushButton;
 class QPlainTextEdit;
+class QRadioButton;
+class QTimer;
 class User;
 
 class ConnectWidget : public QWidget
@@ -29,6 +31,7 @@ public:
 	QVector<User*>& getVecUser() { return m_vecUser; }
 
 private:
+	void initData();
 	void initUi();
 	bool connectAll();
 	void disConnectAll();
@@ -36,22 +39,27 @@ private:
 private slots:
 	void onConnectBtClicked(bool checked);
 	void onDisConnectBtClicked(bool checked);
+	void onToggled(bool checked);
 	void onSendData(bool checked);
 	void onClearLog(bool checked);
 	void onUserConnect(uint userId);
 	void onError(uint userId, int eCode);
 	void onReadData(uint userId, const QString& data);
+	void onSendData();
 
 private:
 	QLineEdit* m_pEditIP;
 	QLineEdit* m_pEditPort;
 	QLineEdit* m_pEditConnectCount;
+	QRadioButton* m_pRadioBt;
+	QLineEdit* m_pEditSendInterval;
 	QPushButton* m_pConnectBt;
 	QPushButton* m_pDisConnectBt;
 	QPushButton* m_pSendDataBt;
 	QPushButton* m_pClearLogBt;
 	QPlainTextEdit* m_pMsgPlantText;
 	QPlainTextEdit* m_pLogPlantText;
+	QTimer* m_pSendDataTimer;
 
 	uint m_userId;
 	QVector<User*> m_vecUser;

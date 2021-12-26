@@ -12,7 +12,7 @@
 
 MainWidget::MainWidget(QMainWindow* parent)
 {
-	setGeometry(100, 100, 1000, 800);
+	setGeometry(100, 100, 1500, 800);
 	initMenuBar();
 	initCentralWidget();
 	
