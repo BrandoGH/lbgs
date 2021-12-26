@@ -110,6 +110,7 @@ add_subdirectory(./gateserver)
 
 if(ENABLE_UNITEST)
 	add_subdirectory(./test)
+	message("-- ENABLE_UNITEST_PROJECT : ${ENABLE_UNITEST}")
 endif()
 
 #param传入 导入模拟客户端工程
