@@ -49,7 +49,7 @@ TEST(CommonTool_MsgTool, isLittleEndian)
 	}
 }
 
-TEST(CommonTool_MsgTool, Little2Big)
+TEST(CommonTool_MsgTool, littleEndian2Big_2byte)
 {
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
@@ -62,17 +62,87 @@ TEST(CommonTool_MsgTool, Little2Big)
 		ushort twoByteLittle = 102;
 		ushort twoByteLittle2Big = 26112;
 		DEFINE_BYTE_ARRAY(ushortByteArr, sizeof(ushort));
-		CommonTool::MsgTool::Little2Big(twoByteLittle, ushortByteArr);
+		CommonTool::MsgTool::littleEndian2Big(twoByteLittle, ushortByteArr);
 		ushort ushortResult = *(ushort*)ushortByteArr;
 		EXPECT_EQ(ushortResult, twoByteLittle2Big);
+	}
+	else				// ∏ﬂ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	{
+		EXPECT_FALSE(CommonTool::MsgTool::isLittleEndian());
+	}
+}
 
-		// 4byte
+TEST(CommonTool_MsgTool, littleEndian2Big_4byte)
+{
+	ushort num = 1;
+	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
+	memmove(bArr, (char*)&num, sizeof(ushort));
+	if(bArr[0] == 1)		// µÕ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	{
+		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
+
 		uint fourByteLittle = 102;
 		uint fourByteLittle2Big = 1711276032;
 		DEFINE_BYTE_ARRAY(intByteArr, sizeof(uint));
-		CommonTool::MsgTool::Little2Big(fourByteLittle, intByteArr);
+		CommonTool::MsgTool::littleEndian2Big(fourByteLittle, intByteArr);
 		uint uintResult = *(uint*)intByteArr;
 		EXPECT_EQ(uintResult, fourByteLittle2Big);
+	}
+	else				// ∏ﬂ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	{
+		EXPECT_FALSE(CommonTool::MsgTool::isLittleEndian());
+	}
+}
+
+TEST(CommonTool_MsgTool, littleEndian2Big_bigEndianSystem)
+{
+	// 10 ¥Û∂À¥Ê¥¢∂˛Ω¯÷∆÷µ≤„√Ê
+	DEFINE_BYTE_ARRAY(num, sizeof(ushort));
+	num[0] = '\x00';
+	num[1] = '\x0A';
+
+	DEFINE_BYTE_ARRAY(twoByteArr, sizeof(ushort));
+	memmove(twoByteArr, num, sizeof(twoByteArr));
+
+	ushort res1 = *(ushort*)num;
+	ushort res2 = *(ushort*)twoByteArr;
+	EXPECT_EQ(res1, res2);
+}
+
+TEST(CommonTool_MsgTool, littleEndian2Big_byteArrayMemberIsNotOneByte)
+{
+	ushort num = 1;
+	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
+	memmove(bArr, (char*)&num, sizeof(ushort));
+	if(bArr[0] == 1)		// µÕ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	{
+		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
+
+		uint fourByteLittle = 102;
+		int intByteArr[sizeof(uint)] = {0};
+		EXPECT_FALSE(CommonTool::MsgTool::littleEndian2Big(fourByteLittle, intByteArr));
+	}
+	else				// ∏ﬂ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	{
+		EXPECT_FALSE(CommonTool::MsgTool::isLittleEndian());
+	}
+}
+
+TEST(CommonTool_MsgTool, littleEndian2Big_lengthConsistency)
+{
+	ushort num = 1;
+	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
+	memmove(bArr, (char*)&num, sizeof(ushort));
+	if(bArr[0] == 1)		// µÕ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	{
+		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
+
+		ushort num = 10;
+		DEFINE_BYTE_ARRAY(byteArr, sizeof(ushort) + 1);
+		EXPECT_FALSE(CommonTool::MsgTool::littleEndian2Big(num, byteArr));
+
+		DEFINE_BYTE_ARRAY(byteArr2, sizeof(ushort));
+		EXPECT_TRUE(CommonTool::MsgTool::littleEndian2Big(num, byteArr2));
 	}
 	else				// ∏ﬂ∂À¥Ê¥¢œµÕ≥≤‚ ‘
 	{

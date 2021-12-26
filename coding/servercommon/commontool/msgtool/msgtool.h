@@ -14,11 +14,22 @@ namespace MsgTool
 // 当前计算机是否是低字节存储
 bool isLittleEndian();
 
+/*
+	目前只支持低字节存储的服务器环境
+*/
 // 低字节 -> 高字节 【目前只支持 两字节和四字节】
 template<class InputNumType, class ByteArrayType>
-bool Little2Big(InputNumType num, ByteArrayType& outByte)
+bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 {
 	int len = getArraySize(outByte);
+
+	if(!isLittleEndian()) // 不是低字节存储的，就不用转了
+	{
+		char* arr = (char*)&num;
+		memmove(outByte, arr, len);
+		return true;
+	}
+
 	if (sizeof(outByte[0]) != 1)
 	{
 		return false;
@@ -26,13 +37,6 @@ bool Little2Big(InputNumType num, ByteArrayType& outByte)
 	if (len != sizeof(InputNumType))
 	{
 		return false;
-	}
-
-	if (!isLittleEndian()) // 不是低字节存储的，就不用转了
-	{
-		char* arr = (char*)&num;
-		memmove(outByte, arr, len);
-		return true;
 	}
 
 	if (len == 2)
@@ -47,6 +51,17 @@ bool Little2Big(InputNumType num, ByteArrayType& outByte)
 		outByte[2] = (num >> 8) & 0xffffffff;
 		outByte[3] = (num) & 0xffffffff;
 	}
+
+	return true;
+}
+
+// 高字节 -> 低字节 【目前只支持 两字节和四字节】
+template<class ByteArrayType, class InputNumType>
+bool BigEndian2Little(ByteArrayType& inputBytes, InputNumType& outNum)
+{
+	int len = getArraySize(inputBytes);
+
+	// TODO
 
 	return true;
 }
