@@ -1,5 +1,6 @@
 set(CODE_FILE 
 ./main.cpp
+./servercommon/commontooltest.cpp
 )
 
 set(BIN_NAME test)
