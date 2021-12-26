@@ -13,6 +13,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 #{  -- start
 #通用
 #ENABLE_DEBUG_LOG		ON/OFF			是否开启调试日志，如果开启，日志将在屏幕打出
+#ENABLE_UNITEST			ON/OFF			是否导入单元测试工程
 
 #windows
 #OPEN_SIMULATION_CLIENT		ON/OFF		是否导入模拟客户端工程
@@ -106,7 +107,10 @@ message("-- CMAKE_SHARED_LINKER_FLAGS_RELEASE : ${CMAKE_SHARED_LINKER_FLAGS_RELE
 #顺序比较重要，先编译通用库
 add_subdirectory(./servercommon)
 add_subdirectory(./gateserver)
-add_subdirectory(./test)
+
+if(ENABLE_UNITEST)
+	add_subdirectory(./test)
+endif()
 
 #param传入 导入模拟客户端工程
 if (WIN32)
