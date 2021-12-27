@@ -59,6 +59,8 @@ void User::onAyncRead(
 		return;
 	}
 	
+	// TODO 协议转发
+
 	std::string sendMsg = "halo ,i'm gateserver";
 	ayncSend(sendMsg.data(), sendMsg.size());
 
@@ -95,6 +97,23 @@ void User::closeSocket()
 		return;
 	}
 	m_pSocket->close();
+}
+
+int User::slotConnect(GateServer* gateServer)
+{
+	if(!gateServer)
+	{
+		LOG_GATESERVER.printLog("gateServer == NULL, connect slot error!");
+		return CONNECT_ERROR;
+	}
+
+	sigError.connect(BIND(
+		&GateServer::onUserError,
+		gateServer,
+		boost::placeholders::_1,
+		boost::placeholders::_2));
+
+	return CONNECT_OK;
 }
 
 void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)

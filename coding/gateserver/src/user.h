@@ -13,8 +13,15 @@ namespace UserBuffer
 }
 
 class GateServer;
-class User : public boost::enable_shared_from_this<User> ,public SignalSender
+class User : public boost::enable_shared_from_this<User>
 {
+public:
+	enum EnSignalConnectStatus
+	{
+		CONNECT_ERROR,
+		CONNECT_OK,
+	};
+
 public:
 	User(CommonBoost::IOServer& ioserver);
 	~User();
@@ -26,25 +33,9 @@ public:
 	void getLinkPort(ushort& outPort);
 	void closeSocket();
 
+	int slotConnect(GateServer* gateServer);
+
 SIGNALS:
-	template<class ReceiveType>
-	int slotConnect(ReceiveType* receiver)
-	{
-		if (!receiver)
-		{
-			LOG_GATESERVER.printLog("receiver == NULL, connect slot error!");
-			return SignalSender::CONNECT_ERROR;
-		}
-		
-		sigError.connect(BIND(
-			&ReceiveType::onUserError,
-			(ReceiveType*)receiver,
-			boost::placeholders::_1,
-			boost::placeholders::_2));
-
-		return SignalSender::CONNECT_OK;
-	}
-
 	DEFINE_SIGNAL(void(
 		boost::shared_ptr<User>,
 		const CommonBoost::ErrorCode&), sigError);
