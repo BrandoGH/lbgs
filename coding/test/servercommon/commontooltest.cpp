@@ -59,12 +59,18 @@ TEST(CommonTool_MsgTool, littleEndian2Big_2byte)
 		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
 
 		// 2 byte
-		ushort twoByteLittle = 102;
-		ushort twoByteLittle2Big = 26112;
+		ushort twoByteLittle = 102;				// 小端内存存储方式:[01100110][00000000]
+		ushort twoByteLittle2Big = 26112;		// 小端内存存储方式:[00000000][01100110]
 		DEFINE_BYTE_ARRAY(ushortByteArr, sizeof(ushort));
+		memmove(ushortByteArr,(char*)&twoByteLittle,sizeof(ushort));
+		EXPECT_EQ(ushortByteArr[0], 102);
+		EXPECT_EQ(ushortByteArr[1], 0);
+
 		CommonTool::MsgTool::littleEndian2Big(twoByteLittle, ushortByteArr);
 		ushort ushortResult = *(ushort*)ushortByteArr;
 		EXPECT_EQ(ushortResult, twoByteLittle2Big);
+		EXPECT_EQ(ushortByteArr[0], 0);
+		EXPECT_EQ(ushortByteArr[1], 102);
 	}
 	else				// 高端存储系统测试
 	{
@@ -81,12 +87,22 @@ TEST(CommonTool_MsgTool, littleEndian2Big_4byte)
 	{
 		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
 
-		uint fourByteLittle = 102;
-		uint fourByteLittle2Big = 1711276032;
+		uint fourByteLittle = 102;						// 小端内存存储方式:[01100110][00000000][00000000][00000000]
+		uint fourByteLittle2Big = 1711276032;			// 小端内存存储方式:[00000000][00000000][00000000][01100110]
 		DEFINE_BYTE_ARRAY(intByteArr, sizeof(uint));
+		memmove(intByteArr, (char*)&fourByteLittle, sizeof(uint));
+		EXPECT_EQ(intByteArr[0], 102);
+		EXPECT_EQ(intByteArr[1], 0);
+		EXPECT_EQ(intByteArr[2], 0);
+		EXPECT_EQ(intByteArr[3], 0);
+
 		CommonTool::MsgTool::littleEndian2Big(fourByteLittle, intByteArr);
 		uint uintResult = *(uint*)intByteArr;
 		EXPECT_EQ(uintResult, fourByteLittle2Big);
+		EXPECT_EQ(intByteArr[0], 0);
+		EXPECT_EQ(intByteArr[1], 0);
+		EXPECT_EQ(intByteArr[2], 0);
+		EXPECT_EQ(intByteArr[3], 102);
 	}
 	else				// 高端存储系统测试
 	{
@@ -152,22 +168,38 @@ TEST(CommonTool_MsgTool, littleEndian2Big_lengthConsistency)
 
 TEST(CommonTool_MsgTool, bigEndian2Little_ok)
 {
-	DEFINE_BYTE_ARRAY(arr, sizeof(ushort));
-	memmove(arr, "\x0A\x00",sizeof(arr));
+	// 2 bytes
+	DEFINE_BYTE_ARRAY(bigArr, sizeof(ushort));
+	memmove(bigArr, "\x00\x0A",sizeof(bigArr));
+	ushort bigNum = *(ushort*)bigArr;
+	ushort bigNumRes = 0x0A00;
+	EXPECT_EQ(bigNum, bigNumRes);
+	ushort ushortResult = 0;
+	ushort ushortResult2 = 0x000A;
+	CommonTool::MsgTool::bigEndian2Little(bigArr, ushortResult);
+	EXPECT_EQ(ushortResult, ushortResult2);
 
-	ushort result = 0;
-	CommonTool::MsgTool::bigEndian2Little(arr, result);
-	EXPECT_EQ(result, 0x000A);
+	// 4 bytes
+	DEFINE_BYTE_ARRAY(bigArr2, sizeof(uint));
+	memmove(bigArr2, "\x00\x0E\x00\x0A", sizeof(bigArr2));
+	uint bigNum2 = *(uint*)bigArr2;
+	uint bigNum2Res = 0x0A000E00;
+	EXPECT_EQ(bigNum2, bigNum2Res);
+	uint uintResult = 0;
+	uint uintResult2 = 0x000E000A;
+	CommonTool::MsgTool::bigEndian2Little(bigArr2, uintResult);
+	EXPECT_EQ(uintResult, uintResult2);
 }
 
 TEST(CommonTool_MsgTool, bigEndian2Little_error)
 {
-	// byte array type error
+	// array type is not byte type
 	ushort arr[2] = {0,0};
 	ushort result = 0;
 	EXPECT_FALSE(CommonTool::MsgTool::bigEndian2Little(arr, result));
 	EXPECT_EQ(result, 0);
 
+	// out number type != bytes array type
 	DEFINE_BYTE_ARRAY(arr2, sizeof(ushort));
 	memmove(arr2, "\x0A\x00", sizeof(arr2));
 	int result2 = 0;

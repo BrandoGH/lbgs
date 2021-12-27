@@ -35,7 +35,7 @@ bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 		return false;
 	}
 
-	if(!isLittleEndian()) // 不是低字节存储的，就不用转了
+	if(!isLittleEndian()) // 如果系统是大端存储,无需转换
 	{
 		byte* arr = (byte*)&num;
 		memmove(outByte, arr, len);
@@ -49,10 +49,10 @@ bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 	}
 	else if (len == sizeof(uint))
 	{
-		outByte[0] = (num >> 24) & 0xffffffff;
-		outByte[1] = (num >> 16) & 0xffffffff;
-		outByte[2] = (num >> 8) & 0xffffffff;
-		outByte[3] = (num) & 0xffffffff;
+		outByte[0] = (num >> 24) & 0xFFFFFFFF;
+		outByte[1] = (num >> 16) & 0xFFFFFFFF;
+		outByte[2] = (num >> 8) & 0xFFFFFFFF;
+		outByte[3] = (num) & 0xFFFFFFFF;
 	}
 
 	return true;
@@ -73,17 +73,26 @@ bool bigEndian2Little(ByteArrayType& inputBytes, OutputNumType& outNum)
 		return false;
 	}
 
-	if(isLittleEndian()) // 不是高字节存储的，就不用转了
+	if(!isLittleEndian()) // 如果系统是大端存储,无需转换
 	{
 		outNum = *(OutputNumType*)inputBytes;
 		return true;
 	}
 
-	DEFINE_BYTE_ARRAY(byteArray, sizeof(OutputNumType));
-	memmove(byteArray, inputBytes, sizeof(OutputNumType));
-	std::reverse(byteArray, byteArray + sizeof(OutputNumType) - 1);
-	outNum = *(OutputNumType*)byteArray;
-
+	if(len == sizeof(ushort))
+	{
+		ushort tmp = *(ushort*)inputBytes;
+		outNum = ((tmp >> 8) &0x00FF) | 
+				((tmp << 8) & 0xFF00);
+	}
+	else if(len == sizeof(uint))
+	{
+		uint tmp = *(uint*)inputBytes;
+		outNum = (tmp >> 24 & 0x000000FF) | 
+				((tmp >> 8) & 0x0000FF00) | 
+				((tmp << 8) & 0x00FF0000) | 
+				((tmp << 24) & 0xFF000000);
+	}
 	return true;
 }
 
