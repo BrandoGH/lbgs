@@ -2,6 +2,9 @@
 #define __MSG_TOOL_H__
 
 #include "commontool/commontool.h"
+#include "basedef.h"
+
+#include<algorithm>
 
 namespace CommonTool 
 {
@@ -15,7 +18,7 @@ namespace MsgTool
 bool isLittleEndian();
 
 /*
-	目前只支持低字节存储的服务器环境
+	目前只支持低字节存储的服务器环境,高低字节字节存储互相转换
 */
 // 低字节 -> 高字节 【目前只支持 两字节和四字节】
 template<class InputNumType, class ByteArrayType>
@@ -23,14 +26,7 @@ bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 {
 	int len = getArraySize(outByte);
 
-	if(!isLittleEndian()) // 不是低字节存储的，就不用转了
-	{
-		char* arr = (char*)&num;
-		memmove(outByte, arr, len);
-		return true;
-	}
-
-	if (sizeof(outByte[0]) != 1)
+	if (sizeof(outByte[0]) != sizeof(byte))
 	{
 		return false;
 	}
@@ -39,12 +35,19 @@ bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 		return false;
 	}
 
-	if (len == 2)
+	if(!isLittleEndian()) // 不是低字节存储的，就不用转了
+	{
+		byte* arr = (byte*)&num;
+		memmove(outByte, arr, len);
+		return true;
+	}
+
+	if (len == sizeof(ushort))
 	{
 		outByte[0] = (num >> 8) & 0xffff;
 		outByte[1] = (num) & 0xffff;
 	}
-	else if (len == 4)
+	else if (len == sizeof(uint))
 	{
 		outByte[0] = (num >> 24) & 0xffffffff;
 		outByte[1] = (num >> 16) & 0xffffffff;
@@ -56,12 +59,30 @@ bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 }
 
 // 高字节 -> 低字节 【目前只支持 两字节和四字节】
-template<class ByteArrayType, class InputNumType>
-bool BigEndian2Little(ByteArrayType& inputBytes, InputNumType& outNum)
+template<class ByteArrayType, class OutputNumType>
+bool bigEndian2Little(ByteArrayType& inputBytes, OutputNumType& outNum)
 {
 	int len = getArraySize(inputBytes);
 
-	// TODO
+	if(sizeof(inputBytes[0]) != sizeof(byte))
+	{
+		return false;
+	}
+	if(len != sizeof(OutputNumType))
+	{
+		return false;
+	}
+
+	if(isLittleEndian()) // 不是高字节存储的，就不用转了
+	{
+		outNum = *(OutputNumType*)inputBytes;
+		return true;
+	}
+
+	DEFINE_BYTE_ARRAY(byteArray, sizeof(OutputNumType));
+	memmove(byteArray, inputBytes, sizeof(OutputNumType));
+	std::reverse(byteArray, byteArray + sizeof(OutputNumType) - 1);
+	outNum = *(OutputNumType*)byteArray;
 
 	return true;
 }

@@ -149,3 +149,28 @@ TEST(CommonTool_MsgTool, littleEndian2Big_lengthConsistency)
 		EXPECT_FALSE(CommonTool::MsgTool::isLittleEndian());
 	}
 }
+
+TEST(CommonTool_MsgTool, bigEndian2Little_ok)
+{
+	DEFINE_BYTE_ARRAY(arr, sizeof(ushort));
+	memmove(arr, "\x0A\x00",sizeof(arr));
+
+	ushort result = 0;
+	CommonTool::MsgTool::bigEndian2Little(arr, result);
+	EXPECT_EQ(result, 0x000A);
+}
+
+TEST(CommonTool_MsgTool, bigEndian2Little_error)
+{
+	// byte array type error
+	ushort arr[2] = {0,0};
+	ushort result = 0;
+	EXPECT_FALSE(CommonTool::MsgTool::bigEndian2Little(arr, result));
+	EXPECT_EQ(result, 0);
+
+	DEFINE_BYTE_ARRAY(arr2, sizeof(ushort));
+	memmove(arr2, "\x0A\x00", sizeof(arr2));
+	int result2 = 0;
+	EXPECT_FALSE(CommonTool::MsgTool::bigEndian2Little(arr2, result2));
+	EXPECT_EQ(result2, 0);
+}
