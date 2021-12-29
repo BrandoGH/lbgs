@@ -11,7 +11,7 @@ struct ConfigInfo
 class GateServerConfig : public ConfigInterface
 {
 public:
-	enum ErrorCode
+	enum EnErrorCode
 	{
 		ERROR_PORT = 1,
 	};

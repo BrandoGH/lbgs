@@ -24,7 +24,7 @@ do																													\
 class ConfigInterface
 {
 public:
-	enum ErrorCode
+	enum EnErrorCode
 	{
 		INIT_OK = 0,
 	};

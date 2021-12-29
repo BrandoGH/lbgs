@@ -11,7 +11,7 @@ struct ConfigInfo;
 class GateServer
 {
 public:
-	enum UserStatus
+	enum EnUserStatus
 	{
 		LOGOUT = 2,
 	};

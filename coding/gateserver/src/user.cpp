@@ -4,7 +4,7 @@
 
 User::User(CommonBoost::IOServer& ioserver)
 {
-	memset(m_readBuffer, 0, sizeof(m_readBuffer));
+	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
 	assert(m_pSocket != NULL);
 }
@@ -22,9 +22,9 @@ void User::ayncRead()
 		return;
 	}
 
-	memset(m_readBuffer, 0, sizeof(m_readBuffer));
+	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	m_pSocket->async_read_some(
-		MSG_BUFFER(m_readBuffer, sizeof(m_readBuffer)),
+		MSG_BUFFER(m_bytesReadBuffer, sizeof(m_bytesReadBuffer)),
 		BIND(&User::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
 		);
 }
@@ -62,6 +62,7 @@ void User::onAyncRead(
 	// TODO 协议转发
 
 	std::string sendMsg = "halo ,i'm gateserver";
+	sendMsg.append(" read data: " + std::string(m_bytesReadBuffer));
 	ayncSend(sendMsg.data(), sendMsg.size());
 
 	ayncRead();

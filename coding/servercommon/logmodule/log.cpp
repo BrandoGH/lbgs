@@ -24,30 +24,30 @@ LogModule g_logServerCommonConfig("/servercommonconfig/servercommonconfig.log");
 
 
 LogModule::LogModule(const std::string& logFilePath, int level, int logType):
-	m_level(level),
-	m_logType(logType),
-	m_lastLevel(m_level),
-	m_isTemporaryEffect(false),
+	m_nLevel(level),
+	m_nLogType(logType),
+	m_nLastLevel(m_nLevel),
+	m_bTemporaryEffect(false),
 	m_nHours(0),
 	m_nMin(0),
-	m_rotatingLogMaxSize(1024 * 1024 * 5),
-	g_rotatingLogMaxFiles(10),
-	m_logDir(LOG_ROOT_PATH),
-	m_logFilePath(logFilePath)
+	m_nRotatingLogMaxSize(1024 * 1024 * 5),
+	m_nRotatingLogMaxFiles(10),
+	m_strLogDir(LOG_ROOT_PATH),
+	m_strLogFilePath(logFilePath)
 {
-	memset(m_strPrintHeader, 0, sizeof(m_strPrintHeader));
-	memset(m_strPrintCont, 0, sizeof(m_strPrintCont));
+	memset(m_bytesPrintHeader, 0, sizeof(m_bytesPrintHeader));
+	memset(m_bytesPrintCont, 0, sizeof(m_bytesPrintCont));
 
 #ifdef DLOG
-	m_pLog = spdlog::stdout_color_mt(g_strConsoleLogName + m_logFilePath);
+	m_pLog = spdlog::stdout_color_mt(g_strConsoleLogName + m_strLogFilePath);
 #else
-	if (m_logType == TYPE_DAILY)
+	if (m_nLogType == TYPE_DAILY)
 	{
-		m_pLog = spdlog::daily_logger_mt(g_strDailyLogName + m_logFilePath, m_logDir + m_logFilePath, m_nHours, m_nMin);
+		m_pLog = spdlog::daily_logger_mt(g_strDailyLogName + m_strLogFilePath, m_strLogDir + m_strLogFilePath, m_nHours, m_nMin);
 	}
-	else if (m_logType == TYPE_ROTATING)
+	else if (m_nLogType == TYPE_ROTATING)
 	{
-		m_pLog = spdlog::rotating_logger_mt(g_strRotatingLogName + m_logFilePath, m_logDir + m_logFilePath, m_rotatingLogMaxSize, g_rotatingLogMaxFiles);
+		m_pLog = spdlog::rotating_logger_mt(g_strRotatingLogName + m_strLogFilePath, m_strLogDir + m_strLogFilePath, m_nRotatingLogMaxSize, m_nRotatingLogMaxFiles);
 	}
 #endif
 	assert(m_pLog);
@@ -64,19 +64,19 @@ LogModule::~LogModule()
 
 void LogModule::setLogDir(const std::string dir)
 {
-	m_logDir = dir;
+	m_strLogDir = dir;
 
 	Common::LoggerPtr log;
 #ifdef DLOG
-	log = spdlog::stdout_color_mt(g_strConsoleLogName + m_logDir);
+	log = spdlog::stdout_color_mt(g_strConsoleLogName + m_strLogDir);
 #else
-	if (m_logType == TYPE_DAILY)
+	if (m_nLogType == TYPE_DAILY)
 	{
-		log = spdlog::daily_logger_mt(g_strDailyLogName + m_logDir, m_logDir + m_logFilePath, m_nHours, m_nMin);
+		log = spdlog::daily_logger_mt(g_strDailyLogName + m_strLogDir, m_strLogDir + m_strLogFilePath, m_nHours, m_nMin);
 	}
-	else if (m_logType == TYPE_ROTATING)
+	else if (m_nLogType == TYPE_ROTATING)
 	{
-		log = spdlog::rotating_logger_mt(g_strRotatingLogName + m_logDir, m_logDir + m_logFilePath, m_rotatingLogMaxSize, g_rotatingLogMaxFiles);
+		log = spdlog::rotating_logger_mt(g_strRotatingLogName + m_strLogDir, m_strLogDir + m_strLogFilePath, m_nRotatingLogMaxSize, m_nRotatingLogMaxFiles);
 	}
 #endif
 	if (log)
@@ -92,9 +92,9 @@ void LogModule::setLogDir(const std::string dir)
 
 LogModule& LogModule::setLevel(int level)
 {
-	if (m_level >= LV_INFO && m_level <= LV_ERROR)
+	if (m_nLevel >= LV_INFO && m_nLevel <= LV_ERROR)
 	{
-		m_level = level;
+		m_nLevel = level;
 	}
 	return *this;
 }
@@ -106,11 +106,11 @@ LogModule& LogModule::setLogHeader(
 	int threadId
 )
 {
-	CommonBoost::UniqueLock lock(m_headerMutex);
-	m_functionName = function;
-	m_fileName = file;
-	m_line = line;
-	m_threadId = threadId;
+	CommonBoost::UniqueLock lock(m_mtxHeader);
+	m_strFunctionName = function;
+	m_strFileName = file;
+	m_nLine = line;
+	m_nThreadId = threadId;
 	return *this;
 }
 
@@ -122,23 +122,23 @@ void LogModule::printLog(const char * format, ...)
 			__FILE__,__LINE__,__FUNCTION__, THREAD_ID);
 		return;
 	}
-	CommonBoost::UniqueLock lock(m_contentMutex);
-	if (m_level < LV_INFO || m_level > LV_ERROR)
+	CommonBoost::UniqueLock lock(m_mtxContent);
+	if (m_nLevel < LV_INFO || m_nLevel > LV_ERROR)
 	{
-		m_level = LV_INFO;
+		m_nLevel = LV_INFO;
 	}
 
-	memset(m_strPrintCont, 0, sizeof(m_strPrintCont));
-	memset(m_strPrintHeader, 0, sizeof(m_strPrintHeader));
+	memset(m_bytesPrintCont, 0, sizeof(m_bytesPrintCont));
+	memset(m_bytesPrintHeader, 0, sizeof(m_bytesPrintHeader));
 
 	va_list args;
 	va_start(args, format);
-	vsnprintf(m_strPrintCont, g_nPrintMaxSize, format, args);
+	vsnprintf(m_bytesPrintCont, g_nPrintMaxSize, format, args);
 	va_end(args);
-	sprintf(m_strPrintHeader, "[%s:%d-%s thread(%d)]:  ", m_fileName.data(), m_line, m_functionName.data(), m_threadId);
+	sprintf(m_bytesPrintHeader, "[%s:%d-%s thread(%d)]:  ", m_strFileName.data(), m_nLine, m_strFunctionName.data(), m_nThreadId);
 
-	if (strlen(m_strPrintHeader) >= g_nPrintHeaderMaxSize ||
-		strlen(m_strPrintCont) >= g_nPrintMaxSize
+	if (strlen(m_bytesPrintHeader) >= g_nPrintHeaderMaxSize ||
+		strlen(m_bytesPrintCont) >= g_nPrintMaxSize
 		)
 	{
 		printf("[%s:%d-%s thread(%d)]:print error! strlen(g_strPrintHeader)[%d],strlen(g_strPrintCont)[%d]\n", 
@@ -146,27 +146,27 @@ void LogModule::printLog(const char * format, ...)
 			__LINE__, 
 			__FUNCTION__,
 			THREAD_ID,
-			int(strlen(m_strPrintHeader)),
-			int(strlen(m_strPrintCont))
+			int(strlen(m_bytesPrintHeader)),
+			int(strlen(m_bytesPrintCont))
 			);
 		return;
 	}
 
-	m_logString.clear();
-	m_logString.append(m_strPrintHeader).append(m_strPrintCont);
+	m_strLogString.clear();
+	m_strLogString.append(m_bytesPrintHeader).append(m_bytesPrintCont);
 
-	switch (m_level)
+	switch (m_nLevel)
 	{
 	case LV_INFO:
-		m_pLog->info(m_logString);
+		m_pLog->info(m_strLogString);
 		break;
 
 	case LV_WARNING:
-		m_pLog->warn(m_logString);
+		m_pLog->warn(m_strLogString);
 		break;
 
 	case LV_ERROR:
-		m_pLog->error(m_logString);
+		m_pLog->error(m_strLogString);
 		break;
 	}
 

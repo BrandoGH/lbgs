@@ -9,7 +9,8 @@
 
 namespace UserBuffer
 {
-	const int g_nReadBufferSize = 1024 * 50;	// 每次读取最多50K	
+	// 每次读取最大buffer	
+	const int g_nReadBufferSize = 1024 * 50;	
 }
 
 class GateServer;
@@ -52,7 +53,7 @@ HANDLER:
 
 private:
 	CommonBoost::SocketPtr m_pSocket;
-	char m_readBuffer[UserBuffer::g_nReadBufferSize];
+	char m_bytesReadBuffer[UserBuffer::g_nReadBufferSize];
 };
 
 #endif // !__USER_H__

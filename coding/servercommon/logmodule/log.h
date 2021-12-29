@@ -23,14 +23,14 @@ const int g_nPrintHeaderMaxSize = 128;
 class LogModule
 {
 public:
-	enum Level
+	enum EnLevel
 	{
 		LV_INFO,
 		LV_WARNING,
 		LV_ERROR,
 	};
 
-	enum LogType
+	enum EnLogType
 	{
 		TYPE_DAILY,
 		TYPE_ROTATING,
@@ -51,36 +51,36 @@ public:
 	void printLog(const char* format, ...);
 
 private:
-	int m_level;
-	int m_logType;
-	int m_lastLevel;
-	bool m_isTemporaryEffect;
+	int m_nLevel;
+	int m_nLogType;
+	int m_nLastLevel;
+	bool m_bTemporaryEffect;
 
 	// daily 更新时间
 	int m_nHours;
 	int m_nMin;
 
 	// rotating 滚动配置
-	int m_rotatingLogMaxSize;
-	int g_rotatingLogMaxFiles;
+	int m_nRotatingLogMaxSize;
+	int m_nRotatingLogMaxFiles;
 
 	// header 信息
-	std::string m_fileName;
-	int m_line;
-	std::string m_functionName;
-	int m_threadId;
+	std::string m_strFileName;
+	int m_nLine;
+	std::string m_strFunctionName;
+	int m_nThreadId;
 
-	std::string m_logDir;
-	std::string m_logFilePath;
+	std::string m_strLogDir;
+	std::string m_strLogFilePath;
 
-	char m_strPrintHeader[g_nPrintHeaderMaxSize];
-	char m_strPrintCont[g_nPrintMaxSize];
+	char m_bytesPrintHeader[g_nPrintHeaderMaxSize];
+	char m_bytesPrintCont[g_nPrintMaxSize];
 
 	Common::LoggerPtr m_pLog;
-	std::string m_logString;
+	std::string m_strLogString;
 
-	CommonBoost::Mutex m_contentMutex;
-	CommonBoost::Mutex m_headerMutex;
+	CommonBoost::Mutex m_mtxContent;
+	CommonBoost::Mutex m_mtxHeader;
 };
 
 namespace CommonLog
