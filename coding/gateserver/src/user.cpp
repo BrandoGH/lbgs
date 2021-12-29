@@ -22,14 +22,13 @@ void User::ayncRead()
 		return;
 	}
 
-	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	m_pSocket->async_read_some(
 		MSG_BUFFER(m_bytesReadBuffer, sizeof(m_bytesReadBuffer)),
 		BIND(&User::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
 		);
 }
 
-void User::ayncSend(const char * str, uint size)
+void User::ayncSend(const byte* str, uint size)
 {
 	if (!m_pSocket)
 	{
@@ -61,10 +60,11 @@ void User::onAyncRead(
 	
 	// TODO 协议转发
 
-	std::string sendMsg = "halo ,i'm gateserver";
-	sendMsg.append(" read data: " + std::string(m_bytesReadBuffer));
-	ayncSend(sendMsg.data(), sendMsg.size());
+	ayncSend(m_bytesReadBuffer, readSize);
+	printf("buffer: %s, readSize: %d\n", m_bytesReadBuffer, readSize);
 
+	// 结束后才memset
+	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	ayncRead();
 }
 

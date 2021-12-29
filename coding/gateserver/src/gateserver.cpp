@@ -99,7 +99,7 @@ void GateServer::onUserError(
 	const CommonBoost::ErrorCode& ec)
 {
 	--m_nConnectCount;
-	LOG_GATESERVER.printLog("current connect count: [%d]", m_nConnectCount.load());
+	LOG_GATESERVER.printLog("current connect count: [%d], max[%d]", m_nConnectCount.load(), g_nConnectMaxCount);
 
 	std::string getIp;
 	ushort getPort = 0;
@@ -193,8 +193,6 @@ void GateServer::onAcceptHandler(
 		return;
 	}
 
-	user->ayncRead();
-
 	++m_nConnectCount;
 
 	std::string ip;
@@ -209,6 +207,7 @@ void GateServer::onAcceptHandler(
 			m_nConnectCount.load());
 	}
 
+	user->ayncRead();
 	accept();
 }
 

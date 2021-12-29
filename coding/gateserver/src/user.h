@@ -28,7 +28,7 @@ public:
 	~User();
 
 	void ayncRead();
-	void ayncSend(const char* str, uint size);
+	void ayncSend(const byte* str, uint size);
 	CommonBoost::SocketPtr& getSocket();
 	void getLinkIP(std::string& outIp);
 	void getLinkPort(ushort& outPort);
@@ -53,7 +53,7 @@ HANDLER:
 
 private:
 	CommonBoost::SocketPtr m_pSocket;
-	char m_bytesReadBuffer[UserBuffer::g_nReadBufferSize];
+	byte m_bytesReadBuffer[UserBuffer::g_nReadBufferSize];
 };
 
 #endif // !__USER_H__
