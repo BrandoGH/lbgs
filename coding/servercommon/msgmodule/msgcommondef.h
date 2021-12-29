@@ -7,6 +7,17 @@
 
 struct MsgHeader 
 {
+	enum EnPackageFlag
+	{
+		FLAG_INVALID = -1,
+		FLAG_REQ,
+		FLAG_REP,
+		FLAG_MORE_PKG,
+		FLAG_END,
+
+		FLAG_MAX,
+	};
+
 	MsgHeader()
 	{
 		reset();
@@ -29,8 +40,8 @@ struct MsgHeader
 	byte m_msgSender[4];
 	byte m_msgReceive[4];
 	byte m_msgForward[4];
-	byte m_msgSeq;
-	byte m_msgFlag;
+	byte m_msgSeq;			// 包序列号
+	byte m_msgFlag;			// 0-请求 1-应答 2-后续还有包 3-包结束
 	byte m_reserve[2];
 };
 BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 20);
