@@ -3,6 +3,9 @@
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/basedef.h>
 
+#include <openssl/md5.h>
+#include <algorithm>
+
 TEST(CommonTool, getArraySize_not_view_size)
 {
 	int arrInt[] = { 1,2,3 };
@@ -205,4 +208,43 @@ TEST(CommonTool_MsgTool, bigEndian2Little_error)
 	int result2 = 0;
 	EXPECT_FALSE(CommonTool::MsgTool::bigEndian2Little(arr2, result2));
 	EXPECT_EQ(result2, 0);
+}
+
+template<class OutMd5BytesType>
+void MD5(const char* data, uint dataLen,OutMd5BytesType& outBytes)
+{
+	if (CommonTool::getArraySize(outBytes) != MD5_DIGEST_LENGTH ||
+		(sizeof(outBytes[0]) != sizeof(byte)))
+	{
+		return;
+	}
+
+	MD5_CTX ctx;
+	DEFINE_BYTE_ARRAY(md5, MD5_DIGEST_LENGTH);
+
+	MD5_Init(&ctx);
+	MD5_Update(&ctx, data, strlen(data));
+	MD5_Final(md5, &ctx);
+
+	memmove(outBytes, md5, MD5_DIGEST_LENGTH);
+}
+
+TEST(md5,test)
+{
+	std::string str = "liubinfff";
+	DEFINE_BYTE_ARRAY(md5,16);
+	MD5(str.data(),str.size(), md5);
+
+	std::string stringMd5;
+	for (int i = 0; i < 16; ++i)
+	{
+		char tmp[3];
+		sprintf(tmp, "%02x", md5[i]);
+		stringMd5.append(tmp);
+	}
+
+	transform(stringMd5.begin(), stringMd5.end(), stringMd5.begin(), toupper);
+	printf("%s md5: %s\n", str.data(), stringMd5.data());
+	
+	system("pause");
 }
