@@ -3,9 +3,6 @@
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/basedef.h>
 
-#include <openssl/md5.h>
-#include <algorithm>
-
 TEST(CommonTool, getArraySize_not_view_size)
 {
 	int arrInt[] = { 1,2,3 };
@@ -210,41 +207,81 @@ TEST(CommonTool_MsgTool, bigEndian2Little_error)
 	EXPECT_EQ(result2, 0);
 }
 
-template<class OutMd5BytesType>
-void MD5(const char* data, uint dataLen,OutMd5BytesType& outBytes)
+
+
+TEST(CommonTool_MsgTool, data2Md5_inputDataNull)
 {
-	if (CommonTool::getArraySize(outBytes) != MD5_DIGEST_LENGTH ||
-		(sizeof(outBytes[0]) != sizeof(byte)))
-	{
-		return;
-	}
-
-	MD5_CTX ctx;
-	DEFINE_BYTE_ARRAY(md5, MD5_DIGEST_LENGTH);
-
-	MD5_Init(&ctx);
-	MD5_Update(&ctx, data, strlen(data));
-	MD5_Final(md5, &ctx);
-
-	memmove(outBytes, md5, MD5_DIGEST_LENGTH);
+	DEFINE_BYTE_ARRAY(bytesRes, 16);
+	EXPECT_FALSE(CommonTool::MsgTool::data2Md5("", bytesRes));
 }
 
-TEST(md5,test)
+TEST(CommonTool_MsgTool, data2Md5_outBytesError)
 {
-	std::string str = "liubinfff";
-	DEFINE_BYTE_ARRAY(md5,16);
-	MD5(str.data(),str.size(), md5);
+	std::string inputString = "test";
+	DEFINE_BYTE_ARRAY(bytesRes, 10);
+	int outBytes[16];
+	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(inputString, bytesRes));
+	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(inputString, outBytes));
+}
 
-	std::string stringMd5;
-	for (int i = 0; i < 16; ++i)
+TEST(CommonTool_MsgTool, data2Md5_ok_inputString1)
+{
+	std::string inputString = "test";
+	const char* cInputString = "test";
+	std::string resultString = "098F6BCD4621D373CADE4E832627B4F6";
+	DEFINE_BYTE_ARRAY(resultCString, 16);
+	memmove(resultCString, "\x09\x8F\x6B\xCD\x46\x21\xD3\x73\xCA\xDE\x4E\x83\x26\x27\xB4\xF6", 16);
+	DEFINE_BYTE_ARRAY(outBytes, 16);
+	std::string outMd5String;
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString, outBytes,&outMd5String));
+	for(int i = 0; i < 16; ++i)
 	{
-		char tmp[3];
-		sprintf(tmp, "%02x", md5[i]);
-		stringMd5.append(tmp);
+		EXPECT_EQ(resultCString[i], outBytes[i]);
 	}
+	EXPECT_STREQ(outMd5String.data(), resultString.data());
+}
 
-	transform(stringMd5.begin(), stringMd5.end(), stringMd5.begin(), toupper);
-	printf("%s md5: %s\n", str.data(), stringMd5.data());
-	
-	system("pause");
+TEST(CommonTool_MsgTool, data2Md5_ok_inputString2)
+{
+	std::string inputString = "we are fml hah";
+	const char* cInputString = "we are fml hah";
+	std::string resultString = "300B22248A9A679B92FADE20363E56C7";
+	DEFINE_BYTE_ARRAY(resultCString, 16);
+	memmove(resultCString, "\x30\x0B\x22\x24\x8A\x9A\x67\x9B\x92\xFA\xDE\x20\x36\x3E\x56\xC7", 16);
+	DEFINE_BYTE_ARRAY(outBytes, 16);
+	std::string outMd5String;
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString, outBytes, &outMd5String));
+	for(int i = 0; i < 16; ++i)
+	{
+		EXPECT_EQ(resultCString[i], outBytes[i]);
+	}
+	EXPECT_STREQ(outMd5String.data(), resultString.data());
+}
+
+TEST(CommonTool_MsgTool, Md5Str2Bytes_ok)
+{
+	std::string inString = "300B22248A9A679B92FADE20363E56C7";
+	DEFINE_BYTE_ARRAY(outBytes, 16);
+	DEFINE_BYTE_ARRAY(resultCString, 16);
+	memmove(resultCString, "\x30\x0B\x22\x24\x8A\x9A\x67\x9B\x92\xFA\xDE\x20\x36\x3E\x56\xC7", 16);
+	EXPECT_TRUE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytes));
+	for(int i = 0; i < 16; ++i)
+	{
+		EXPECT_EQ(resultCString[i], outBytes[i]);
+	}
+}
+
+TEST(CommonTool_MsgTool, Md5Str2Bytes_error)
+{
+	std::string inString = "300B22248A9A679B92FADE20363E56C7FF";
+	DEFINE_BYTE_ARRAY(outBytes, 16);
+	DEFINE_BYTE_ARRAY(outBytesErr, 15);
+	DEFINE_BYTE_ARRAY(outBytesErr2, 17);
+	short outBytesErr3[16];
+	short outBytesErr4[14];
+	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytes));
+	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr));
+	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr2));
+	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr3));
+	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr4));
 }
