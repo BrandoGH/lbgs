@@ -233,7 +233,8 @@ TEST(CommonTool_MsgTool, data2Md5_ok_inputString1)
 	memmove(resultCString, "\x09\x8F\x6B\xCD\x46\x21\xD3\x73\xCA\xDE\x4E\x83\x26\x27\xB4\xF6", 16);
 	DEFINE_BYTE_ARRAY(outBytes, 16);
 	std::string outMd5String;
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString, outBytes,&outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString, outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(cInputString, outBytes,&outMd5String));
 	for(int i = 0; i < 16; ++i)
 	{
 		EXPECT_EQ(resultCString[i], outBytes[i]);
@@ -251,6 +252,7 @@ TEST(CommonTool_MsgTool, data2Md5_ok_inputString2)
 	DEFINE_BYTE_ARRAY(outBytes, 16);
 	std::string outMd5String;
 	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString, outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(cInputString, outBytes, &outMd5String));
 	for(int i = 0; i < 16; ++i)
 	{
 		EXPECT_EQ(resultCString[i], outBytes[i]);
