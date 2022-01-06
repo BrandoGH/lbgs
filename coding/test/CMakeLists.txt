@@ -43,5 +43,7 @@ elseif(UNIX)
  	libgtest.a
  	libgmock.a
  	libfmt.a
+	libssl.a
+	libcrypto.a
 	)
 endif()
