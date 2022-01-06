@@ -34,8 +34,6 @@ if (WIN32)
 	servercommon
 	gtest
 	gmock
-	libssl
-	libcrypto
 	)
 
 elseif(UNIX)
@@ -45,7 +43,5 @@ elseif(UNIX)
  	libgtest.a
  	libgmock.a
  	libfmt.a
-	libssl.a
-	libcrypto.a
 	)
 endif()

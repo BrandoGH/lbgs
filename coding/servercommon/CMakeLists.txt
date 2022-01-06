@@ -48,6 +48,8 @@ if (WIN32)
 	target_link_libraries(${LIB_NAME} 
 	spdlog
 	fmt
+	libssl
+	libcrypto
 	)
 
 elseif(UNIX)
@@ -55,6 +57,8 @@ elseif(UNIX)
 	target_link_libraries(${LIB_NAME} 
 	libspdlog.a
 	libfmt.a
+	libssl.a
+	libcrypto.a
 	)
 endif()
 
