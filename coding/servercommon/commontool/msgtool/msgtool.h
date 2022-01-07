@@ -48,8 +48,8 @@ bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 
 	if (len == sizeof(ushort))
 	{
-		outByte[0] = (num >> 8) & 0xffff;
-		outByte[1] = (num) & 0xffff;
+		outByte[0] = (num >> 8) & 0XFFFF;
+		outByte[1] = (num) & 0XFFFF;
 	}
 	else if (len == sizeof(uint))
 	{
