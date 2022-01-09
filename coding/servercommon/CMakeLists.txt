@@ -50,6 +50,7 @@ if (WIN32)
 	fmt
 	libssl
 	libcrypto
+	bcrypt
 	)
 
 elseif(UNIX)
@@ -59,6 +60,7 @@ elseif(UNIX)
 	libfmt.a
 	libssl.a
 	libcrypto.a
+	libbcrypt.a
 	)
 endif()
 

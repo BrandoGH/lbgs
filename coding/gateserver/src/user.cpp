@@ -22,6 +22,7 @@ void User::ayncRead()
 		return;
 	}
 
+	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	m_pSocket->async_read_some(
 		MSG_BUFFER(m_bytesReadBuffer, sizeof(m_bytesReadBuffer)),
 		BIND(&User::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
@@ -63,8 +64,6 @@ void User::onAyncRead(
 	ayncSend(m_bytesReadBuffer, readSize);
 	printf("buffer: %s, readSize: %d\n", m_bytesReadBuffer, readSize);
 
-	// ½áÊøºó²Åmemset
-	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	ayncRead();
 }
 

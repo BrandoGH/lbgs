@@ -7,13 +7,6 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-namespace 
-{
-const char* g_strDailyLogName = "dailyLog";
-const char* g_strRotatingLogName = "RotatingLog";
-const char* g_strConsoleLogName = "ConsoleLog";
-}
-
 namespace CommonLog
 {
 std::vector<LogModule*> g_vecLogModule;
@@ -38,16 +31,17 @@ LogModule::LogModule(const std::string& logFilePath, int level, int logType):
 	memset(m_bytesPrintHeader, 0, sizeof(m_bytesPrintHeader));
 	memset(m_bytesPrintCont, 0, sizeof(m_bytesPrintCont));
 
+
 #ifdef DLOG
-	m_pLog = spdlog::stdout_color_mt(g_strConsoleLogName + m_strLogFilePath);
+	m_pLog = spdlog::stdout_color_mt(GEN_UUID);
 #else
 	if (m_nLogType == TYPE_DAILY)
 	{
-		m_pLog = spdlog::daily_logger_mt(g_strDailyLogName + m_strLogFilePath, m_strLogDir + m_strLogFilePath, m_nHours, m_nMin);
+		m_pLog = spdlog::daily_logger_mt(GEN_UUID, m_strLogDir + m_strLogFilePath, m_nHours, m_nMin);
 	}
 	else if (m_nLogType == TYPE_ROTATING)
 	{
-		m_pLog = spdlog::rotating_logger_mt(g_strRotatingLogName + m_strLogFilePath, m_strLogDir + m_strLogFilePath, m_nRotatingLogMaxSize, m_nRotatingLogMaxFiles);
+		m_pLog = spdlog::rotating_logger_mt(GEN_UUID, m_strLogDir + m_strLogFilePath, m_nRotatingLogMaxSize, m_nRotatingLogMaxFiles);
 	}
 #endif
 	assert(m_pLog);
@@ -68,15 +62,15 @@ void LogModule::setLogDir(const std::string dir)
 
 	Common::LoggerPtr log;
 #ifdef DLOG
-	log = spdlog::stdout_color_mt(g_strConsoleLogName + m_strLogDir);
+	log = spdlog::stdout_color_mt(GEN_UUID);
 #else
 	if (m_nLogType == TYPE_DAILY)
 	{
-		log = spdlog::daily_logger_mt(g_strDailyLogName + m_strLogDir, m_strLogDir + m_strLogFilePath, m_nHours, m_nMin);
+		log = spdlog::daily_logger_mt(GEN_UUID, m_strLogDir + m_strLogFilePath, m_nHours, m_nMin);
 	}
 	else if (m_nLogType == TYPE_ROTATING)
 	{
-		log = spdlog::rotating_logger_mt(g_strRotatingLogName + m_strLogDir, m_strLogDir + m_strLogFilePath, m_nRotatingLogMaxSize, m_nRotatingLogMaxFiles);
+		log = spdlog::rotating_logger_mt(GEN_UUID, m_strLogDir + m_strLogFilePath, m_nRotatingLogMaxSize, m_nRotatingLogMaxFiles);
 	}
 #endif
 	if (log)

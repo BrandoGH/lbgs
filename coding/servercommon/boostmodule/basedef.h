@@ -9,6 +9,9 @@
 #include <boost/bind/bind.hpp>
 #include <boost/thread.hpp>
 #include <boost/asio/socket_base.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp> 
 
 #define READ_XML boost::property_tree::xml_parser::read_xml
 #define CAST_TO(type,value) boost::lexical_cast<type>((value))
@@ -18,6 +21,7 @@
 #define MOVE boost::move
 #define MSG_BUFFER boost::asio::buffer
 #define THREAD_SLEEP(msec) boost::this_thread::sleep_for(boost::chrono::milliseconds(msec))
+#define GEN_UUID std::string(boost::uuids::to_string(boost::uuids::random_generator()()))
 
 
 namespace CommonBoost
