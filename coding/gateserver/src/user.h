@@ -28,7 +28,7 @@ public:
 	~User();
 
 	void ayncRead();
-	void ayncSend(const byte* str, uint size);
+	void ayncSend(const byte* data, uint size);
 	CommonBoost::SocketPtr& getSocket();
 	void getLinkIP(std::string& outIp);
 	void getLinkPort(ushort& outPort);

@@ -29,7 +29,7 @@ void User::ayncRead()
 		);
 }
 
-void User::ayncSend(const byte* str, uint size)
+void User::ayncSend(const byte* data, uint size)
 {
 	if (!m_pSocket)
 	{
@@ -38,7 +38,7 @@ void User::ayncSend(const byte* str, uint size)
 	}
 
 	m_pSocket->async_write_some(
-		MSG_BUFFER(str, size),
+		MSG_BUFFER(data, size),
 		BIND(&User::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
 	);
 }

@@ -4,6 +4,7 @@
 #include <configmodule/configmanager.h>
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/sysinfomodule/sysinfo.h>
+#include <servercommon/commontool/msgtool/msgtool.h>
 #include <exception>
 
 namespace 
@@ -92,6 +93,18 @@ void GateServer::initData()
 	m_pAcceptor = NULL;
 	m_nConnectCount = 0;
 	m_nPort = 0;
+}
+
+void GateServer::sendServerInfo(const boost::shared_ptr<User>& user)
+{
+	if(!user)
+	{
+		LOG_GATESERVER.printLog("linking user is NULL");
+		return;
+	}
+	DEFINE_BYTE_ARRAY(mode, 1);
+	mode[0] = CommonTool::MsgTool::isLittleEndian() ? 0x00 : 0x01;
+	user->ayncSend(mode, sizeof(mode));
 }
 
 void GateServer::onUserError(
@@ -206,7 +219,7 @@ void GateServer::onAcceptHandler(
 			port,
 			m_nConnectCount.load());
 	}
-
+	sendServerInfo(user);
 	user->ayncRead();
 	accept();
 }
