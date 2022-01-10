@@ -102,9 +102,13 @@ bool bigEndian2Little(ByteArrayType& inputBytes, OutputNumType& outNum)
 
 // 数据 -> MD5  默认32位
 template<class OutMd5BytesType>
-bool data2Md5(const std::string& inString, OutMd5BytesType& outBytes, std::string* outMd5String = NULL)
+bool data2Md5(
+	const char* data, 
+	uint dataSize,
+	OutMd5BytesType& outBytes, 
+	std::string* outMd5String = NULL)
 {
-	if(inString.empty())
+	if(data == NULL)
 	{
 		return false;
 	}
@@ -119,7 +123,7 @@ bool data2Md5(const std::string& inString, OutMd5BytesType& outBytes, std::strin
 	DEFINE_BYTE_ARRAY(md5, MD5_DIGEST_LENGTH);
 
 	MD5_Init(&ctx);
-	MD5_Update(&ctx, inString.data(), inString.size());
+	MD5_Update(&ctx, data, dataSize);
 	MD5_Final(md5, &ctx);
 
 	memmove(outBytes, md5, MD5_DIGEST_LENGTH);

@@ -212,7 +212,7 @@ TEST(CommonTool_MsgTool, bigEndian2Little_error)
 TEST(CommonTool_MsgTool, data2Md5_inputDataNull)
 {
 	DEFINE_BYTE_ARRAY(bytesRes, 16);
-	EXPECT_FALSE(CommonTool::MsgTool::data2Md5("", bytesRes));
+	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(NULL, 0, bytesRes));
 }
 
 TEST(CommonTool_MsgTool, data2Md5_outBytesError)
@@ -220,8 +220,8 @@ TEST(CommonTool_MsgTool, data2Md5_outBytesError)
 	std::string inputString = "test";
 	DEFINE_BYTE_ARRAY(bytesRes, 10);
 	int outBytes[16];
-	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(inputString, bytesRes));
-	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(inputString, outBytes));
+	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(inputString.data(), inputString.size(), bytesRes));
+	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(inputString.data(), inputString.size(), outBytes));
 }
 
 TEST(CommonTool_MsgTool, data2Md5_ok_inputString1)
@@ -233,8 +233,8 @@ TEST(CommonTool_MsgTool, data2Md5_ok_inputString1)
 	memmove(resultCString, "\x09\x8F\x6B\xCD\x46\x21\xD3\x73\xCA\xDE\x4E\x83\x26\x27\xB4\xF6", 16);
 	DEFINE_BYTE_ARRAY(outBytes, 16);
 	std::string outMd5String;
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString, outBytes, &outMd5String));
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(cInputString, outBytes,&outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString.data(), inputString.size(), outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(cInputString, strlen(cInputString), outBytes,&outMd5String));
 	for(int i = 0; i < 16; ++i)
 	{
 		EXPECT_EQ(resultCString[i], outBytes[i]);
@@ -251,8 +251,8 @@ TEST(CommonTool_MsgTool, data2Md5_ok_inputString2)
 	memmove(resultCString, "\x30\x0B\x22\x24\x8A\x9A\x67\x9B\x92\xFA\xDE\x20\x36\x3E\x56\xC7", 16);
 	DEFINE_BYTE_ARRAY(outBytes, 16);
 	std::string outMd5String;
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString, outBytes, &outMd5String));
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(cInputString, outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString.data(), inputString.size(), outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(cInputString, strlen(cInputString), outBytes, &outMd5String));
 	for(int i = 0; i < 16; ++i)
 	{
 		EXPECT_EQ(resultCString[i], outBytes[i]);
@@ -286,4 +286,11 @@ TEST(CommonTool_MsgTool, Md5Str2Bytes_error)
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr2));
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr3));
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr4));
+}
+
+TEST(test,test)
+{
+	char s[5] = {0x00,0x66,0x22,0x11,0x33};
+	std::string str = s;
+	std::cout << "string: " << str << std::endl;
 }
