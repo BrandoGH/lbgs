@@ -22,11 +22,11 @@ namespace MsgTool
 bool isLittleEndian();
 
 /*
-	目前只支持低字节存储的服务器环境,高低字节字节存储互相转换
+	目前只支持低字节存储的服务器环境,高低字节字节存储互相转换 number to bytes
 */
-// 低字节 -> 高字节 【目前只支持 两字节和四字节】
+// 低字节 -> 高字节 【目前只支持 两字节和四字节】【如果是大端系统，则本函数为高字节 ——> 低字节】
 template<class InputNumType, class ByteArrayType>
-bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
+bool byteSeqTransformN2B(InputNumType num, ByteArrayType& outByte)
 {
 	int len = getArraySize(outByte);
 
@@ -37,13 +37,6 @@ bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 	if (len != sizeof(InputNumType))
 	{
 		return false;
-	}
-
-	if(!isLittleEndian()) // 如果系统是大端存储,无需转换
-	{
-		byte* arr = (byte*)&num;
-		memmove(outByte, arr, len);
-		return true;
 	}
 
 	if (len == sizeof(ushort))
@@ -62,9 +55,9 @@ bool littleEndian2Big(InputNumType num, ByteArrayType& outByte)
 	return true;
 }
 
-// 高字节 -> 低字节 【目前只支持 两字节和四字节】
+// 高字节 -> 字节 【目前只支持 两字节和四字节】【如果是大端系统，则本函数为低字节 ——> 高字节】
 template<class ByteArrayType, class OutputNumType>
-bool bigEndian2Little(ByteArrayType& inputBytes, OutputNumType& outNum)
+bool byteSeqTransformB2N(ByteArrayType& inputBytes, OutputNumType& outNum)
 {
 	int len = getArraySize(inputBytes);
 
@@ -75,12 +68,6 @@ bool bigEndian2Little(ByteArrayType& inputBytes, OutputNumType& outNum)
 	if(len != sizeof(OutputNumType))
 	{
 		return false;
-	}
-
-	if(!isLittleEndian()) // 如果系统是大端存储,无需转换
-	{
-		outNum = *(OutputNumType*)inputBytes;
-		return true;
 	}
 
 	if(len == sizeof(ushort))
@@ -103,7 +90,7 @@ bool bigEndian2Little(ByteArrayType& inputBytes, OutputNumType& outNum)
 // 数据 -> MD5  默认32位
 template<class OutMd5BytesType>
 bool data2Md5(
-	const char* data, 
+	const byte* data, 
 	uint dataSize,
 	OutMd5BytesType& outBytes, 
 	std::string* outMd5String = NULL)

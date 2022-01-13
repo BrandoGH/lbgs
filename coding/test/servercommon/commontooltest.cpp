@@ -49,7 +49,7 @@ TEST(CommonTool_MsgTool, isLittleEndian)
 	}
 }
 
-TEST(CommonTool_MsgTool, littleEndian2Big_2byte)
+TEST(CommonTool_MsgTool, byteSeqTransformN2B_2byte)
 {
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
@@ -66,7 +66,7 @@ TEST(CommonTool_MsgTool, littleEndian2Big_2byte)
 		EXPECT_EQ(ushortByteArr[0], 102);
 		EXPECT_EQ(ushortByteArr[1], 0);
 
-		CommonTool::MsgTool::littleEndian2Big(twoByteLittle, ushortByteArr);
+		CommonTool::MsgTool::byteSeqTransformN2B(twoByteLittle, ushortByteArr);
 		ushort ushortResult = *(ushort*)ushortByteArr;
 		EXPECT_EQ(ushortResult, twoByteLittle2Big);
 		EXPECT_EQ(ushortByteArr[0], 0);
@@ -78,7 +78,7 @@ TEST(CommonTool_MsgTool, littleEndian2Big_2byte)
 	}
 }
 
-TEST(CommonTool_MsgTool, littleEndian2Big_4byte)
+TEST(CommonTool_MsgTool, byteSeqTransformN2B_4byte)
 {
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
@@ -96,7 +96,7 @@ TEST(CommonTool_MsgTool, littleEndian2Big_4byte)
 		EXPECT_EQ(intByteArr[2], 0);
 		EXPECT_EQ(intByteArr[3], 0);
 
-		CommonTool::MsgTool::littleEndian2Big(fourByteLittle, intByteArr);
+		CommonTool::MsgTool::byteSeqTransformN2B(fourByteLittle, intByteArr);
 		uint uintResult = *(uint*)intByteArr;
 		EXPECT_EQ(uintResult, fourByteLittle2Big);
 		EXPECT_EQ(intByteArr[0], 0);
@@ -110,22 +110,7 @@ TEST(CommonTool_MsgTool, littleEndian2Big_4byte)
 	}
 }
 
-TEST(CommonTool_MsgTool, littleEndian2Big_bigEndianSystem)
-{
-	// 10 大端存储二进制值层面
-	DEFINE_BYTE_ARRAY(num, sizeof(ushort));
-	num[0] = '\x00';
-	num[1] = '\x0A';
-
-	DEFINE_BYTE_ARRAY(twoByteArr, sizeof(ushort));
-	memmove(twoByteArr, num, sizeof(twoByteArr));
-
-	ushort res1 = *(ushort*)num;
-	ushort res2 = *(ushort*)twoByteArr;
-	EXPECT_EQ(res1, res2);
-}
-
-TEST(CommonTool_MsgTool, littleEndian2Big_byteArrayMemberIsNotOneByte)
+TEST(CommonTool_MsgTool, byteSeqTransformN2B_byteArrayMemberIsNotOneByte)
 {
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
@@ -136,7 +121,7 @@ TEST(CommonTool_MsgTool, littleEndian2Big_byteArrayMemberIsNotOneByte)
 
 		uint fourByteLittle = 102;
 		int intByteArr[sizeof(uint)] = {0};
-		EXPECT_FALSE(CommonTool::MsgTool::littleEndian2Big(fourByteLittle, intByteArr));
+		EXPECT_FALSE(CommonTool::MsgTool::byteSeqTransformN2B(fourByteLittle, intByteArr));
 	}
 	else				// 高端存储系统测试
 	{
@@ -144,7 +129,7 @@ TEST(CommonTool_MsgTool, littleEndian2Big_byteArrayMemberIsNotOneByte)
 	}
 }
 
-TEST(CommonTool_MsgTool, littleEndian2Big_lengthConsistency)
+TEST(CommonTool_MsgTool, byteSeqTransformN2B_lengthConsistency)
 {
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
@@ -155,10 +140,10 @@ TEST(CommonTool_MsgTool, littleEndian2Big_lengthConsistency)
 
 		ushort num = 10;
 		DEFINE_BYTE_ARRAY(byteArr, sizeof(ushort) + 1);
-		EXPECT_FALSE(CommonTool::MsgTool::littleEndian2Big(num, byteArr));
+		EXPECT_FALSE(CommonTool::MsgTool::byteSeqTransformN2B(num, byteArr));
 
 		DEFINE_BYTE_ARRAY(byteArr2, sizeof(ushort));
-		EXPECT_TRUE(CommonTool::MsgTool::littleEndian2Big(num, byteArr2));
+		EXPECT_TRUE(CommonTool::MsgTool::byteSeqTransformN2B(num, byteArr2));
 	}
 	else				// 高端存储系统测试
 	{
@@ -166,7 +151,7 @@ TEST(CommonTool_MsgTool, littleEndian2Big_lengthConsistency)
 	}
 }
 
-TEST(CommonTool_MsgTool, bigEndian2Little_ok)
+TEST(CommonTool_MsgTool, byteSeqTransformB2N_ok)
 {
 	// 2 bytes
 	DEFINE_BYTE_ARRAY(bigArr, sizeof(ushort));
@@ -176,7 +161,7 @@ TEST(CommonTool_MsgTool, bigEndian2Little_ok)
 	EXPECT_EQ(bigNum, bigNumRes);
 	ushort ushortResult = 0;
 	ushort ushortResult2 = 0x000A;
-	CommonTool::MsgTool::bigEndian2Little(bigArr, ushortResult);
+	CommonTool::MsgTool::byteSeqTransformB2N(bigArr, ushortResult);
 	EXPECT_EQ(ushortResult, ushortResult2);
 
 	// 4 bytes
@@ -187,23 +172,23 @@ TEST(CommonTool_MsgTool, bigEndian2Little_ok)
 	EXPECT_EQ(bigNum2, bigNum2Res);
 	uint uintResult = 0;
 	uint uintResult2 = 0x000E000A;
-	CommonTool::MsgTool::bigEndian2Little(bigArr2, uintResult);
+	CommonTool::MsgTool::byteSeqTransformB2N(bigArr2, uintResult);
 	EXPECT_EQ(uintResult, uintResult2);
 }
 
-TEST(CommonTool_MsgTool, bigEndian2Little_error)
+TEST(CommonTool_MsgTool, byteSeqTransformB2N_error)
 {
 	// array type is not byte type
 	ushort arr[2] = {0,0};
 	ushort result = 0;
-	EXPECT_FALSE(CommonTool::MsgTool::bigEndian2Little(arr, result));
+	EXPECT_FALSE(CommonTool::MsgTool::byteSeqTransformB2N(arr, result));
 	EXPECT_EQ(result, 0);
 
 	// out number type != bytes array type
 	DEFINE_BYTE_ARRAY(arr2, sizeof(ushort));
 	memmove(arr2, "\x0A\x00", sizeof(arr2));
 	int result2 = 0;
-	EXPECT_FALSE(CommonTool::MsgTool::bigEndian2Little(arr2, result2));
+	EXPECT_FALSE(CommonTool::MsgTool::byteSeqTransformB2N(arr2, result2));
 	EXPECT_EQ(result2, 0);
 }
 
@@ -220,21 +205,23 @@ TEST(CommonTool_MsgTool, data2Md5_outBytesError)
 	std::string inputString = "test";
 	DEFINE_BYTE_ARRAY(bytesRes, 10);
 	int outBytes[16];
-	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(inputString.data(), inputString.size(), bytesRes));
-	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(inputString.data(), inputString.size(), outBytes));
+	EXPECT_FALSE(CommonTool::MsgTool::data2Md5((const byte*)inputString.data(), inputString.size(), bytesRes));
+	EXPECT_FALSE(CommonTool::MsgTool::data2Md5((const byte*)inputString.data(), inputString.size(), outBytes));
 }
 
 TEST(CommonTool_MsgTool, data2Md5_ok_inputString1)
 {
 	std::string inputString = "test";
 	const char* cInputString = "test";
+	const byte bInputString[5] = {'t','e','s','t'};
 	std::string resultString = "098F6BCD4621D373CADE4E832627B4F6";
 	DEFINE_BYTE_ARRAY(resultCString, 16);
 	memmove(resultCString, "\x09\x8F\x6B\xCD\x46\x21\xD3\x73\xCA\xDE\x4E\x83\x26\x27\xB4\xF6", 16);
 	DEFINE_BYTE_ARRAY(outBytes, 16);
 	std::string outMd5String;
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString.data(), inputString.size(), outBytes, &outMd5String));
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(cInputString, strlen(cInputString), outBytes,&outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5((const byte*)inputString.data(), inputString.size(), outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5((const byte*)cInputString, strlen(cInputString), outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(bInputString, strlen((const char*)bInputString), outBytes,&outMd5String));
 	for(int i = 0; i < 16; ++i)
 	{
 		EXPECT_EQ(resultCString[i], outBytes[i]);
@@ -251,8 +238,8 @@ TEST(CommonTool_MsgTool, data2Md5_ok_inputString2)
 	memmove(resultCString, "\x30\x0B\x22\x24\x8A\x9A\x67\x9B\x92\xFA\xDE\x20\x36\x3E\x56\xC7", 16);
 	DEFINE_BYTE_ARRAY(outBytes, 16);
 	std::string outMd5String;
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(inputString.data(), inputString.size(), outBytes, &outMd5String));
-	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(cInputString, strlen(cInputString), outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5((const byte*)inputString.data(), inputString.size(), outBytes, &outMd5String));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5((const byte*)cInputString, strlen(cInputString), outBytes, &outMd5String));
 	for(int i = 0; i < 16; ++i)
 	{
 		EXPECT_EQ(resultCString[i], outBytes[i]);
@@ -286,11 +273,4 @@ TEST(CommonTool_MsgTool, Md5Str2Bytes_error)
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr2));
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr3));
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr4));
-}
-
-TEST(test,test)
-{
-	char s[5] = {0x00,0x66,0x22,0x11,0x33};
-	std::string str = s;
-	std::cout << "string: " << str << std::endl;
 }

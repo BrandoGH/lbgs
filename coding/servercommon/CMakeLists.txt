@@ -46,6 +46,7 @@ add_library(${LIB_NAME} STATIC
 if (WIN32)
 	#link static lib
 	target_link_libraries(${LIB_NAME} 
+	boost_thread-vc140-mt
 	spdlog
 	fmt
 	libssl
