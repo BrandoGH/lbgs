@@ -54,7 +54,7 @@ void ConnectWidget::initData()
 {
 	m_pSendDataTimer = new QTimer(this);
 	m_pSendDataTimer->setInterval(m_pEditSendInterval->text().toInt());
-	connect(m_pSendDataTimer,SIGNAL(timeout()),this,SLOT(onSendData()));
+	connect(m_pSendDataTimer, SIGNAL(timeout()), this, SLOT(onSendData()));
 }
 
 void ConnectWidget::initUi()
@@ -119,6 +119,10 @@ void ConnectWidget::initUi()
 
 bool ConnectWidget::connectAll()
 {
+	if(!m_pLogPlantText)
+	{
+		return false;
+	}
 	if (getConnectCount() <= 0)
 	{
 		m_pLogPlantText->appendPlainText("type connect cout error");
@@ -133,7 +137,7 @@ bool ConnectWidget::connectAll()
 
 		connect(user, SIGNAL(sigConnect(uint)), this, SLOT(onUserConnect(uint)));
 		connect(user, SIGNAL(sigError(uint, int)), this, SLOT(onError(uint, int)));
-		connect(user, SIGNAL(sigReadData(uint, const QString&)), this, SLOT(onReadData(uint, const QString&)));
+		connect(user, SIGNAL(sigReadData(uint, const QByteArray&)), this, SLOT(onReadData(uint, const QByteArray&)));
 		printf("has create user [%d]\n", i + 1);
 	}
 
@@ -161,13 +165,17 @@ void ConnectWidget::onSendData()
 	{
 		if(m_vecUser[i])
 		{
-			m_vecUser[i]->send(m_pMsgPlantText->toPlainText());
+			m_vecUser[i]->sendData(m_pMsgPlantText->toPlainText().toUtf8());
 		}
 	}
 }
 
 void ConnectWidget::onDisConnectBtClicked(bool checked)
 {
+	if(!m_pConnectBt || !m_pDisConnectBt || !m_pSendDataBt)
+	{
+		return;
+	}
 	disConnectAll();
 	m_pConnectBt->setEnabled(true);
 	m_pDisConnectBt->setEnabled(false);
@@ -176,7 +184,7 @@ void ConnectWidget::onDisConnectBtClicked(bool checked)
 
 void ConnectWidget::onToggled(bool checked)
 {
-	if(!m_pSendDataTimer)
+	if(!m_pSendDataTimer || !m_pEditSendInterval)
 	{
 		return;
 	}
@@ -200,44 +208,62 @@ void ConnectWidget::onSendData(bool checked)
 
 void ConnectWidget::onClearLog(bool checked)
 {
-	m_pLogPlantText->clear();
+	if(m_pLogPlantText)
+	{
+		m_pLogPlantText->clear();
+	}
 }
 
 void ConnectWidget::onUserConnect(uint userId)
 {
-	m_pLogPlantText->appendPlainText(
-		QString("user[%1] has conneced").arg(userId)
-	);
-	
-	if (m_vecUser[userId - 1])
+	if(m_pLogPlantText)
 	{
-		m_vecUser[userId - 1]->send(
-			QString("user id[%1] msg").arg(m_vecUser[userId - 1]->getUserId())
+		m_pLogPlantText->appendPlainText(
+			QString("user[%1] has conneced").arg(userId)
 		);
 	}
 }
 
 void ConnectWidget::onError(uint userId, int eCode)
 {
-	m_pLogPlantText->appendPlainText(
-		QString("user[%1] has error[%2]")
-		.arg(userId)
-		.arg(eCode)
-	);
+	if(m_pLogPlantText)
+	{
+		m_pLogPlantText->appendPlainText(
+			QString("user[%1] has error[%2]")
+			.arg(userId)
+			.arg(eCode)
+		);
+	}
 }
 
-void ConnectWidget::onReadData(uint userId, const QString & data)
+void ConnectWidget::onReadData(uint userId, const QByteArray& data)
 {
-	m_pLogPlantText->appendPlainText(
-		QString("user[%1] has read data[%2]")
-		.arg(userId)
-		.arg(data)
-	);
+	User* user = m_vecUser[userId - 1];
+	if(!m_pLogPlantText || !user)
+	{
+		return;
+	}
+
+	if(data.size() == 1)		// 连接成功后服务端返回
+	{
+		if(data.toUInt() == 1)
+		{
+			m_pLogPlantText->appendPlainText("server store mode is big");
+			user->setBigEndian(true);
+		}
+		else
+		{
+			m_pLogPlantText->appendPlainText("server store mode is littile");
+			user->setBigEndian(false);
+		}
+		return;
+	}
+	
 }
 
 void ConnectWidget::onConnectBtClicked(bool checked)
 {
-	if (!connectAll())
+	if (!connectAll() || !m_pConnectBt || !m_pDisConnectBt || !m_pSendDataBt)
 	{
 		return;
 	}

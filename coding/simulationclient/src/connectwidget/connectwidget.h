@@ -44,7 +44,7 @@ private slots:
 	void onClearLog(bool checked);
 	void onUserConnect(uint userId);
 	void onError(uint userId, int eCode);
-	void onReadData(uint userId, const QString& data);
+	void onReadData(uint userId, const QByteArray& data);
 	void onSendData();
 
 private:
