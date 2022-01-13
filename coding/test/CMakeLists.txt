@@ -46,5 +46,7 @@ elseif(UNIX)
  	libfmt.a
 	libssl.a
 	libcrypto.a
+ 	libboost_thread.a
+ 	libboost_chrono.a
 	)
 endif()
