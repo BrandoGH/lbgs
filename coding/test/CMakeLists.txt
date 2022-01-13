@@ -1,5 +1,6 @@
 set(CODE_FILE 
 ./main.cpp
+./exampletest.cpp
 ./servercommon/commontooltest.cpp
 )
 
