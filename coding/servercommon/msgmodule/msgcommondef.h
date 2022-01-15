@@ -14,11 +14,11 @@ struct MsgHeader
 
 	void reset()
 	{
-		m_nPackLen = 0;
+		m_nMsgLen = 0;
 		m_nMsgType = 0;
 	}
 
-	ushort m_nPackLen;
+	ushort m_nMsgLen;
 	ushort m_nMsgType;
 };
 BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 4);
