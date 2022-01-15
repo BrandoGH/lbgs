@@ -13,6 +13,7 @@ class QPlainTextEdit;
 class QRadioButton;
 class QTimer;
 class User;
+class QComboBox;
 
 class ConnectWidget : public QWidget
 {
@@ -31,7 +32,7 @@ public:
 	QVector<User*>& getVecUser() { return m_vecUser; }
 
 private:
-	void initData();
+	void initTimer();
 	void initUi();
 	bool connectAll();
 	void disConnectAll();
@@ -40,12 +41,14 @@ private slots:
 	void onConnectBtClicked(bool checked);
 	void onDisConnectBtClicked(bool checked);
 	void onToggled(bool checked);
-	void onSendData(bool checked);
 	void onClearLog(bool checked);
 	void onUserConnect(uint userId);
 	void onError(uint userId, int eCode);
 	void onReadData(uint userId, const QByteArray& data);
+	void onSendData(bool checked);
+	void onSendData(const QByteArray& data);
 	void onSendData();
+	void onCurrentTextChanged(const QString &str);
 
 private:
 	QLineEdit* m_pEditIP;
@@ -53,6 +56,7 @@ private:
 	QLineEdit* m_pEditConnectCount;
 	QRadioButton* m_pRadioBt;
 	QLineEdit* m_pEditSendInterval;
+	QComboBox* m_pCombSendMsgType;
 	QPushButton* m_pConnectBt;
 	QPushButton* m_pDisConnectBt;
 	QPushButton* m_pSendDataBt;

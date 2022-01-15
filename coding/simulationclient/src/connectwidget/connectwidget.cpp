@@ -8,6 +8,7 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QRadioButton>
+#include <QtWidgets/QComboBox>
 #include <QtCore/QThreadPool>
 #include <QtCore/QTimer>
 
@@ -15,7 +16,7 @@ ConnectWidget::ConnectWidget(QWidget* parent)
 	: m_userId(0)
 {
 	initUi();
-	initData();
+	initTimer();
 
 }
 
@@ -50,7 +51,7 @@ uint ConnectWidget::getConnectCount()
 	return m_pEditConnectCount->text().toUInt();
 }
 
-void ConnectWidget::initData()
+void ConnectWidget::initTimer()
 {
 	m_pSendDataTimer = new QTimer(this);
 	m_pSendDataTimer->setInterval(m_pEditSendInterval->text().toInt());
@@ -72,6 +73,7 @@ void ConnectWidget::initUi()
 			m_pSendDataBt = new QPushButton("send string data", this);
 			m_pClearLogBt = new QPushButton("clear log", this);
 			m_pEditSendInterval = new QLineEdit(this);
+			m_pCombSendMsgType = new QComboBox(this);
 
 			m_pDisConnectBt->setEnabled(false);
 			m_pSendDataBt->setEnabled(false);
@@ -84,12 +86,15 @@ void ConnectWidget::initUi()
 			m_pRadioBt->setChecked(false);
 			m_pEditSendInterval->setPlaceholderText("send data interval (msec)");
 			m_pEditSendInterval->setText("3000");
+			m_pCombSendMsgType->addItem("test msg");
+			m_pCombSendMsgType->addItem("heart");
 
 			hLayout->addWidget(m_pEditIP);
 			hLayout->addWidget(m_pEditPort);
 			hLayout->addWidget(m_pEditConnectCount);
 			hLayout->addWidget(m_pRadioBt);
 			hLayout->addWidget(m_pEditSendInterval);
+			hLayout->addWidget(m_pCombSendMsgType);
 			hLayout->addWidget(m_pConnectBt);
 			hLayout->addWidget(m_pDisConnectBt);
 			hLayout->addWidget(m_pSendDataBt);
@@ -115,6 +120,8 @@ void ConnectWidget::initUi()
 	connect(m_pRadioBt, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
 	connect(m_pSendDataBt, SIGNAL(clicked(bool)), this, SLOT(onSendData(bool)));
 	connect(m_pClearLogBt, SIGNAL(clicked(bool)), this, SLOT(onClearLog(bool)));
+	connect(m_pCombSendMsgType, SIGNAL(currentTextChanged(const QString&)), 
+		this, SLOT(onCurrentTextChanged(const QString&)));
 }
 
 bool ConnectWidget::connectAll()
@@ -138,6 +145,7 @@ bool ConnectWidget::connectAll()
 		connect(user, SIGNAL(sigConnect(uint)), this, SLOT(onUserConnect(uint)));
 		connect(user, SIGNAL(sigError(uint, int)), this, SLOT(onError(uint, int)));
 		connect(user, SIGNAL(sigReadData(uint, const QByteArray&)), this, SLOT(onReadData(uint, const QByteArray&)));
+		connect(user, SIGNAL(sigSendData(const QByteArray&)), this, SLOT(onSendData(const QByteArray&)));
 		printf("has create user [%d]\n", i + 1);
 	}
 
@@ -167,6 +175,14 @@ void ConnectWidget::onSendData()
 		{
 			m_vecUser[i]->sendData(m_pMsgPlantText->toPlainText().toUtf8());
 		}
+	}
+}
+
+void ConnectWidget::onCurrentTextChanged(const QString& str)
+{
+	if(m_pMsgPlantText)
+	{
+		m_pMsgPlantText->setPlainText(str);
 	}
 }
 
@@ -204,6 +220,21 @@ void ConnectWidget::onToggled(bool checked)
 void ConnectWidget::onSendData(bool checked)
 {
 	onSendData();
+}
+
+void ConnectWidget::onSendData(const QByteArray& data)
+{
+	if(!m_pLogPlantText)
+	{
+		return;
+	}
+	QString text;
+	for(int i = 0; i < data.size(); ++i)
+	{
+		QByteArray hex(1,data[i]);
+		text.append(QString("[%1]0x" + hex.toHex().toUpper() + " ").arg(i));
+	}
+	m_pLogPlantText->appendPlainText(text);
 }
 
 void ConnectWidget::onClearLog(bool checked)

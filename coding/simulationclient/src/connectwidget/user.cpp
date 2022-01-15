@@ -65,7 +65,7 @@ void User::sendData(const char* data, uint dataSize)
 	DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder));
 	MsgHeader header;
 	MsgEnder ender;
-	header.m_nPackLen = sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder) - sizeof(header.m_nPackLen);
+	header.m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder) - sizeof(header.m_nMsgLen);
 	header.m_nMsgType = EnMsgType::MSG_TYPE_HEART_CS;
 	CommonTool::MsgTool::data2Md5(sendData, sizeof(MsgHeader) + sizeof(MsgHeartCS), ender.m_bytesMD5);
 
@@ -76,18 +76,19 @@ void User::sendData(const char* data, uint dataSize)
 		memmove(sendData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
 
 		m_pTcpSoc->write((const char*)sendData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder));
+		emit sigSendData(QByteArray((const char*)sendData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder)));
 	};
 
 	auto lambByteSeqTransformSend = [&]()
 	{
 		DEFINE_BYTE_ARRAY(headerLittleEndianData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder));
-		DEFINE_BYTE_ARRAY(headerPackLen, sizeof(header.m_nPackLen));
+		DEFINE_BYTE_ARRAY(headerPackLen, sizeof(header.m_nMsgLen));
 		DEFINE_BYTE_ARRAY(headerMsgType, sizeof(header.m_nMsgType));
 
-		CommonTool::MsgTool::byteSeqTransformN2B(header.m_nPackLen, headerPackLen);
+		CommonTool::MsgTool::byteSeqTransformN2B(header.m_nMsgLen, headerPackLen);
 		CommonTool::MsgTool::byteSeqTransformN2B(header.m_nMsgType, headerMsgType);
-		memmove(headerLittleEndianData, headerPackLen, sizeof(header.m_nPackLen));
-		memmove(headerLittleEndianData + sizeof(header.m_nPackLen), headerMsgType, sizeof(header.m_nMsgType));
+		memmove(headerLittleEndianData, headerPackLen, sizeof(header.m_nMsgLen));
+		memmove(headerLittleEndianData + sizeof(header.m_nMsgLen), headerMsgType, sizeof(header.m_nMsgType));
 		memmove(headerLittleEndianData + sizeof(MsgHeader), data, dataSize);
 		memmove(headerLittleEndianData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
 
