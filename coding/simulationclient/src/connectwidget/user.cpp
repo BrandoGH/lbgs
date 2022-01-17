@@ -17,6 +17,7 @@ User::User(
 	)
 	: m_nUserId(0)
 	, m_bServerBigEndian(false)
+	, m_pSendData(NULL)
 {
 
 	m_pTcpSoc = new QTcpSocket(this);
@@ -55,44 +56,48 @@ void User::sendData(const QByteArray& msg)
 	}
 }
 
-void User::sendData(const char* data, uint dataSize)
+void User::sendData(const char* data, uint dataSize, int msgType)
 {
 	if(!m_pTcpSoc)
 	{
+		DEL_ARR(m_pSendData);
 		return;
 	}
 
-	DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder));
 	MsgHeader header;
+	header.m_nMsgLen = sizeof(MsgHeader) + dataSize + sizeof(MsgEnder);
+	header.m_nMsgType = msgType;
+	DEL_ARR(m_pSendData);
+	m_pSendData = new byte[header.m_nMsgLen];
 	MsgEnder ender;
-	header.m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder) - sizeof(header.m_nMsgLen);
-	header.m_nMsgType = EnMsgType::MSG_TYPE_HEART_CS;
-	CommonTool::MsgTool::data2Md5(sendData, sizeof(MsgHeader) + sizeof(MsgHeartCS), ender.m_bytesMD5);
-
 	auto lambLocalStoreModeSend = [&]()
 	{
-		memmove(sendData, (const char*)&header, sizeof(MsgHeader));
-		memmove(sendData + sizeof(MsgHeader), data, dataSize);
-		memmove(sendData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
-
-		m_pTcpSoc->write((const char*)sendData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder));
-		emit sigSendData(QByteArray((const char*)sendData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder)));
+		memmove(m_pSendData, (const char*)&header, sizeof(MsgHeader));
+		memmove(m_pSendData + sizeof(MsgHeader), data, dataSize);
+		if(CommonTool::MsgTool::data2Md5(m_pSendData, sizeof(MsgHeader) + dataSize, ender.m_bytesMD5))
+		{
+			memmove(m_pSendData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
+			m_pTcpSoc->write((const char*)m_pSendData, header.m_nMsgLen);
+			emit sigSendData(QByteArray((const char*)m_pSendData, header.m_nMsgLen));
+		}
 	};
 
 	auto lambByteSeqTransformSend = [&]()
 	{
-		DEFINE_BYTE_ARRAY(headerLittleEndianData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder));
 		DEFINE_BYTE_ARRAY(headerPackLen, sizeof(header.m_nMsgLen));
 		DEFINE_BYTE_ARRAY(headerMsgType, sizeof(header.m_nMsgType));
 
 		CommonTool::MsgTool::byteSeqTransformN2B(header.m_nMsgLen, headerPackLen);
 		CommonTool::MsgTool::byteSeqTransformN2B(header.m_nMsgType, headerMsgType);
-		memmove(headerLittleEndianData, headerPackLen, sizeof(header.m_nMsgLen));
-		memmove(headerLittleEndianData + sizeof(header.m_nMsgLen), headerMsgType, sizeof(header.m_nMsgType));
-		memmove(headerLittleEndianData + sizeof(MsgHeader), data, dataSize);
-		memmove(headerLittleEndianData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
-
-		m_pTcpSoc->write((const char*)headerLittleEndianData, sizeof(MsgHeader) + sizeof(MsgHeartCS) + sizeof(MsgEnder));
+		memmove(m_pSendData, headerPackLen, sizeof(header.m_nMsgLen));
+		memmove(m_pSendData + sizeof(header.m_nMsgLen), headerMsgType, sizeof(header.m_nMsgType));
+		memmove(m_pSendData + sizeof(MsgHeader), data, dataSize);
+		if(CommonTool::MsgTool::data2Md5(m_pSendData, sizeof(MsgHeader) + dataSize, ender.m_bytesMD5))
+		{
+			memmove(m_pSendData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
+			m_pTcpSoc->write((const char*)m_pSendData, header.m_nMsgLen);
+			emit sigSendData(QByteArray((const char*)m_pSendData, header.m_nMsgLen));
+		}
 	};
 
 	if(!isServerBigEndian())		// 服务器小端传输
@@ -122,7 +127,6 @@ void User::sendData(const char* data, uint dataSize)
 			lambLocalStoreModeSend();
 		}
 	}
-	
 }
 
 void User::onConnected()
@@ -147,5 +151,5 @@ void User::sendHeartInfo()
 {
 	MsgHeartCS msg;
 	memmove(msg.m_bytesHeart, "\x4C\x42\x47\x53", sizeof(msg.m_bytesHeart));
-	sendData((const char*)&msg, sizeof(MsgHeartCS));
+	sendData((const char*)&msg, sizeof(MsgHeartCS), EnMsgType::MSG_TYPE_HEART_CS);
 }

@@ -20,6 +20,20 @@
 	byte name[len];					\
 	memset(name,0,len)
 
+#define DEL_OBJ(obj)	\
+	if(obj)				\
+	{					\
+		delete obj;		\
+		obj = NULL;		\
+	}
+
+#define DEL_ARR(arr)	\
+	if(arr)				\
+	{					\
+		delete[] arr;	\
+		arr = NULL;		\
+	}
+
 
 #ifdef WIN_OS
 #define THREAD_ID GetCurrentThreadId()

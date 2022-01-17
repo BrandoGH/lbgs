@@ -197,7 +197,7 @@ TEST(CommonTool_MsgTool, byteSeqTransformB2N_error)
 TEST(CommonTool_MsgTool, data2Md5_inputDataNull)
 {
 	DEFINE_BYTE_ARRAY(bytesRes, 16);
-	EXPECT_FALSE(CommonTool::MsgTool::data2Md5(NULL, 0, bytesRes));
+	EXPECT_TRUE(CommonTool::MsgTool::data2Md5(NULL, 0, bytesRes));
 }
 
 TEST(CommonTool_MsgTool, data2Md5_outBytesError)
@@ -273,4 +273,56 @@ TEST(CommonTool_MsgTool, Md5Str2Bytes_error)
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr2));
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr3));
 	EXPECT_FALSE(CommonTool::MsgTool::Md5Str2Bytes(inString, outBytesErr4));
+}
+
+TEST(CommonTool_MsgTool, isBytesMd5EQ_ok)
+{
+	DEFINE_BYTE_ARRAY(data1, 16);
+	DEFINE_BYTE_ARRAY(data2, 16);
+	memmove(data1, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
+	memmove(data2, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
+	EXPECT_TRUE(CommonTool::MsgTool::isBytesMd5EQ(data1, data2));
+}
+
+TEST(CommonTool_MsgTool, isBytesMd5EQ_data1SizeError)
+{
+	DEFINE_BYTE_ARRAY(data1, 15);
+	DEFINE_BYTE_ARRAY(data2, 16);
+	memmove(data1, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E", 15);
+	memmove(data2, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
+	EXPECT_FALSE(CommonTool::MsgTool::isBytesMd5EQ(data1, data2));
+}
+
+TEST(CommonTool_MsgTool, isBytesMd5EQ_data2SizeError)
+{
+	DEFINE_BYTE_ARRAY(data1, 16);
+	DEFINE_BYTE_ARRAY(data2, 15);
+	memmove(data1, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
+	memmove(data2, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E", 15);
+	EXPECT_FALSE(CommonTool::MsgTool::isBytesMd5EQ(data1, data2));
+}
+
+TEST(CommonTool_MsgTool, isBytesMd5EQ_data1TypeError)
+{
+	DEFINE_BYTE_ARRAY(data1, 16);
+	int data2[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+	memmove(data1, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
+	EXPECT_FALSE(CommonTool::MsgTool::isBytesMd5EQ(data1, data2));
+}
+
+TEST(CommonTool_MsgTool, isBytesMd5EQ_data2TypeError)
+{
+	int data1[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+	DEFINE_BYTE_ARRAY(data2, 16);
+	memmove(data2, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
+	EXPECT_FALSE(CommonTool::MsgTool::isBytesMd5EQ(data1, data2));
+}
+
+TEST(CommonTool_MsgTool, isBytesMd5EQ_md5Error)
+{
+	DEFINE_BYTE_ARRAY(data1, 16);
+	DEFINE_BYTE_ARRAY(data2, 16);
+	memmove(data1, "\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
+	memmove(data2, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
+	EXPECT_FALSE(CommonTool::MsgTool::isBytesMd5EQ(data1, data2));
 }

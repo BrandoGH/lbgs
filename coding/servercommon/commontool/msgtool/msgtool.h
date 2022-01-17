@@ -90,16 +90,11 @@ bool byteSeqTransformB2N(ByteArrayType& inputBytes, OutputNumType& outNum)
 // 数据 -> MD5  默认32位
 template<class OutMd5BytesType>
 bool data2Md5(
-	const byte* data, 
+	const byte* data,	// 无需验证是否为NULL,都是二进制
 	uint dataSize,
 	OutMd5BytesType& outBytes, 
 	std::string* outMd5String = NULL)
 {
-	if(data == NULL)
-	{
-		return false;
-	}
-
 	if(CommonTool::getArraySize(outBytes) != MD5_DIGEST_LENGTH ||
 		(sizeof(outBytes[0]) != sizeof(byte)))
 	{
@@ -169,6 +164,31 @@ bool Md5Str2Bytes(const std::string& str32, OutMd5BytesType& outBytes)
 		outBytes[i] = hex;
 
 		inStringIdx += 2;
+	}
+
+	return true;
+}
+
+template<class BytesArrayMd51, class BytesArrayMd512>
+bool isBytesMd5EQ(BytesArrayMd51& data1, BytesArrayMd512& data2)
+{
+	if(CommonTool::getArraySize(data1) != MD5_DIGEST_LENGTH ||
+		CommonTool::getArraySize(data2) != MD5_DIGEST_LENGTH)
+	{
+		return false;
+	}
+
+	if(sizeof(data1[0]) != sizeof(byte) || sizeof(data2[0]) != sizeof(byte))
+	{
+		return false;
+	}
+
+	for(int i = 0; i < MD5_DIGEST_LENGTH; ++i)
+	{
+		if(data1[i] != data2[i])
+		{
+			return false;
+		}
 	}
 
 	return true;

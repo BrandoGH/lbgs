@@ -3,6 +3,7 @@
 
 #include <QtCore/QObject>
 #include <QtNetwork/QTcpSocket>
+#include <servercommon/basedef.h>
 
 class QPlainTextEdit;
 
@@ -21,7 +22,7 @@ public:
 	void setUserId(uint id) { m_nUserId = id; }
 	uint getUserId() { return m_nUserId; }
 
-	void sendData(const char* data, uint dataSize);		// 传入data前先把字节序问题转换后才传
+	void sendData(const char* data, uint dataSize, int msgType);		// 传入data前先把字节序问题转换后才传
 	void sendData(const QByteArray& msg);
 	void setBigEndian(bool b) { m_bServerBigEndian = b; }
 	bool isServerBigEndian() { return m_bServerBigEndian; }
@@ -45,6 +46,7 @@ private:
 	QByteArray m_bytesMsg;
 	uint m_nUserId;
 	bool m_bServerBigEndian;		// 服务器字节序 false-小端 true-大端
+	byte* m_pSendData;
 };
 
 #endif // !__USER_H__
