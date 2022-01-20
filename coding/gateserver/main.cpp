@@ -4,137 +4,89 @@
 #include <servercommon/configmodule/configmanager.h>
 #include <assert.h>
 
-namespace
-{
-typedef void(*ParamResolveHandler)(int, int, const std::string&, GateServer*&);
-enum EnParam
-{
-	PARAM_1,
-	PARAM_2,
-};
+#include <boost/program_options.hpp>
 
-// 是否需要忽略传入的参数
-bool isIgnoreInputParam(const std::string param)
+void optPort(const boost::program_options::variables_map& vm, GateServer*& pGateServer)
 {
-	if(param == "ign")
+	if(vm.count("port"))
 	{
-		return true;
-	}
-	return false;
-}
-
-void param1Handler(
-	int paramIdx, 
-	int maxArg,
-	const std::string& paramStr,
-	GateServer*& gateSrv)
-{
-	if(paramIdx != EnParam::PARAM_1)
-	{
-		LOG_GATESERVER.printLog("paramIdx != EnParam::PARAM_1");
+		pGateServer = new GateServer(vm["port"].as<uint>());
+		printf("new GateServer(int port)\n");
 		return;
 	}
+	pGateServer = new GateServer();
+	printf("new GateServer()\n");
+}
 
-	if(maxArg >= 1)
+void optLogDir(const boost::program_options::variables_map& vm)
+{
+	if(vm.count("logdir"))
 	{
-		if(isIgnoreInputParam(paramStr) || paramStr.empty())
+		for(int i = 0; i < CommonLog::g_vecLogModule.size(); ++i)
 		{
-			LOG_GATESERVER.printLog("ignore param [port]");
-			gateSrv = new GateServer();
-			LOG_GATESERVER.printLog("new GateServer()");
-			return;
-		}
-		else
-		{
-			gateSrv = new GateServer(CAST_TO(int, paramStr));
-			LOG_GATESERVER.printLog("new GateServer(port)");			
+			if(!CommonLog::g_vecLogModule[i])
+			{
+				printf("CommonLog::g_vecLogModule[%d] is NULL!!\n", i);
+				continue;
+			}
+			CommonLog::g_vecLogModule[i]->setLogDir(vm["logdir"].as<std::string>());
 		}
 	}
-}
-
-void param2Handler(
-	int paramIdx,
-	int maxArg,
-	const std::string& paramStr,
-	GateServer*& gateSrv)
-{
-	if(paramIdx != EnParam::PARAM_2)
-	{
-		LOG_GATESERVER.printLog("paramIdx != EnParam::PARAM_2");
-		return;
-	}
-
-	if(isIgnoreInputParam(paramStr))
-	{
-		LOG_GATESERVER.printLog("ignore param [logpath]");
-		return;
-	}
-
-	for(int i = 0; i < CommonLog::g_vecLogModule.size(); ++i)
-	{																		
-		if(!CommonLog::g_vecLogModule[i])
-		{																	
-			LOG_GATESERVER.printLog("CommonLog::g_vecLogModule[%d] is NULL!!", i);
-			continue;														
-		}																	
-		CommonLog::g_vecLogModule[i]->setLogDir(paramStr);
-	}
-}
-
-ParamResolveHandler paramHandlerList[] =
-{
-	&param1Handler,
-	&param2Handler,
-};
 }
 
 /*
 	command: gateserver [port] [logpath]
-	如果不需要某个参数，应该设为ign 如 gateserver.exe 4444 ign 
 */
 int main(int argc, char* argv[])
 {
-
 	GateServer* pGateServer = NULL;
-
-	int paramListLen = CommonTool::getArraySize(paramHandlerList);
-	if(argc > 1)
+	boost::program_options::options_description opts("gateservser option");
+	boost::program_options::variables_map vm;
+	opts.add_options()
+		("help", "get option help")
+		("port", boost::program_options::value<uint>(), "set listen port")
+		("logdir", boost::program_options::value<std::string>(), "set log output path dir")
+		;
+	try
 	{
-		if(paramListLen != (argc - 1))
+		boost::program_options::store(boost::program_options::parse_command_line(argc, argv, opts), vm);
+	}
+	catch(...)
+	{
+		printf("WTF about your input param, please type --help\n");
+		return 0;
+	}
+	do
+	{
+		if(vm.empty())
 		{
-			printf("param size != param handler function size\n");
-			return -1;
+			pGateServer = new GateServer();
+			printf("new GateServer()\n");
+			break;
 		}
 
-		// 先初始化日志目录[param 2]
-		(*paramHandlerList[EnParam::PARAM_2])(EnParam::PARAM_2, argc, argv[EnParam::PARAM_2 + 1], pGateServer);
-
-		for(int i = 0; i < paramListLen; ++i)
+		if(vm.count("help"))
 		{
-			if(i == EnParam::PARAM_2)
-			{
-				continue;
-			}
-			(*paramHandlerList[i])(i, argc, argv[i + 1], pGateServer);
+			std::cout << opts << std::endl;
+			return 0;
 		}
-	}
-	else if(argc == 1)		// 默认参数
-	{
-		(*paramHandlerList[EnParam::PARAM_1])(EnParam::PARAM_1, argc, "", pGateServer);
-	}
+
+		optLogDir(vm);
+		optPort(vm, pGateServer);
+
+	} while(0);
 
 	assert(pGateServer);
-
 	CONFIG_MGR;	// 调用单例，初始化配置
-
 	// 启动服务
 	pGateServer->start();
 	if(pGateServer)
 	{
-		LOG_GATESERVER.printLog("GateServer Exit Exception!");
+		printf("GateServer Exit Exception!\n");
 		delete pGateServer;
 		pGateServer = NULL;
 	}
+
 
 	return 0;
 }

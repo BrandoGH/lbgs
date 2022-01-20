@@ -38,6 +38,7 @@ if (WIN32)
 	servercommon
 	boost_thread-vc140-mt
 	boost_regex-vc140-mt
+	boost_program_options-vc140-mt
 	)
 
 elseif(UNIX)
@@ -48,5 +49,6 @@ elseif(UNIX)
 	libboost_regex.a
 	libspdlog.a
 	libfmt.a
+	libboost_program_options
 	)
 endif()
