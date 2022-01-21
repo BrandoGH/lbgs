@@ -16,6 +16,8 @@
 ./commontool/commontool.cpp
 ./commontool/msgtool/msgtool.h
 ./commontool/msgtool/msgtool.cpp
+./timermodule/timer.h
+./timermodule/timer.cpp
 )
 
 set(LIB_NAME servercommon)
