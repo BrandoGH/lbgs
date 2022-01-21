@@ -49,6 +49,6 @@ elseif(UNIX)
 	libboost_regex.a
 	libspdlog.a
 	libfmt.a
-	libboost_program_options
+	libboost_program_options.a
 	)
 endif()
