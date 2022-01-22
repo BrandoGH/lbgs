@@ -50,5 +50,7 @@ elseif(UNIX)
 	libspdlog.a
 	libfmt.a
 	libboost_program_options.a
+ 	libssl.a
+ 	libcrypto.a
 	)
 endif()
