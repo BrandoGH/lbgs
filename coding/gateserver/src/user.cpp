@@ -1,10 +1,13 @@
 #include "user.h"
 #include "gateserver.h"
 
+#include <servercommon/commontool/msgtool/msgtool.h>
 
 User::User(CommonBoost::IOServer& ioserver)
+	: m_nHasReadDataSize(0)
 {
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
+	memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
 	assert(m_pSocket != NULL);
 }
@@ -58,11 +61,51 @@ void User::onAyncRead(
 		LOG_GATESERVER.printLog("size error,readSize[%d],g_nReadBufferSize[%d]", readSize, UserBuffer::g_nReadBufferSize);
 		return;
 	}
-	
-	// TODO 协议转发
 
-	ayncSend(m_bytesReadBuffer, readSize);
-	printf("buffer: %s, readSize: %d\n", m_bytesReadBuffer, readSize);
+	m_msgHeader.reset();
+	m_msgEnder.reset();
+	m_nHasReadDataSize = 0;
+
+
+	/*
+		这里只处理粘包，半包由客户端去控制，比如客户端请求协议后启动定时器，如果一段时间没有回应，则重新请求，
+		然后也可以规定请求最大次数，具体由客户端决定
+	*/
+	while(m_nHasReadDataSize < readSize)
+	{
+		// 分析协议
+		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
+
+		// 一条协议最大长度判断
+		if(m_msgHeader.m_nMsgLen > UserBuffer::g_nOnceMsgSize ||
+			m_msgHeader.m_nMsgLen <= 0)		
+		{
+			LOG_GATESERVER.printLog("msgtype[%d] size[%d] error",m_msgHeader.m_nMsgType, m_msgHeader.m_nMsgLen);
+			break;
+		}
+
+		memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, m_msgHeader.m_nMsgLen);
+		ushort userDataSize = m_msgHeader.m_nMsgLen - sizeof(MsgHeader) - sizeof(MsgEnder);
+		m_msgEnder = *(MsgEnder*)(m_bytesOnceMsg + sizeof(MsgHeader) + userDataSize);
+
+		DEFINE_BYTE_ARRAY(md5,16);
+		CommonTool::MsgTool::data2Md5(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize, md5);
+		if(!CommonTool::MsgTool::isBytesMd5EQ(md5, m_msgEnder.m_bytesMD5))
+		{
+			// 丢弃此条协议
+			LOG_GATESERVER.printLog("msgtype[%d] md5 not eq", m_msgHeader.m_nMsgType);
+			m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
+			continue;
+		}
+
+		// TODO 协议转发给内部服务器 mq 发送
+		// (m_bytesOnceMsg,userDataSize,shared_from_this())
+		// test
+		ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
+		printf("send inner server: %s, readSize: %d\n", m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
+
+		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
+	}
 
 	ayncRead();
 }

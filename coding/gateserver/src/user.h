@@ -4,13 +4,15 @@
 #include <servercommon/boostmodule/basedef.h>
 #include <servercommon/boostmodule/signalcommunication.h>
 #include <servercommon/basedef.h>
+#include <servercommon/msgmodule/msgcommondef.h>
+
 #include <logmodule/logdef.h>
 
 
 namespace UserBuffer
 {
-	// 每次读取最大buffer	
-	const int g_nReadBufferSize = 1024 * 50;	
+	const int g_nReadBufferSize = 1024 * 50;	// 每次读取最大buffer	
+	const int g_nOnceMsgSize = 1024;			// 一条协议最大字节
 }
 
 class GateServer;
@@ -54,6 +56,10 @@ HANDLER:
 private:
 	CommonBoost::SocketPtr m_pSocket;
 	byte m_bytesReadBuffer[UserBuffer::g_nReadBufferSize];
+	byte m_bytesOnceMsg[UserBuffer::g_nOnceMsgSize];
+	MsgHeader m_msgHeader;
+	MsgEnder m_msgEnder;
+	ushort m_nHasReadDataSize;
 };
 
 #endif // !__USER_H__

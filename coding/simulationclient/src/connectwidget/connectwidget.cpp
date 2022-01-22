@@ -289,7 +289,7 @@ void ConnectWidget::onReadData(uint userId, const QByteArray& data)
 		}
 		return;
 	}
-	
+	m_pLogPlantText->appendPlainText(QString("read data: %1").arg(QString(data.toHex())));
 }
 
 void ConnectWidget::onConnectBtClicked(bool checked)
