@@ -4,8 +4,8 @@ main.cpp
 ./src/gateserver.cpp
 ./src/user.h
 ./src/user.cpp
-./config/config.h
-./config/config.cpp
+./config/gateserverconfig.h
+./config/gateserverconfig.cpp
 ./gateservermsg/gateservermsg.h
 )
 set(BIN_NAME gateserver)

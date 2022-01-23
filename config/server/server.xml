@@ -4,4 +4,10 @@
 			<port>4510</port>
 		</data>
 	</gateserver>
+
+	<proxyserver>
+		<data>
+			<port>4512</port>
+		</data>
+	</proxyserver>
 </config>

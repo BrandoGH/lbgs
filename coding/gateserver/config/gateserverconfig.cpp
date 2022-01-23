@@ -1,4 +1,4 @@
-#include "config.h"
+#include "gateserverconfig.h"
 
 #include <logmodule/logdef.h>
 

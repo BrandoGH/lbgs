@@ -8,13 +8,6 @@
 
 #include <logmodule/logdef.h>
 
-
-namespace UserBuffer
-{
-	const int g_nReadBufferSize = 1024 * 50;	// 每次读取最大buffer	
-	const int g_nOnceMsgSize = 1024;			// 一条协议最大字节
-}
-
 class GateServer;
 class User : public boost::enable_shared_from_this<User>
 {

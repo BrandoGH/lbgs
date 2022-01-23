@@ -3,6 +3,9 @@
 #include <servercommon/boostmodule/basedef.h>
 #include <servercommon/timermodule/timer.h>
 
+// 定时器用法
+namespace
+{
 class TimerTest : public Timer
 {
 public:
@@ -12,20 +15,11 @@ public:
 	}
 
 };
-
-TEST(Cpp_Example, test)
+TEST(Timer_Example, test)
 {
-	/*while(true)
-	{
-		int data = 66;
-		std::cout << "Cpp_Example: data = " << data << std::endl;
-		THREAD_SLEEP(1000);
-	}*/
-
-	TimerTest pc;
+	/*TimerTest pc;
 	pc.setInterval(500);
 	pc.start();
-	
-
-	getchar();
+	getchar();*/
+}
 }

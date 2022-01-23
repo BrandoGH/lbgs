@@ -1,6 +1,6 @@
 #include "configmanager.h"
 #include "configinterface.h"
-#include <gateserver/config/config.h>
+#include <gateserver/config/gateserverconfig.h>
 #include <logmodule/logdef.h>
 
 #define NEW_CONFIG(className)	m_pArrConfigs[DENUM(className)] = new className

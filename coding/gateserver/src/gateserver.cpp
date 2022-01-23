@@ -1,5 +1,5 @@
 #include "gateserver.h"
-#include "config/config.h"
+#include "config/gateserverconfig.h"
 
 #include <configmodule/configmanager.h>
 #include <servercommon/logmodule/logdef.h>
@@ -17,10 +17,9 @@ const int g_nConnectMaxCount =
 using CommonBoost::Endpoint;
 using CommonBoost::TCP;
 GateServer::GateServer()
-
 {
 	initData();
-	const ConfigInfo* pCfgInfo = CONFIG_MGR->GetGateServerConfig()->getConfigInfo();
+	const GateServerConfigInfo* pCfgInfo = CONFIG_MGR->GetGateServerConfig()->getConfigInfo();
 	if (CONFIG_MGR->GetGateServerConfig() && pCfgInfo)
 	{
 		m_nPort = pCfgInfo->port;

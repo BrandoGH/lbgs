@@ -1,9 +1,9 @@
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
+#ifndef __GATESERVER_CONFIG_H__
+#define __GATESERVER_CONFIG_H__
 
 #include <configmodule/configinterface.h>
 
-struct ConfigInfo
+struct GateServerConfigInfo
 {
 	ushort port;
 };
@@ -20,15 +20,15 @@ public:
 	GateServerConfig();
 	virtual ~GateServerConfig();
 
-	virtual int init(const std::string& path);
+	virtual int init(const std::string& path) override;
 
-	const ConfigInfo* getConfigInfo() { return &m_info; }
+	const GateServerConfigInfo* getConfigInfo() { return &m_info; }
 
 private:
 	int initInfoCfg(CommonBoost::PTree& rootNode);
 
 private:
-	ConfigInfo m_info;
+	GateServerConfigInfo m_info;
 };
 
-#endif // !__CONFIG_H__
+#endif // !__GATESERVER_CONFIG_H__

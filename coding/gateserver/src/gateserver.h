@@ -5,9 +5,8 @@
 
 #include <boostmodule/basedef.h>
 #include <boost/atomic.hpp>
-#include <vector>
 
-struct ConfigInfo;
+struct GateServerConfigInfo;
 class GateServer
 {
 public:
