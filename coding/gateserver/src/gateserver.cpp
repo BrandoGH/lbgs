@@ -19,8 +19,12 @@ using CommonBoost::TCP;
 GateServer::GateServer()
 {
 	initData();
+	if(!CONFIG_MGR->GetGateServerConfig())
+	{
+		assert(0);
+	}
 	const GateServerConfigInfo* pCfgInfo = CONFIG_MGR->GetGateServerConfig()->getConfigInfo();
-	if (CONFIG_MGR->GetGateServerConfig() && pCfgInfo)
+	if(pCfgInfo)
 	{
 		m_nPort = pCfgInfo->port;
 		m_pAcceptor = new CommonBoost::Acceptor(

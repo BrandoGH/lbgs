@@ -3,6 +3,8 @@
 
 #ifdef WIN_OS
 #include <windows.h>
+#include <tlhelp32.h>
+#include <comdef.h>
 #endif 
 
 #ifdef LINUX_OS
@@ -11,7 +13,10 @@
 #include <linux/unistd.h>
 #endif 
 
-
+namespace SystemInfoNS
+{
+	std::string g_strCurProcessName;
+}
 
 SystemInfo::SystemInfo()
 {
@@ -19,6 +24,43 @@ SystemInfo::SystemInfo()
 
 SystemInfo::~SystemInfo()
 {
+}
+
+bool SystemInfo::isProcessRuning(const std::string& processName)
+{
+#ifdef WIN_OS
+	bool ret = false;
+	HANDLE info_handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); //拍摄系统中所有进程的快照
+	if(info_handle == INVALID_HANDLE_VALUE)
+	{
+		return false;
+	}
+
+	PROCESSENTRY32W program_info;
+	program_info.dwSize = sizeof(PROCESSENTRY32W);  //设置结构体大小
+	int bResult = Process32FirstW(info_handle, &program_info); //获取所有进程中第一个进程的信息
+	if(!bResult)
+	{
+		return false;
+	}
+
+	while(bResult)
+	{
+		std::string pro_name = _bstr_t(program_info.szExeFile);
+		if(processName == pro_name)
+		{
+			ret = true;
+			break;
+		}
+		//获得下一个进程的进程信息
+		bResult = Process32NextW(info_handle,&program_info);
+	}
+	CloseHandle(info_handle);//关闭句柄
+	return ret;
+#endif 
+
+	// TODO 添加linux实现
+	return false;
 }
 
 #ifdef WIN_OS

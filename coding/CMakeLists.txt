@@ -80,6 +80,7 @@ add_definitions(
 -DCODE_ROOT_PATH=\"${LBGS_ROOT_DIR}\"
 -DLOG_ROOT_PATH=\"${LBGS_ROOT_DIR}/build/log\"
 -DCONFIG_BASE_DIR=\"${CONFIG_BASE_DIR}\"
+-DEXE_DIR=\"${EXE_DIR}\"
 
 #common
 -DHANDLER=private
@@ -111,6 +112,7 @@ message("-- CMAKE_SHARED_LINKER_FLAGS_RELEASE : ${CMAKE_SHARED_LINKER_FLAGS_RELE
 #顺序比较重要，先编译通用库
 add_subdirectory(./servercommon)
 add_subdirectory(./gateserver)
+add_subdirectory(./proxyserver)
 
 if(ENABLE_UNITEST)
 	add_subdirectory(./test)

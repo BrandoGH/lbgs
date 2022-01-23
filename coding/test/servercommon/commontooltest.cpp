@@ -2,6 +2,7 @@
 #include <servercommon/commontool/commontool.h>
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/basedef.h>
+#include <servercommon/sysinfomodule/sysinfo.h>
 
 TEST(CommonTool, getArraySize_not_view_size)
 {
@@ -325,4 +326,10 @@ TEST(CommonTool_MsgTool, isBytesMd5EQ_md5Error)
 	memmove(data1, "\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
 	memmove(data2, "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F", 16);
 	EXPECT_FALSE(CommonTool::MsgTool::isBytesMd5EQ(data1, data2));
+}
+
+TEST(SystemInfo, isProcessRuning)
+{
+	EXPECT_TRUE(SystemInfo::isProcessRuning("test.exe"));
+	EXPECT_FALSE(SystemInfo::isProcessRuning("liubinniubi.exe"));
 }

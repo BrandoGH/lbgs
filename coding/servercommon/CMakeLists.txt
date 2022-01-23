@@ -49,6 +49,7 @@ if (WIN32)
 	#link static lib
 	target_link_libraries(${LIB_NAME} 
 	boost_thread-vc140-mt
+	boost_filesystem-vc140-mt
 	spdlog
 	fmt
 	libssl
@@ -64,6 +65,7 @@ elseif(UNIX)
 	libssl.a
 	libcrypto.a
 	libbcrypt.a
+	libboost_filesystem.a
 	)
 endif()
 

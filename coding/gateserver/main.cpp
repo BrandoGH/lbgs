@@ -2,9 +2,12 @@
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/commontool/commontool.h>
 #include <servercommon/configmodule/configmanager.h>
+#include <servercommon/sysinfomodule/sysinfo.h>
 #include <assert.h>
+#include <string>
 
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 void optPort(const boost::program_options::variables_map& vm, GateServer*& pGateServer)
 {
@@ -39,6 +42,7 @@ void optLogDir(const boost::program_options::variables_map& vm)
 */
 int main(int argc, char* argv[])
 {
+	SystemInfoNS::g_strCurProcessName = boost::filesystem::path(argv[0]).filename().string();
 	GateServer* pGateServer = NULL;
 	boost::program_options::options_description opts("gateservser option");
 	boost::program_options::variables_map vm;
@@ -56,6 +60,7 @@ int main(int argc, char* argv[])
 		printf("WTF about your input param, please type --help\n");
 		return 0;
 	}
+
 	do
 	{
 		if(vm.empty())
@@ -77,7 +82,6 @@ int main(int argc, char* argv[])
 	} while(0);
 
 	assert(pGateServer);
-	CONFIG_MGR;	// 调用单例，初始化配置
 	// 启动服务
 	pGateServer->start();
 	if(pGateServer)

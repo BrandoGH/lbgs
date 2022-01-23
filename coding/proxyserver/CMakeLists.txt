@@ -1,24 +1,22 @@
 set(CODE_FILE 
-main.cpp
-./src/gateserver.h
-./src/gateserver.cpp
-./src/user.h
-./src/user.cpp
-./config/gateserverconfig.h
-./config/gateserverconfig.cpp
-./gateservermsg/gateservermsg.h
+./main.cpp
+./src/proxyserver.h
+./src/proxyserver.cpp
+./config/proxyserverconfig.h
+./config/proxyserverconfig.cpp
 ./export/global.h
 ./export/export.h
 ./export/export.cpp
 )
-set(BIN_NAME gateserver)
 
-#¹¤³ÌÄ¿Â¼ºÍÎÄ¼şÄ¿Â¼Ò»ÖÂ
+set(BIN_NAME proxyserver)
+
+#å·¥ç¨‹ç›®å½•å’Œæ–‡ä»¶ç›®å½•ä¸€è‡´
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
 
-add_definitions(-DGATESERVER_LIB)
+add_definitions(-DPROXYSERVER_LIB)
 
-#¸½¼ÓÄ¿Â¼ Í·ÎÄ¼ş²éÕÒ
+#é™„åŠ ç›®å½• å¤´æ–‡ä»¶æŸ¥æ‰¾
 include_directories(
 	./
 	../
@@ -26,7 +24,7 @@ include_directories(
 	${3RD_PATH}
 )
 
-#Ìí¼Ó¿âËÑË÷Ä¿Â¼
+#æ·»åŠ åº“æœç´¢ç›®å½•
 link_directories(
 	${STATIC_RC_LIB_PATH_3RD}
 	${SHARED_RC_LIB_PATH_3RD}
@@ -42,8 +40,8 @@ if (WIN32)
 	target_link_libraries(${BIN_NAME}
 	servercommon
 	boost_thread-vc140-mt
-	boost_regex-vc140-mt
-	boost_program_options-vc140-mt
+    boost_regex-vc140-mt
+    boost_program_options-vc140-mt
 	)
 
 elseif(UNIX)

@@ -3,6 +3,12 @@
 
 #include "basedef.h"
 
+#include <string>
+namespace SystemInfoNS
+{
+	extern std::string g_strCurProcessName;
+}
+
 class SystemInfo
 {
 public:
@@ -18,6 +24,8 @@ public:
 	SystemInfo();
 	~SystemInfo();
 
+	static bool isProcessRuning(const std::string& processName);
+
 #ifdef WIN_OS
 	static unsigned long double getAvailableMemory(int mode = SystemInfo::UNIT_B);
 #elif LINUX_OS
@@ -30,6 +38,7 @@ private:
 #elif LINUX_OS
 	static ulong division(ulong num, int recursionCount = 1, double beDivided = 1024.0);
 #endif
+
 };
 
 #endif // !__SYSINFO_H__
