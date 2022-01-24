@@ -1,6 +1,5 @@
 #include "proxyserver.h"
-#include "config/proxyserverconfig.h"
-
+#include <configmodule/proxyserverconfig/proxyserverconfig.h>
 #include <servercommon/logmodule/logdef.h>
 
 

@@ -1,15 +1,17 @@
 #include "configmanager.h"
 #include "configinterface.h"
 #include "sysinfomodule/sysinfo.h"
+#include "gateserverconfig/gateserverconfig.h"
+#include "proxyserverconfig/proxyserverconfig.h"
 #include <logmodule/logdef.h>
-#include <gateserver/export/export.h>
-#include <proxyserver/export/export.h>
+
+
+#define NEW_CONFIG(className)	m_pArrConfigs[DENUM(className)] = new className
 
 ConfigManager::ConfigManager()
 {
-	// 加载config的导出接口
-	loadGateServerConfig();
-	loadProxyServerConfig();
+	NEW_CONFIG(GateServerConfig);
+	NEW_CONFIG(ProxyServerConfig);
 
 	// config path
 	m_cfgPath[DENUM(GateServerConfig)] = "server/server.xml";
@@ -20,15 +22,8 @@ ConfigManager::ConfigManager()
 	{
 		if (m_pArrConfigs[i] == NULL)
 		{
-			/*
-				这里也有可能时对应的进程没有启动，比如gateserver和proxyserver都用到了配置文件，
-				gateserver先启动，初始化配置文件，但是proxyserver没启动，loadProxyServerConfig时调用
-				导出接口new Config会失败
-				proxyserver 先启动也是如此
-
-				只初始化本进程的配置
-			*/
 			LOG_SERVER_COMMON_CONFIG.printLog("m_pArrConfigs[%d] is NULL", i);
+			BOOST_ASSERT(0);
 		}
 	}
 
@@ -73,31 +68,3 @@ void ConfigManager::initAllConfig()
 	LOG_SERVER_COMMON_CONFIG.printLog("all config has been init!!!!");
 }
 
-void ConfigManager::loadGateServerConfig()
-{
-	if(SystemInfo::isProcessRuning("gateserver.exe") && 
-		SystemInfoNS::g_strCurProcessName == "gateserver.exe")
-	{
-		m_libGateServerConfig.load(EXE_DIR"/gateserver.exe");
-		if(m_libGateServerConfig.has("getGateServerConfig"))
-		{
-			auto& funGetGateServerConfig = m_libGateServerConfig.get<GateServerConfig* (void)>("getGateServerConfig");
-			m_pArrConfigs[DENUM(GateServerConfig)] = funGetGateServerConfig();
-		}
-	}
-	
-}
-
-void ConfigManager::loadProxyServerConfig()
-{
-	if(SystemInfo::isProcessRuning("proxyserver.exe") &&
-		SystemInfoNS::g_strCurProcessName == "proxyserver.exe")
-	{
-		m_libProxyServerConfig.load(EXE_DIR"/proxyserver.exe");
-		if(m_libProxyServerConfig.has("getProxyServerConfig"))
-		{
-			auto& funGetProxyServerConfig = m_libProxyServerConfig.get<ProxyServerConfig* (void)>("getProxyServerConfig");
-			m_pArrConfigs[DENUM(ProxyServerConfig)] = funGetProxyServerConfig();
-		}
-	}
-}

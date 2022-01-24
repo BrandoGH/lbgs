@@ -1,9 +1,8 @@
-#include "config/proxyserverconfig.h"
-
 #include <iostream>
 #include <servercommon/boostmodule/basedef.h>
 #include <servercommon/configmodule/configmanager.h>
 #include <servercommon/sysinfomodule/sysinfo.h>
+#include <configmodule/proxyserverconfig/proxyserverconfig.h>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>

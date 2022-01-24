@@ -4,19 +4,12 @@ main.cpp
 ./src/gateserver.cpp
 ./src/user.h
 ./src/user.cpp
-./config/gateserverconfig.h
-./config/gateserverconfig.cpp
 ./gateservermsg/gateservermsg.h
-./export/global.h
-./export/export.h
-./export/export.cpp
 )
 set(BIN_NAME gateserver)
 
 #工程目录和文件目录一致
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
-
-add_definitions(-DGATESERVER_LIB)
 
 #附加目录 头文件查找
 include_directories(

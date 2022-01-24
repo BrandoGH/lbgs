@@ -1,7 +1,6 @@
 #ifndef __GATESERVER_CONFIG_H__
 #define __GATESERVER_CONFIG_H__
 
-#include "gateserver/export/global.h"
 #include <configmodule/configinterface.h>
 
 struct GateServerConfigInfo
@@ -9,7 +8,7 @@ struct GateServerConfigInfo
 	ushort port;
 };
 
-class GATESERVER_EXPORT GateServerConfig : public ConfigInterface
+class GateServerConfig : public ConfigInterface
 {
 public:
 	enum EnErrorCode

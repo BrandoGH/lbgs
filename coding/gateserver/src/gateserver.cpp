@@ -1,6 +1,6 @@
 #include "gateserver.h"
-#include "config/gateserverconfig.h"
 
+#include <configmodule/gateserverconfig/gateserverconfig.h>
 #include <configmodule/configmanager.h>
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/sysinfomodule/sysinfo.h>

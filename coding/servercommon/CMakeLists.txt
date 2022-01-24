@@ -9,6 +9,10 @@
 ./configmodule/configinterface.cpp
 ./configmodule/configmanager.h
 ./configmodule/configmanager.cpp
+./configmodule/gateserverconfig/gateserverconfig.h
+./configmodule/gateserverconfig/gateserverconfig.cpp
+./configmodule/proxyserverconfig/proxyserverconfig.h
+./configmodule/proxyserverconfig/proxyserverconfig.cpp
 ./sysinfomodule/sysinfo.h
 ./sysinfomodule/sysinfo.cpp
 ./msgmodule/msgcommondef.h

@@ -1,7 +1,6 @@
 #ifndef __PROXY_SERVER_CONFIG_H__
 #define __PROXY_SERVER_CONFIG_H__
  
-#include "proxyserver/export/global.h"
 #include <configmodule/configinterface.h>
 
 struct ProxyServerConfigInfo
@@ -9,7 +8,7 @@ struct ProxyServerConfigInfo
 	ushort port;
 };
 
-class PROXYSERVER_EXPORT ProxyServerConfig : public ConfigInterface
+class ProxyServerConfig : public ConfigInterface
 {
 public:
 	enum EnErrorCode

@@ -2,19 +2,12 @@ set(CODE_FILE
 ./main.cpp
 ./src/proxyserver.h
 ./src/proxyserver.cpp
-./config/proxyserverconfig.h
-./config/proxyserverconfig.cpp
-./export/global.h
-./export/export.h
-./export/export.cpp
 )
 
 set(BIN_NAME proxyserver)
 
 #工程目录和文件目录一致
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
-
-add_definitions(-DPROXYSERVER_LIB)
 
 #附加目录 头文件查找
 include_directories(
