@@ -57,5 +57,7 @@ elseif(UNIX)
 	libboost_program_options.a
  	libssl.a
  	libcrypto.a
+ 	libboost_filesystem.a
+  dl
 	)
 endif()
