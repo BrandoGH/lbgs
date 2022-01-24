@@ -89,6 +89,7 @@ extern 	std::vector<LogModule*> g_vecLogModule;
 
 extern LogModule g_logGateServer;
 extern LogModule g_logServerCommonConfig;
+extern LogModule g_logProxyServer;
 }
 
 #endif // !__LOG_H__

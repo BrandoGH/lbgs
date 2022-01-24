@@ -13,6 +13,7 @@ std::vector<LogModule*> g_vecLogModule;
 
 LogModule g_logGateServer("/gateserver/gateserver.log");
 LogModule g_logServerCommonConfig("/servercommonconfig/servercommonconfig.log");
+LogModule g_logProxyServer("/proxyserver/proxyserver.log");
 }
 
 
