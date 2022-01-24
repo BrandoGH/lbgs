@@ -1,11 +1,13 @@
 #ifndef __GATESERVER_GLOBAL_H__
 #define __GATESERVER_GLOBAL_H__
 
+#include <boost/config.hpp>
+
 #ifndef GATESERVER_EXPORT
 #if defined GATESERVER_LIB 
-#define GATESERVER_EXPORT __declspec(dllexport)
+#define GATESERVER_EXPORT BOOST_SYMBOL_EXPORT
 #else
-#define GATESERVER_EXPORT __declspec(dllimport)
+#define GATESERVER_EXPORT BOOST_SYMBOL_IMPORT
 #endif
 #endif // !GATESERVER_EXPORT
 

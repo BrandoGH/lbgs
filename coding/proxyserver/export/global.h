@@ -1,11 +1,13 @@
 #ifndef __PROXYSERVER_GLOBAL_H__
 #define __PROXYSERVER_GLOBAL_H__
 
+#include <boost/config.hpp>
+
 #ifndef PROXYSERVER_EXPORT
 #if defined PROXYSERVER_LIB 
-#define PROXYSERVER_EXPORT __declspec(dllexport)
+#define PROXYSERVER_EXPORT BOOST_SYMBOL_EXPORT
 #else
-#define PROXYSERVER_EXPORT __declspec(dllimport)
+#define PROXYSERVER_EXPORT BOOST_SYMBOL_IMPORT
 #endif
 #endif // !PROXYSERVER_EXPORT
 
