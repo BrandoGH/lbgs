@@ -334,6 +334,8 @@ TEST(SystemInfo, isProcessRuning)
 	EXPECT_TRUE(SystemInfo::isProcessRuning("test.exe"));
 	EXPECT_FALSE(SystemInfo::isProcessRuning("liubinniubi.exe"));
 #elif LINUX_OS
-
+	EXPECT_TRUE(SystemInfo::isProcessRuning("test"));
+	EXPECT_FALSE(SystemInfo::isProcessRuning("liubinniubi.exe"));
+	EXPECT_FALSE(SystemInfo::isProcessRuning("liubinniubi"));
 #endif
 }

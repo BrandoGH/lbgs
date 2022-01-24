@@ -5,12 +5,13 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <comdef.h>
-#endif 
-
-#ifdef LINUX_OS
+#elif LINUX_OS
 #include <sys/sysinfo.h>
 #include <linux/kernel.h>
 #include <linux/unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #endif 
 
 namespace SystemInfoNS
@@ -57,9 +58,27 @@ bool SystemInfo::isProcessRuning(const std::string& processName)
 	}
 	CloseHandle(info_handle);//关闭句柄
 	return ret;
-#endif 
+#elif LINUX_OS
+	FILE* fp = NULL;
+	char cmdResBuf[100];
+	char cmd[200];
+	memset(cmdResBuf, 0, sizeof(cmdResBuf));
+	memset(cmd,0,sizeof(cmd));
 
-	// TODO 添加linux实现
+	pid_t pid = -1;
+	
+	sprintf(cmd, "pidof %s", processName.data());
+	if((fp = popen(cmd, "r")) != NULL)
+	{
+		if(fgets(cmdResBuf, 255, fp) != NULL)
+		{
+			pid = atoi(cmdResBuf);
+		}
+	}
+	pclose(fp);
+
+	return (pid != -1);
+#endif 
 	return false;
 }
 
