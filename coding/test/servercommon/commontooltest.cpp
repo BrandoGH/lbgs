@@ -330,6 +330,10 @@ TEST(CommonTool_MsgTool, isBytesMd5EQ_md5Error)
 
 TEST(SystemInfo, isProcessRuning)
 {
+#ifdef WIN_OS
 	EXPECT_TRUE(SystemInfo::isProcessRuning("test.exe"));
 	EXPECT_FALSE(SystemInfo::isProcessRuning("liubinniubi.exe"));
+#elif LINUX_OS
+
+#endif
 }
