@@ -100,6 +100,7 @@ void User::onAyncRead(
 
 		// TODO 协议转发给内部服务器 mq 发送
 		// (m_bytesOnceMsg,userDataSize,shared_from_this())
+		// 重新组装报文 转发协议头 + m_bytesOnceMsg
 		// test
 		ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
 		printf("send inner server: %s, readSize: %d\n", m_bytesOnceMsg, m_msgHeader.m_nMsgLen);

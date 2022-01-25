@@ -38,7 +38,7 @@ void optLogDir(const boost::program_options::variables_map& vm)
 }
 
 /*
-	command: gateserver [port] [logpath]
+	command: gateserver --port=xxx --xxx=xxx
 */
 int main(int argc, char* argv[])
 {
