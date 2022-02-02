@@ -15,6 +15,8 @@
 ./configmodule/proxyserverconfig/proxyserverconfig.cpp
 ./sysinfomodule/sysinfo.h
 ./sysinfomodule/sysinfo.cpp
+./sysinfomodule/minidump/minidump.h
+./sysinfomodule/minidump/minidump.cpp
 ./msgmodule/msgcommondef.h
 ./commontool/commontool.h
 ./commontool/commontool.cpp
@@ -59,6 +61,7 @@ if (WIN32)
 	libssl
 	libcrypto
 	bcrypt
+	dbghelp
 	)
 
 elseif(UNIX)

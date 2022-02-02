@@ -2,6 +2,7 @@
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/commontool/commontool.h>
 #include <servercommon/configmodule/configmanager.h>
+#include <servercommon/sysinfomodule/minidump/minidump.h>
 #include <servercommon/sysinfomodule/sysinfo.h>
 #include <assert.h>
 #include <string>
@@ -42,7 +43,9 @@ void optLogDir(const boost::program_options::variables_map& vm)
 */
 int main(int argc, char* argv[])
 {
+	assert(LbgsMinisDump::autoDump() != NULL);
 	SystemInfoNS::g_strCurProcessName = boost::filesystem::path(argv[0]).filename().string();
+
 	GateServer* pGateServer = NULL;
 	boost::program_options::options_description opts("gateservser option");
 	boost::program_options::variables_map vm;
