@@ -14,6 +14,7 @@ set(LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_BASE_DIR}/${BIN_NAME})
 include_directories(
 	./
 	../
+	../include
 	../servercommon
 	${3RD_PATH}
 )

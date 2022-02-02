@@ -1,0 +1,1 @@
+#include "../../servercommon/sysinfomodule/minidump/minidump.h"

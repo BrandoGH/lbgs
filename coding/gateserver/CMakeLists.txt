@@ -15,6 +15,7 @@ source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
 include_directories(
 	./
 	../
+	../include
 	../servercommon
 	${3RD_PATH}
 )
