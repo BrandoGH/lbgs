@@ -1,5 +1,9 @@
 #include "minidump.h"
 
+#ifdef LINUX_OS
+#include <cstddef>
+#endif // LINUX_OS
+
 void* LbgsMinisDump::autoDump()
 {
 #ifdef WIN_OS
