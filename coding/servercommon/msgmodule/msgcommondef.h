@@ -5,7 +5,7 @@
 
 #pragma pack(push,4)
 
-namespace UserBuffer
+namespace MsgBuffer
 {
 	const int g_nReadBufferSize = 1024 * 50;	// 每次读取最大buffer	
 	const int g_nOnceMsgSize = 1024;			// 一条协议最大字节
@@ -45,11 +45,19 @@ struct MsgEnder
 };
 BOOST_STATIC_ASSERT(sizeof(MsgEnder) == 16);
 
+/*
+	0-128		内部服务器通信类型
+	150-65535	客户端通信类型
+*/
 enum EnMsgType
 {
-	// 心跳包
-	MSG_TYPE_HEART_CS		= 0,
-	MSG_TYPE_HEART_SC		= 1,
+	// 网关-转发 心跳
+	MSG_TYPE_GATE_PROXY_HEART_CS = 0,
+	MSG_TYPE_GATE_PROXY_HEART_SC = 1,
+
+	// 客户端心跳包
+	MSG_TYPE_HEART_CS		= 150,
+	MSG_TYPE_HEART_SC		= 151,
 
 	MSG_CODE_MAX,
 };

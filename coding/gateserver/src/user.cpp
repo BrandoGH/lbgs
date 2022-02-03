@@ -56,9 +56,9 @@ void User::onAyncRead(
 		sigError(shared_from_this(), ec);
 		return;
 	}
-	if (readSize <= 0 || readSize > UserBuffer::g_nReadBufferSize)
+	if (readSize <= 0 || readSize > MsgBuffer::g_nReadBufferSize)
 	{
-		LOG_GATESERVER.printLog("size error,readSize[%d],g_nReadBufferSize[%d]", readSize, UserBuffer::g_nReadBufferSize);
+		LOG_GATESERVER.printLog("size error,readSize[%d],g_nReadBufferSize[%d]", readSize, MsgBuffer::g_nReadBufferSize);
 		return;
 	}
 
@@ -77,7 +77,7 @@ void User::onAyncRead(
 		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
 
 		// 一条协议最大长度判断
-		if(m_msgHeader.m_nMsgLen > UserBuffer::g_nOnceMsgSize ||
+		if(m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
 			m_msgHeader.m_nMsgLen <= 0)		
 		{
 			LOG_GATESERVER.printLog("msgtype[%d] size[%d] error",m_msgHeader.m_nMsgType, m_msgHeader.m_nMsgLen);

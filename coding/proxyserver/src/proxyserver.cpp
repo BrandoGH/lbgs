@@ -1,4 +1,5 @@
 #include "proxyserver.h"
+
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/configmodule/configmanager.h>
@@ -14,7 +15,7 @@ ProxyServer::ProxyServer()
 		m_pAcceptor = new CommonBoost::Acceptor(
 			m_server,
 			CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
-		//accept();
+		accept();
 		LOG_PROXYSERVER.printLog("has run gateserver succ");
 	}
 }
@@ -22,15 +23,96 @@ ProxyServer::ProxyServer()
 ProxyServer::ProxyServer(int port)
 {
 	initData();
-	
+	m_nPort = port;
+	m_pAcceptor = new CommonBoost::Acceptor(
+		m_server,
+		CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
+	accept();
+	LOG_PROXYSERVER.printLog("has run gateserver succ");
 }
 
 ProxyServer::~ProxyServer()
 {
 }
 
+void ProxyServer::start()
+{
+	LOG_PROXYSERVER.printLog("ProxyServer has start,run sub thread count[%d]", CPU_MAX_THREAD);
+	LOG_GATESERVER.printLog("ProxyServer has start,port[%d]", m_nPort);
+	for(int i = 0; i < CPU_MAX_THREAD; ++i)
+	{
+		boost::thread tAccServer(BIND(&ProxyServer::onThreadRunAcceptorIOServer, this));
+		tAccServer.detach();
+	}
+	while(1);
+}
+
 void ProxyServer::initData()
 {
 	m_pAcceptor = NULL;
 	m_nPort = 0;
+}
+
+void ProxyServer::accept()
+{
+	if(!m_pAcceptor)
+	{
+		LOG_PROXYSERVER.printLog("m_pAcceptor is NULL");		// 这里都能跑到，还写什么代码，不如去搬砖
+		return;
+	}
+
+	boost::shared_ptr<ServerLinker> linker = boost::make_shared<ServerLinker>(m_server);
+	if(linker->getSocket().get() == NULL)
+	{
+		LOG_PROXYSERVER.printLog("linker->getSocket().get() == NULL");			// 都跑到这里了，服务器是不是有问题
+		return;
+	}
+	m_pAcceptor->async_accept(*(linker->getSocket()), BIND(&ProxyServer::onAcceptHandler, this, boost::placeholders::_1, linker));
+}
+
+void ProxyServer::onThreadRunAcceptorIOServer()
+{
+	LOG_PROXYSERVER.printLog("server has run");
+	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_server));
+
+	/*
+	捕获异常，可能会出现一个错误，这个错误的原因在于客户端建立连接以后一瞬间，服务端调用remote_endpoint前，就断开了链接，导致返回失败
+	错误信息如下：
+		terminate called after throwing an instance of 'boost::wrapexcept<boost::system::system_error>'
+		what():  remote_endpoint: Transport endpoint is not connected
+		Aborted
+	*/
+	while(1)
+	{
+		try
+		{
+			m_server.run();
+		}
+		catch(std::exception& e)
+		{
+			LOG_PROXYSERVER.printLog("m_server run exception!! info[%s] server will re-start!!", e.what());
+		}
+	}
+}
+
+void ProxyServer::onAcceptHandler(
+	const CommonBoost::ErrorCode& err,
+	const boost::shared_ptr<ServerLinker>& linker
+)
+{
+
+	if(err)
+	{
+		LOG_PROXYSERVER.printLog("connect error value[%d],message[%s]", err.value(), err.message().data());
+		accept();
+		return;
+	}
+	if(!linker)
+	{
+		LOG_PROXYSERVER.printLog("linking linker is NULL");
+		accept();
+		return;
+	}
+
+	linker->ayncRead();
 }

@@ -11,7 +11,7 @@ namespace
 {
 // 单台服务器最大连接数可用内存的最大连接数
 const int g_nConnectMaxCount = 
-	int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / UserBuffer::g_nReadBufferSize * 1.0); 
+	int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / MsgBuffer::g_nReadBufferSize * 1.0); 
 }
 
 using CommonBoost::Endpoint;
@@ -177,7 +177,6 @@ void GateServer::onThreadRunAcceptorIOServer()
 		}
 			catch (std::exception& e)
 		{
-			// 如果出现这个情况，建议这台网关服重启,因为有可能会影响到一些数据不正确，比如客户端连接数（当连接数万级以上时）
 			LOG_GATESERVER.printLog("m_server run exception!! info[%s] server will re-start!!",e.what());
 		}
 	}

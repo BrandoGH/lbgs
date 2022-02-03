@@ -2,6 +2,8 @@ set(CODE_FILE
 ./main.cpp
 ./src/proxyserver.h
 ./src/proxyserver.cpp
+./src/serverlinker.h
+./src/serverlinker.cpp
 )
 
 set(BIN_NAME proxyserver)

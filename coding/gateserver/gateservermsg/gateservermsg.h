@@ -6,7 +6,7 @@
 
 #pragma pack(push,4)
 
-struct MsgHeartCS	// 0-心跳包请求
+struct MsgHeartCS	// 150-心跳包请求
 {
 	MsgHeartCS()
 	{
@@ -16,7 +16,7 @@ struct MsgHeartCS	// 0-心跳包请求
 };
 BOOST_STATIC_ASSERT(sizeof(MsgHeartCS) == 4);
 
-struct MsgHeartSC	// 1-心跳包回应
+struct MsgHeartSC	// 151-心跳包回应
 {
 	MsgHeartSC()
 	{

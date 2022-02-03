@@ -48,8 +48,8 @@ HANDLER:
 
 private:
 	CommonBoost::SocketPtr m_pSocket;
-	byte m_bytesReadBuffer[UserBuffer::g_nReadBufferSize];
-	byte m_bytesOnceMsg[UserBuffer::g_nOnceMsgSize];
+	byte m_bytesReadBuffer[MsgBuffer::g_nReadBufferSize];
+	byte m_bytesOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	MsgHeader m_msgHeader;
 	MsgEnder m_msgEnder;
 	ushort m_nHasReadDataSize;
