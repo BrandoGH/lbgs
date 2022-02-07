@@ -44,6 +44,7 @@ typedef boost::system::error_code			ErrorCode;
 
 // pointer
 typedef boost::shared_ptr<Socket>			SocketPtr;
+typedef boost::shared_ptr<Endpoint>			EndpointPtr;
 typedef boost::shared_ptr<IOServer::work>	WorkPtr;
 
 // config

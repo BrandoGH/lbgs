@@ -339,3 +339,18 @@ TEST(SystemInfo, isProcessRuning)
 	EXPECT_FALSE(SystemInfo::isProcessRuning("liubinniubi"));
 #endif
 }
+
+TEST(CommonTool, isIpFormat)
+{
+	std::string ipOk = "255.255.255.6";
+	std::string ipOk2 = "127.0.0.1";
+	std::string ipErr = "127.0.0.-1";
+	std::string ipErr2 = "127.0.0..";
+	std::string ipErr3 = "127.0.0.test";
+
+	EXPECT_TRUE(CommonTool::isIpFormat(ipOk));
+	EXPECT_TRUE(CommonTool::isIpFormat(ipOk2));
+	EXPECT_FALSE(CommonTool::isIpFormat(ipErr));
+	EXPECT_FALSE(CommonTool::isIpFormat(ipErr2));
+	EXPECT_FALSE(CommonTool::isIpFormat(ipErr3));
+}

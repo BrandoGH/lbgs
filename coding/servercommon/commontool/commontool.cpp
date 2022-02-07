@@ -1,4 +1,7 @@
 #include "commontool.h"
+#include "servercommon/boostmodule/basedef.h"
+
+#include <boost/algorithm/string.hpp>
 
 namespace
 {
@@ -21,6 +24,31 @@ bool getNumByHexSymbol(char hexSymbol, int& retNum)
 	}
 
 	return false;
+}
+
+bool isIpFormat(const std::string& ip)
+{
+	std::vector<std::string> vec;
+	split(vec, ip, boost::algorithm::is_any_of("."));
+
+	for(std::string str : vec)
+	{
+		ushort ipSeg = -1;
+		try
+		{
+			ipSeg = CAST_TO(ushort, str);
+		}
+		catch(...)
+		{
+			return false;
+		}
+		if(ipSeg < 0 || ipSeg > 0xFF)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 }

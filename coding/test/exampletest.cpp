@@ -3,6 +3,7 @@
 #include <servercommon/boostmodule/basedef.h>
 #include <servercommon/timermodule/timer.h>
 
+
 // 定时器用法
 namespace
 {
@@ -22,4 +23,10 @@ TEST(Timer_Example, test)
 	pc.start();
 	getchar();*/
 }
+
+TEST(main_test, test)
+{
+	
+}
+
 }
