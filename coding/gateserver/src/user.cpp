@@ -80,7 +80,10 @@ void User::onAyncRead(
 		if(m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
 			m_msgHeader.m_nMsgLen <= 0)		
 		{
-			LOG_GATESERVER.printLog("msgtype[%d] size[%d] error",m_msgHeader.m_nMsgType, m_msgHeader.m_nMsgLen);
+			LOG_GATESERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
+				m_msgHeader.m_nMsgType, 
+				m_msgHeader.m_nMsgLen, 
+				m_bytesReadBuffer);
 			break;
 		}
 

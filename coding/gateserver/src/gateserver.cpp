@@ -5,6 +5,7 @@
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/sysinfomodule/sysinfo.h>
 #include <servercommon/commontool/msgtool/msgtool.h>
+#include <servercommon/proxyserverconfig.h>
 #include <exception>
 
 namespace 
@@ -55,7 +56,6 @@ GateServer::~GateServer()
 		m_pAcceptor = NULL;
 	}
 	LOG_GATESERVER.printLog("run ~GateServer()");
-
 }
 
 void GateServer::start()
@@ -65,11 +65,14 @@ void GateServer::start()
 		m_nPort, 
 		g_nConnectMaxCount
 	);
-	for (int i = 0; i < CPU_MAX_THREAD; ++i)
+	for (int i = 0; i < CPU_MAX_THREAD - 1; ++i)
 	{
 		boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
 		tAccServer.detach();
 	}
+	
+	boost::thread tConnect(BIND(&GateServer::runInnnerIOServerOnce, this));
+	tConnect.detach();
 	while (1);
 }
 
@@ -96,6 +99,54 @@ void GateServer::initData()
 	m_pAcceptor = NULL;
 	m_nConnectCount = 0;
 	m_nPort = 0;
+	m_bInnerRunOnce = false;
+	m_bConnectProxySrv = false;
+	initInnerClient();
+}
+
+void GateServer::initInnerClient()
+{
+	if(!CONFIG_MGR->GetProxyServerConfig())
+	{
+		return;
+	}
+	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
+	
+	m_pInnerSocket = boost::make_shared<CommonBoost::Socket>(m_innerServer);
+	m_innerEndpoint = CommonBoost::Endpoint(
+		boost::asio::ip::address::from_string(info.ip),info.port
+		);
+	connectInnerServer();
+}
+
+void GateServer::connectInnerServer()
+{
+	if(!m_pInnerSocket)
+	{
+		LOG_GATESERVER.printLog("m_pInnerSocket is NULL");
+		return;
+	}
+	m_pInnerSocket->async_connect(m_innerEndpoint, BIND(&GateServer::onConnectInnerServer, this, boost::placeholders::_1));
+}
+
+void GateServer::runInnnerIOServerOnce()
+{
+	if(!m_bInnerRunOnce)
+	{
+		CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_innerServer));
+		m_bInnerRunOnce = true;
+		while(1)
+		{
+			try
+			{
+				m_innerServer.run();
+			}
+			catch(std::exception& e)
+			{
+				LOG_GATESERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
+			}
+		}
+	}
 }
 
 void GateServer::sendServerInfo(const boost::shared_ptr<User>& user)
@@ -174,13 +225,27 @@ void GateServer::onThreadRunAcceptorIOServer()
 		try
 		{
 			m_server.run();
-		}
-			catch (std::exception& e)
+		}catch (std::exception& e)
 		{
 			LOG_GATESERVER.printLog("m_server run exception!! info[%s] server will re-start!!",e.what());
 		}
 	}
 	
+}
+
+void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
+{
+	if(err)
+	{
+		LOG_GATESERVER.printLog("onConnectInnerServer fail,re-connecting.......");
+		m_bConnectProxySrv = false;
+		connectInnerServer();
+		return;
+	}
+	LOG_GATESERVER.printLog("onConnectInnerServer succ");
+	m_bConnectProxySrv = true;
+
+	// TODO 编写和代理服异步读写操作
 }
 
 void GateServer::onAcceptHandler(
