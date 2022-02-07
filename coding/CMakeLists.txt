@@ -59,6 +59,12 @@ if (WIN32)
 	file(GLOB DLL_PATH ${SHARED_RC_LIB_PATH_3RD}/*)
 	file(COPY ${DLL_PATH} DESTINATION ${EXE_DIR})
 	message("-- 3rd dll has copy to ${EXE_DIR}")
+
+	#拷贝需要的bat脚本到可执行文件夹下【只适用于windows】
+	file(GLOB BAT_SCRIPT_START_SERVER ${LBGS_ROOT_DIR}/coding/startserver.bat)
+	file(COPY ${BAT_SCRIPT_START_SERVER} DESTINATION ${EXE_DIR})
+	message("-- windows bat script has copy to ${EXE_DIR}")
+
 elseif(UNIX)
 	add_definitions(-DLINUX_OS)
 	#服务器按需设置,开启debug可调试，默认最大优化
