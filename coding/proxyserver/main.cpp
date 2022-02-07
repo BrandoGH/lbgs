@@ -24,7 +24,9 @@ void optPort(const boost::program_options::variables_map& vm, ProxyServer*& pPro
 
 int main(int argc,char* argv[])
 {
+#ifdef WIN_OS
 	assert(LbgsMinisDump::autoDump() != NULL);
+#endif
 	SystemInfoNS::g_strCurProcessName = boost::filesystem::path(argv[0]).filename().string();
 
 	ProxyServer* pProxySrv = NULL;
