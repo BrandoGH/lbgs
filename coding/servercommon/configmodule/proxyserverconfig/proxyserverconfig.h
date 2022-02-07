@@ -5,6 +5,7 @@
 
 struct ProxyServerConfigInfo
 {
+	std::string ip;
 	ushort port;
 };
 
@@ -14,6 +15,7 @@ public:
 	enum EnErrorCode
 	{
 		ERROR_PORT = 1,
+		ERROR_IP,
 	};
 
 public:
