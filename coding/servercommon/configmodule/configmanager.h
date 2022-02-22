@@ -2,6 +2,7 @@
 #define __CONFIG_MANAGER_H__
 
 #include <string>
+#include <boost/static_assert.hpp>
 
 #define DENUM(className) TYPE_##className
 #define GET_CONFIG(className)\
@@ -22,6 +23,7 @@ public:
 
 		TYPE_MAX,
 	};
+	BOOST_STATIC_ASSERT(TYPE_MAX == 2);	// 配置文件过多时，提示作用
 
 public:
 	static ConfigManager* instance();
@@ -29,6 +31,8 @@ public:
 	GET_CONFIG(GateServerConfig)
 	GET_CONFIG(ProxyServerConfig)
 	
+	BOOST_STATIC_ASSERT(TYPE_MAX == 2);
+
 protected:
 	ConfigManager();
 	~ConfigManager();

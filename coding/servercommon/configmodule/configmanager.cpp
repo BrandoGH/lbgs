@@ -12,10 +12,12 @@ ConfigManager::ConfigManager()
 {
 	NEW_CONFIG(GateServerConfig);
 	NEW_CONFIG(ProxyServerConfig);
+	BOOST_STATIC_ASSERT(TYPE_MAX == 2);
 
 	// config path
 	m_cfgPath[DENUM(GateServerConfig)] = "server/server.xml";
 	m_cfgPath[DENUM(ProxyServerConfig)] = "server/server.xml";
+	BOOST_STATIC_ASSERT(TYPE_MAX == 2);
 
 	// check
 	for (int i = 0; i < TYPE_MAX; ++i)
