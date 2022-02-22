@@ -60,10 +60,13 @@ if (WIN32)
 	file(COPY ${DLL_PATH} DESTINATION ${EXE_DIR})
 	message("-- 3rd dll has copy to ${EXE_DIR}")
 
-	#拷贝需要的bat脚本到可执行文件夹下【只适用于windows】
 	file(GLOB BAT_SCRIPT_START_SERVER ${LBGS_ROOT_DIR}/coding/startserver.bat)
 	file(COPY ${BAT_SCRIPT_START_SERVER} DESTINATION ${EXE_DIR})
-	message("-- windows bat script has copy to ${EXE_DIR}")
+	message("-- ${BAT_SCRIPT_START_SERVER} has copy to ${EXE_DIR}")
+
+	file(GLOB BAT_SCRIPT_VSGEN ${LBGS_ROOT_DIR}/coding/vsgen.bat)
+	file(COPY ${BAT_SCRIPT_VSGEN} DESTINATION ${LBGS_ROOT_DIR}/build)
+	message("-- ${BAT_SCRIPT_VSGEN} script has copy to ${LBGS_ROOT_DIR}/build")
 
 elseif(UNIX)
 	add_definitions(-DLINUX_OS)

@@ -1,0 +1,1 @@
+MSBuild.exe .\lbgs.sln /p:configuration=release /p:platform=x64 /maxcpucount /m
