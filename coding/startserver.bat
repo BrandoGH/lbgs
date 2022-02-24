@@ -1,4 +1,4 @@
 @echo off
 
-start /B ./gateserver.exe
-start /B ./proxyserver.exe
+start /B ./exe/Release/gateserver.exe
+start /B ./exe/Release/proxyserver.exe

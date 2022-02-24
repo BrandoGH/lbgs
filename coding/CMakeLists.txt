@@ -61,8 +61,8 @@ if (WIN32)
 	message("-- 3rd dll has copy to ${EXE_DIR}")
 
 	file(GLOB BAT_SCRIPT_START_SERVER ${LBGS_ROOT_DIR}/coding/startserver.bat)
-	file(COPY ${BAT_SCRIPT_START_SERVER} DESTINATION ${EXE_DIR})
-	message("-- ${BAT_SCRIPT_START_SERVER} has copy to ${EXE_DIR}")
+	file(COPY ${BAT_SCRIPT_START_SERVER} DESTINATION ${LBGS_ROOT_DIR}/build)
+	message("-- ${BAT_SCRIPT_START_SERVER} has copy to ${LBGS_ROOT_DIR}/build")
 
 	file(GLOB BAT_SCRIPT_VSGEN ${LBGS_ROOT_DIR}/coding/vsgen.bat)
 	file(COPY ${BAT_SCRIPT_VSGEN} DESTINATION ${LBGS_ROOT_DIR}/build)
