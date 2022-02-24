@@ -14,7 +14,8 @@ ProxyServer::ProxyServer()
 		m_nPort = pCfgInfo->port;
 		m_pAcceptor = new CommonBoost::Acceptor(
 			m_server,
-			CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
+			CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort), 
+      true);
 		accept();
 		LOG_PROXYSERVER.printLog("has run gateserver succ");
 	}

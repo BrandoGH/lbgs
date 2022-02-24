@@ -30,7 +30,8 @@ GateServer::GateServer()
 		m_nPort = pCfgInfo->port;
 		m_pAcceptor = new CommonBoost::Acceptor(
 			m_server,
-			CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
+			CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort), 
+      true);
 		accept();
 		LOG_GATESERVER.printLog("has run gateserver succ");
 	}
@@ -127,7 +128,6 @@ void GateServer::connectInnerServer()
 		LOG_GATESERVER.printLog("m_pInnerSocket is NULL");
 		return;
 	}
-	closeInnerSocket();
 	m_bConnectProxySrv = false;
 	m_pInnerSocket->async_connect(m_innerEndpoint, BIND(&GateServer::onConnectInnerServer, this, boost::placeholders::_1));
 }
@@ -280,8 +280,7 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 {
 	if(err)
 	{
-		LOG_GATESERVER.printLog("onConnectInnerServer fail,re-connecting.......");
-		connectInnerServer();
+		LOG_GATESERVER.printLog("Please run ProxyServer first.......");
 		return;
 	}
 
@@ -291,7 +290,7 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 		return;
 	}
 
-	LOG_GATESERVER.printLog("onConnectInnerServer succ");
+	LOG_GATESERVER.printLog("link proxy server succ");
 	m_bConnectProxySrv = true;
 
 	// TODO 和转发服的心跳包
