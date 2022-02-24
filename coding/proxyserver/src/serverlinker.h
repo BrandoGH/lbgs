@@ -4,21 +4,40 @@
 #include <servercommon/basedef.h>
 #include <servercommon/boostmodule/basedef.h>
 #include <servercommon/msgmodule/msgcommondef.h>
+#include <servercommon/boostmodule/signalcommunication.h>
 
+class ProxyServer;
 class ServerLinker : public boost::enable_shared_from_this<ServerLinker>
 {
+public:
+	enum EnSignalConnectStatus
+	{
+		CONNECT_ERROR,
+		CONNECT_OK,
+	};
 public:
 	ServerLinker(CommonBoost::IOServer& ioserver);
 	~ServerLinker();
 
 	CommonBoost::SocketPtr& getSocket();
 	void ayncRead();
-
-private:
+	void ayncSend(const byte* data, uint size);
 	void closeSocket();
+
+	int slotConnect(ProxyServer* proxyServer);
+private:
+
+SIGNALS:
+	DEFINE_SIGNAL(void(
+		boost::shared_ptr<ServerLinker>,
+		const CommonBoost::ErrorCode&), sigError);
 
 HANDLER:
 	void onAyncRead(
+		const CommonBoost::ErrorCode& ec,
+		uint readSize
+	);
+	void onAyncSend(
 		const CommonBoost::ErrorCode& ec,
 		uint readSize
 	);

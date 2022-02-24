@@ -102,6 +102,7 @@ void GateServer::initData()
 	m_bInnerRunOnce = false;
 	m_bConnectProxySrv = false;
 	initInnerClient();
+	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
 }
 
 void GateServer::initInnerClient()
@@ -126,7 +127,19 @@ void GateServer::connectInnerServer()
 		LOG_GATESERVER.printLog("m_pInnerSocket is NULL");
 		return;
 	}
+	closeInnerSocket();
+	m_bConnectProxySrv = false;
 	m_pInnerSocket->async_connect(m_innerEndpoint, BIND(&GateServer::onConnectInnerServer, this, boost::placeholders::_1));
+}
+
+void GateServer::closeInnerSocket()
+{
+	if(!m_pInnerSocket)
+	{
+		LOG_GATESERVER.printLog("m_pInnerSocket is NULL");
+		return;
+	}
+	m_pInnerSocket->close();
 }
 
 void GateServer::runInnnerIOServerOnce()
@@ -159,6 +172,35 @@ void GateServer::sendServerInfo(const boost::shared_ptr<User>& user)
 	DEFINE_BYTE_ARRAY(mode, 1);
 	mode[0] = CommonTool::MsgTool::isLittleEndian() ? 0x00 : 0x01;
 	user->ayncSend(mode, sizeof(mode));
+}
+
+void GateServer::send2ProxySrv(const char* data, uint size)
+{
+	if(!m_pInnerSocket)
+	{
+		LOG_GATESERVER.printLog("m_pInnerSocket NULL");
+		return;
+	}
+
+	m_pInnerSocket->async_write_some(
+		MSG_BUFFER(data, size),
+		BIND(&GateServer::onProxySrvSend, this, boost::placeholders::_1, boost::placeholders::_2)
+	);
+}
+
+void GateServer::readFromProxySrv()
+{
+	if(!m_pInnerSocket)
+	{
+		LOG_GATESERVER.printLog("m_pInnerSocket == NULL");
+		return;
+	}
+
+	memset(m_bytesInnerSrvBuffer, 0, sizeof(m_bytesInnerSrvBuffer));
+	m_pInnerSocket->async_read_some(
+		MSG_BUFFER(m_bytesInnerSrvBuffer, sizeof(m_bytesInnerSrvBuffer)),
+		BIND(&GateServer::onProxySrvRead, this, boost::placeholders::_1, boost::placeholders::_2)
+	);
 }
 
 void GateServer::onUserError(
@@ -198,6 +240,7 @@ void GateServer::onUserError(
 				getPort, 
 				ec.value(),
 				ec.message().data());
+			user->closeSocket();
 		}
 		else
 		{
@@ -238,14 +281,54 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 	if(err)
 	{
 		LOG_GATESERVER.printLog("onConnectInnerServer fail,re-connecting.......");
-		m_bConnectProxySrv = false;
 		connectInnerServer();
 		return;
 	}
+
+	if(m_pInnerSocket.get() == NULL)
+	{
+		LOG_GATESERVER.printLog("m_pInnerSocket is NULL");
+		return;
+	}
+
 	LOG_GATESERVER.printLog("onConnectInnerServer succ");
 	m_bConnectProxySrv = true;
 
-	// TODO 编写和代理服异步读写操作
+	// TODO 和转发服的心跳包
+	std::string sendD = "hello proxyserver,i'm gate server";
+	send2ProxySrv(sendD.data(), sendD.size());
+	readFromProxySrv();
+}
+
+void GateServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize)
+{
+	if(ec)
+	{
+		LOG_GATESERVER.printLog("error value[%d],send size[%d], message[%s]",
+			ec.value(),
+			readSize,
+			ec.message().data());
+	}
+}
+
+void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
+{
+	if(ec)
+	{
+		LOG_GATESERVER.printLog("ecode[%d],messages[%s]",
+			ec.value(),
+			ec.message().data());
+		connectInnerServer();
+		return;
+	}
+	if(readSize <= 0 || readSize > MsgBuffer::g_nReadBufferSize)
+	{
+		LOG_GATESERVER.printLog("size error,readSize[%d],g_nReadBufferSize[%d]", readSize, MsgBuffer::g_nReadBufferSize);
+		return;
+	}
+	printf("read msg from proxyserver: %s\n", m_bytesInnerSrvBuffer);
+
+	readFromProxySrv();
 }
 
 void GateServer::onAcceptHandler(

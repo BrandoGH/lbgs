@@ -1,4 +1,5 @@
 #include "serverlinker.h"
+#include "proxyserver.h"
 
 #include <servercommon/logmodule/logdef.h>
 
@@ -32,6 +33,48 @@ void ServerLinker::ayncRead()
 	);
 }
 
+void ServerLinker::ayncSend(const byte* data, uint size)
+{
+	if(!m_pSocket)
+	{
+		LOG_PROXYSERVER.printLog("m_pSocket == NULL");
+		return;
+	}
+
+	m_pSocket->async_write_some(
+		MSG_BUFFER(data, size),
+		BIND(&ServerLinker::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
+	);
+}
+
+int ServerLinker::slotConnect(ProxyServer* proxyServer)
+{
+	if(!proxyServer)
+	{
+		LOG_PROXYSERVER.printLog("gateServer == NULL, connect slot error!");
+		return CONNECT_ERROR;
+	}
+
+	sigError.connect(BIND(
+		&ProxyServer::onLinkerError,
+		proxyServer,
+		boost::placeholders::_1,
+		boost::placeholders::_2));
+
+	return CONNECT_OK;
+}
+
+void ServerLinker::onAyncSend(const CommonBoost::ErrorCode& ec, uint readSize)
+{
+	if(ec)
+	{
+		LOG_PROXYSERVER.printLog("error value[%d],send size[%d], message[%s]",
+			ec.value(),
+			readSize,
+			ec.message().data());
+	}
+}
+
 void ServerLinker::closeSocket()
 {
 	if(!m_pSocket)
@@ -49,6 +92,7 @@ void ServerLinker::onAyncRead(
 {
 	if(ec)
 	{
+		sigError(shared_from_this(), ec);
 		return;
 	}
 	if(readSize <= 0 || readSize > MsgBuffer::g_nReadBufferSize)
@@ -61,6 +105,7 @@ void ServerLinker::onAyncRead(
 	// TODO 转发到指定服务器
 	//ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
 	printf("get inner server msg: %s\n", m_bytesReadBuffer);
+	ayncSend((byte*)"123456789", 9);
 
 	ayncRead();
 }

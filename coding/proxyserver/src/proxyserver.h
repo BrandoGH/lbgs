@@ -9,6 +9,11 @@
 class ProxyServer
 {
 public:
+	enum EnUserStatus
+	{
+		LOGOUT = 2,
+	};
+public:
 	ProxyServer();
 	ProxyServer(int port);
 	~ProxyServer();
@@ -20,7 +25,10 @@ private:
 	void accept();
 	void onThreadRunAcceptorIOServer();
 
-
+SLOTS:
+	void onLinkerError(
+		boost::shared_ptr<ServerLinker> linker,
+		const CommonBoost::ErrorCode& ec);
 HANDLER:
 	void onAcceptHandler(
 		const CommonBoost::ErrorCode& err,

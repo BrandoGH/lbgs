@@ -101,7 +101,7 @@ void User::onAyncRead(
 			continue;
 		}
 
-		// TODO 协议转发给内部服务器 mq 发送
+		// TODO 协议转发给内部服务器 mq 发送 可以直接用gateserver slotconnet传进来的，user是gateserver的友元
 		// (m_bytesOnceMsg,userDataSize,shared_from_this())
 		// 重新组装报文 转发协议头 + m_bytesOnceMsg
 		// test

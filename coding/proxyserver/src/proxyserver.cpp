@@ -38,7 +38,7 @@ ProxyServer::~ProxyServer()
 void ProxyServer::start()
 {
 	LOG_PROXYSERVER.printLog("ProxyServer has start,run sub thread count[%d]", CPU_MAX_THREAD);
-	LOG_GATESERVER.printLog("ProxyServer has start,port[%d]", m_nPort);
+	LOG_PROXYSERVER.printLog("ProxyServer has start,port[%d]", m_nPort);
 	for(int i = 0; i < CPU_MAX_THREAD; ++i)
 	{
 		boost::thread tAccServer(BIND(&ProxyServer::onThreadRunAcceptorIOServer, this));
@@ -67,6 +67,7 @@ void ProxyServer::accept()
 		LOG_PROXYSERVER.printLog("linker->getSocket().get() == NULL");			// 都跑到这里了，服务器是不是有问题
 		return;
 	}
+	linker->slotConnect(this);
 	m_pAcceptor->async_accept(*(linker->getSocket()), BIND(&ProxyServer::onAcceptHandler, this, boost::placeholders::_1, linker));
 }
 
@@ -95,6 +96,42 @@ void ProxyServer::onThreadRunAcceptorIOServer()
 	}
 }
 
+void ProxyServer::onLinkerError(
+	boost::shared_ptr<ServerLinker> linker,
+	const CommonBoost::ErrorCode& ec)
+{
+	bool bLinkerValid = false;
+	if(linker.get() != NULL)
+	{
+		bLinkerValid = true;
+	}
+	
+	// 服务器正常退出
+	if(ec.value() == ProxyServer::LOGOUT)
+	{
+		LOG_PROXYSERVER.printLog("once server has logout");
+		linker->closeSocket();
+		return;
+	}
+	else
+	{
+		// 其他错误
+		if(bLinkerValid)
+		{
+			LOG_PROXYSERVER.printLog("other error! ecode[%d],messages[%s]",
+				ec.value(),
+				ec.message().data());
+			linker->closeSocket();
+		}
+		else
+		{
+			LOG_PROXYSERVER.printLog("ecode[%d],messages[%s]", ec.value(), ec.message().data());
+		}
+
+	}
+
+}
+
 void ProxyServer::onAcceptHandler(
 	const CommonBoost::ErrorCode& err,
 	const boost::shared_ptr<ServerLinker>& linker
@@ -115,4 +152,5 @@ void ProxyServer::onAcceptHandler(
 	}
 
 	linker->ayncRead();
+	accept();
 }
