@@ -64,6 +64,10 @@ if (WIN32)
 	file(COPY ${BAT_SCRIPT_START_SERVER} DESTINATION ${LBGS_ROOT_DIR}/build)
 	message("-- ${BAT_SCRIPT_START_SERVER} has copy to ${LBGS_ROOT_DIR}/build")
 
+	file(GLOB BAT_SCRIPT_STOP_SERVER ${LBGS_ROOT_DIR}/coding/stopserver.bat)
+	file(COPY ${BAT_SCRIPT_STOP_SERVER} DESTINATION ${LBGS_ROOT_DIR}/build)
+	message("-- ${BAT_SCRIPT_STOP_SERVER} has copy to ${LBGS_ROOT_DIR}/build")
+
 	file(GLOB BAT_SCRIPT_VSGEN ${LBGS_ROOT_DIR}/coding/vsgen.bat)
 	file(COPY ${BAT_SCRIPT_VSGEN} DESTINATION ${LBGS_ROOT_DIR}/build)
 	message("-- ${BAT_SCRIPT_VSGEN} script has copy to ${LBGS_ROOT_DIR}/build")
