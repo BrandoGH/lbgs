@@ -127,6 +127,11 @@ void GateServer::connectInnerServer()
 		LOG_GATESERVER.printLog("m_pInnerSocket is NULL");
 		return;
 	}
+
+	if(m_bConnectProxySrv)
+	{
+		closeInnerSocket();
+	}
 	m_bConnectProxySrv = false;
 	m_pInnerSocket->async_connect(m_innerEndpoint, BIND(&GateServer::onConnectInnerServer, this, boost::placeholders::_1));
 }
