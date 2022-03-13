@@ -17,7 +17,7 @@
 namespace
 {
 const int g_nPrintMaxSize = 1024;
-const int g_nPrintHeaderMaxSize = 128;
+const int g_nPrintHeaderMaxSize = 512;
 }
 
 class LogModule
