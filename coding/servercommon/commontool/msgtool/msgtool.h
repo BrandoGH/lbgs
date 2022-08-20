@@ -20,6 +20,7 @@ namespace MsgTool
 
 // 当前计算机是否是低字节存储
 bool isLittleEndian();
+bool isBytesDataEQ(const byte* data1, const byte* data2, uint len);
 
 /*
 	目前只支持低字节存储的服务器环境,高低字节字节存储互相转换 number to bytes

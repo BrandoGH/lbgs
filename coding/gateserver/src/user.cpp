@@ -91,22 +91,28 @@ void User::onAyncRead(
 		ushort userDataSize = m_msgHeader.m_nMsgLen - sizeof(MsgHeader) - sizeof(MsgEnder);
 		m_msgEnder = *(MsgEnder*)(m_bytesOnceMsg + sizeof(MsgHeader) + userDataSize);
 
+		// MD5校验报文
 		DEFINE_BYTE_ARRAY(md5,16);
 		CommonTool::MsgTool::data2Md5(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize, md5);
-		if(!CommonTool::MsgTool::isBytesMd5EQ(md5, m_msgEnder.m_bytesMD5))
+		if(!CommonTool::MsgTool::isBytesMd5EQ(md5, m_msgEnder.m_bytesMD5) || 
+			(m_msgHeader.m_nMsgType < MSG_TYPE_HEART_CS || 
+				m_msgHeader.m_nMsgType >= MSG_CODE_MAX))
 		{
 			// 丢弃此条协议
-			LOG_GATESERVER.printLog("msgtype[%d] md5 not eq", m_msgHeader.m_nMsgType);
+			LOG_GATESERVER.printLog("msgtype[%d] md5 not eq or msgtype error", m_msgHeader.m_nMsgType);
 			m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
 			continue;
 		}
 
-		// TODO 协议转发给内部服务器 mq 发送 可以直接用gateserver slotconnet传进来的，user是gateserver的友元
+		// TODO 协议转发给内部服务器 实现一个mq来发送 可以直接用gateserver slotconnet传进来的，user是gateserver的友元
 		// (m_bytesOnceMsg,userDataSize,shared_from_this())
 		// 重新组装报文 转发协议头 + m_bytesOnceMsg
 		// test
-		ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
-		printf("send inner server: %s, readSize: %d\n", m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
+		//ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
+		//printf("send inner server: %s, readSize: %d\n", m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
+		// 
+		// 不需要MsgEnder的验证长度了
+		forwardToProxy(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize);
 
 		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
 	}
@@ -160,6 +166,12 @@ int User::slotConnect(GateServer* gateServer)
 		boost::placeholders::_1,
 		boost::placeholders::_2));
 
+	sigSendDataToProxy.connect(BIND(
+		&GateServer::onSendDataToProxy,
+		gateServer,
+		boost::placeholders::_1,
+		boost::placeholders::_2));
+
 	return CONNECT_OK;
 }
 
@@ -172,4 +184,21 @@ void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)
 			readSize,
 			ec.message().data());
 	}
+}
+
+void User::forwardToProxy(const byte* readOnceMsg, uint msgSize)
+{
+	MsgHeader* header = (MsgHeader*)readOnceMsg;
+	if (!header)
+	{
+		return;
+	}
+
+	header->m_nMsgLen = msgSize;
+	header->m_nSender = MsgHeader::F_GATESERVER;
+	header->m_nReceiver = MsgHeader::F_LOGICSERVER;
+	header->m_nProxyer = MsgHeader::F_PROXYSERVER;
+
+
+	sigSendDataToProxy(readOnceMsg, msgSize);
 }

@@ -35,6 +35,9 @@ SIGNALS:
 	DEFINE_SIGNAL(void(
 		boost::shared_ptr<User>,
 		const CommonBoost::ErrorCode&), sigError);
+	DEFINE_SIGNAL(void(
+		const byte* data,
+		uint dataSize), sigSendDataToProxy);
 
 HANDLER:
 	void onAyncRead(
@@ -45,6 +48,10 @@ HANDLER:
 		const CommonBoost::ErrorCode& ec,
 		uint readSize
 	);
+
+private:
+	// 将消息转发到代理服务器
+	void forwardToProxy(const byte* readOnceMsg, uint msgSize);
 
 private:
 	CommonBoost::SocketPtr m_pSocket;

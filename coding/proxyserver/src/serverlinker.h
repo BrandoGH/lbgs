@@ -6,6 +6,7 @@
 #include <servercommon/msgmodule/msgcommondef.h>
 #include <servercommon/boostmodule/signalcommunication.h>
 
+
 class ProxyServer;
 class ServerLinker : public boost::enable_shared_from_this<ServerLinker>
 {
@@ -45,6 +46,10 @@ HANDLER:
 private:
 	CommonBoost::SocketPtr m_pSocket;
 	byte m_bytesReadBuffer[MsgBuffer::g_nReadBufferSize];
+	byte m_bytesOnceMsg[MsgBuffer::g_nOnceMsgSize];
+	MsgHeader m_msgHeader;
+	ushort m_nHasReadDataSize;
+
 };
 
 #endif // !__SERVER_LINKER_H__

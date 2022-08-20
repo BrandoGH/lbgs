@@ -2,14 +2,21 @@
 #define __GATESERVER_H__
 
 #include "user.h"
+#include "gateserver_aid.h"
 
 #include <boostmodule/basedef.h>
 #include <boost/atomic.hpp>
+
+/*
+* 网关服务器
+* 
+*/
 
 struct GateServerConfigInfo;
 class GateServer
 {
 	friend class User;
+	friend class TimerProxySrvHeart;
 public:
 	enum EnUserStatus
 	{
@@ -27,6 +34,8 @@ SLOTS:
 	void onUserError(
 		boost::shared_ptr<User> user,
 		const CommonBoost::ErrorCode& ec);
+	void onSendDataToProxy(const byte* data, uint size);
+
 
 HANDLER:
 	void onAcceptHandler(
@@ -57,7 +66,6 @@ private:
 	void runInnnerIOServerOnce();
 	void sendServerInfo(const boost::shared_ptr<User>& user);	// 每个客户端连接后发送一个信息，告诉客户端服务端信息，目前发送字节序存储方式，由客户端组装报文
 	bool isConnectProxySrvSucc() { return m_bConnectProxySrv; }
-	void send2ProxySrv(const char* data, uint suze);
 	void readFromProxySrv();
 
 private:
@@ -73,6 +81,7 @@ private:
 	CommonBoost::SocketPtr m_pInnerSocket;
 	CommonBoost::Endpoint m_innerEndpoint;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
+	TimerProxySrvHeart m_innerSrvHeart;
 };
 
 #endif

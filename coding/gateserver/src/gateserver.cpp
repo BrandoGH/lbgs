@@ -8,11 +8,13 @@
 #include <servercommon/proxyserverconfig.h>
 #include <exception>
 
+
 namespace 
 {
 // 单台服务器最大连接数可用内存的最大连接数
 const int g_nConnectMaxCount = 
 	int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / MsgBuffer::g_nReadBufferSize * 1.0); 
+
 }
 
 using CommonBoost::Endpoint;
@@ -103,6 +105,9 @@ void GateServer::initData()
 	m_bConnectProxySrv = false;
 	initInnerClient();
 	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
+	m_innerSrvHeart.setGateServer(this);
+	//m_innerSrvHeart.setInterval(1000 * 30);
+	m_innerSrvHeart.setInterval(3000);
 }
 
 void GateServer::initInnerClient()
@@ -174,11 +179,11 @@ void GateServer::sendServerInfo(const boost::shared_ptr<User>& user)
 		return;
 	}
 	DEFINE_BYTE_ARRAY(mode, 1);
-	mode[0] = CommonTool::MsgTool::isLittleEndian() ? 0x00 : 0x01;
+	mode[0] = CommonTool::MsgTool::isLittleEndian() ? 0xAE : 0x01;
 	user->ayncSend(mode, sizeof(mode));
 }
 
-void GateServer::send2ProxySrv(const char* data, uint size)
+void GateServer::onSendDataToProxy(const byte* data, uint size)
 {
 	if(!m_pInnerSocket)
 	{
@@ -297,9 +302,8 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 	LOG_GATESERVER.printLog("link proxy server succ");
 	m_bConnectProxySrv = true;
 
-	// TODO 和转发服的心跳包
-	std::string sendD = "hello proxyserver,i'm gate server";
-	send2ProxySrv(sendD.data(), sendD.size());
+	m_innerSrvHeart.start();
+
 	readFromProxySrv();
 }
 
@@ -311,6 +315,8 @@ void GateServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize)
 			ec.value(),
 			readSize,
 			ec.message().data());
+
+		// 异常处理
 	}
 }
 
@@ -329,7 +335,9 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		LOG_GATESERVER.printLog("size error,readSize[%d],g_nReadBufferSize[%d]", readSize, MsgBuffer::g_nReadBufferSize);
 		return;
 	}
-	printf("read msg from proxyserver: %s\n", m_bytesInnerSrvBuffer);
+
+	// TODO 获取代理服消息
+	//printf("read msg from proxyserver: %s\n", m_bytesInnerSrvBuffer);
 
 	readFromProxySrv();
 }

@@ -9,8 +9,10 @@ message("-- current system info: ${CMAKE_SYSTEM_NAME} : ${CMAKE_SYSTEM_VERSION}"
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 -std=c++14 \
 -pthread \
+-fPIC \
 "
 )
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)	# 应该等价于fPIC ，生成与位置无关代码
 message("-- CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 #cmake 参数设置的自定义变量

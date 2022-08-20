@@ -2,11 +2,21 @@
 #include "proxyserver.h"
 
 #include <servercommon/logmodule/logdef.h>
+#include <servercommon/msgmodule/proxyservermsghandler.h>
+
+namespace
+{
+#define READ_MSG_CONTINUE \
+	m_nHasReadDataSize += m_msgHeader.m_nMsgLen; \
+	continue
+}
 
 ServerLinker::ServerLinker(CommonBoost::IOServer& ioserver)
+	: m_nHasReadDataSize(0)
 {
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
 	assert(m_pSocket != NULL);
+	memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
 }
 
 ServerLinker::~ServerLinker()
@@ -101,11 +111,70 @@ void ServerLinker::onAyncRead(
 		return;
 	}
 
-	// TODO 协议解析
-	// TODO 转发到指定服务器
-	//ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
-	printf("get inner server msg: %s\n", m_bytesReadBuffer);
-	ayncSend((byte*)"123456789", 9);
+	m_msgHeader.reset();
+	m_nHasReadDataSize = 0;
+
+	while(m_nHasReadDataSize < readSize)
+	{
+		memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
+
+		// 分析协议
+		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
+
+		// 一条协议最大长度判断
+		if(m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
+			m_msgHeader.m_nMsgLen <= 0)
+		{
+			LOG_GATESERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
+				m_msgHeader.m_nMsgType,
+				m_msgHeader.m_nMsgLen,
+				m_bytesReadBuffer);
+			break;
+		}
+		memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, m_msgHeader.m_nMsgLen);
+
+		if(m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER)
+		{
+			LOG_PROXYSERVER.printLog("m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER");
+			READ_MSG_CONTINUE;
+		}
+
+		// 发送方验证
+		if (m_msgHeader.m_nSender < MsgHeader::F_DEFAULT ||
+			m_msgHeader.m_nSender >= MsgHeader::F_MAX)
+		{
+			LOG_PROXYSERVER.printLog("m_msgHeader.m_nSender error");
+			READ_MSG_CONTINUE;
+		}
+
+		// 接收方验证
+		if(m_msgHeader.m_nReceiver < MsgHeader::F_DEFAULT ||
+			m_msgHeader.m_nReceiver >= MsgHeader::F_MAX)
+		{
+			LOG_PROXYSERVER.printLog("m_msgHeader.m_nReceiver error");
+			READ_MSG_CONTINUE;
+		}
+
+		// 和代理服通信的协议
+		if(m_msgHeader.m_nReceiver == MsgHeader::F_PROXYSERVER)
+		{
+			ProxyServerMsgHandler::callHandler(
+				m_msgHeader.m_nMsgType,
+				shared_from_this(),
+				m_bytesOnceMsg + sizeof(MsgHeader),
+				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+			READ_MSG_CONTINUE;
+		}
+
+		// TODO 转发到指定服务器
+		//ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
+		printf("get inner server msg: %s\n", m_bytesOnceMsg);
+		ayncSend((byte*)"123456789", 9);
+
+		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
+	}
+
+	
 
 	ayncRead();
 }

@@ -20,5 +20,22 @@ bool isLittleEndian()
 	return (e.c[0] == '\x01');
 }
 
+bool isBytesDataEQ(const byte* data1, const byte* data2, uint len)
+{
+	if(len <= 0 || !data1 || !data2)
+	{
+		return false;
+	}
+	for(int i = 0; i < len; ++i)
+	{
+		if(data1[i] != data2[i])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 }}
 

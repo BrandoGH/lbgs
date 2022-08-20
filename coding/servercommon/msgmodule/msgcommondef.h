@@ -13,6 +13,16 @@ namespace MsgBuffer
 
 struct MsgHeader 
 {
+	enum Flag
+	{
+		F_DEFAULT,
+		F_PROXYSERVER,		// 代理服
+		F_GATESERVER,		// 网关服
+		F_LOGICSERVER,		// 逻辑服
+
+		F_MAX,
+	};
+
 	MsgHeader()
 	{
 		reset();
@@ -22,12 +32,20 @@ struct MsgHeader
 	{
 		m_nMsgLen = 0;
 		m_nMsgType = 0;
+		m_nSender = F_DEFAULT;
+		m_nReceiver = F_DEFAULT;
+		m_nProxyer = F_DEFAULT;
+		m_nReserve = 0;
 	}
 
 	ushort m_nMsgLen;
 	ushort m_nMsgType;
+	ushort m_nSender;		// 发送方
+	ushort m_nReceiver;		// 接收方
+	byte m_nProxyer;		// 转发方 固定代理服
+	byte m_nReserve;		// 保留
 };
-BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 4);
+BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 10);
 
 struct MsgEnder
 {
@@ -52,8 +70,10 @@ BOOST_STATIC_ASSERT(sizeof(MsgEnder) == 16);
 enum EnMsgType
 {
 	// 网关-转发 心跳
-	MSG_TYPE_GATE_PROXY_HEART_CS = 0,
-	MSG_TYPE_GATE_PROXY_HEART_SC = 1,
+	MSG_TYPE_GATE_PROXY_HEART_GP = 0,
+	MSG_TYPE_GATE_PROXY_HEART_PG = 1,
+
+	MSG_IN_TYPE_MAX,
 
 	// 客户端心跳包
 	MSG_TYPE_HEART_CS		= 150,

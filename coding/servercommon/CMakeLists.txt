@@ -18,6 +18,8 @@
 ./sysinfomodule/minidump/minidump.h
 ./sysinfomodule/minidump/minidump.cpp
 ./msgmodule/msgcommondef.h
+./msgmodule/proxyservermsghandler.h
+./msgmodule/proxyservermsghandler.cpp
 ./commontool/commontool.h
 ./commontool/commontool.cpp
 ./commontool/msgtool/msgtool.h

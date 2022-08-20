@@ -2,6 +2,8 @@ set(CODE_FILE
 main.cpp
 ./src/gateserver.h
 ./src/gateserver.cpp
+./src/gateserver_aid.h
+./src/gateserver_aid.cpp
 ./src/user.h
 ./src/user.cpp
 ./gateservermsg/gateservermsg.h

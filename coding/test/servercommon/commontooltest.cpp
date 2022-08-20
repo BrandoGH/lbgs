@@ -354,3 +354,23 @@ TEST(CommonTool, isIpFormat)
 	EXPECT_FALSE(CommonTool::isIpFormat(ipErr2));
 	EXPECT_FALSE(CommonTool::isIpFormat(ipErr3));
 }
+
+TEST(CommonTool_MsgTool, isBytesDataEQ)
+{
+	DEFINE_BYTE_ARRAY(data1, 3);
+	memmove(data1, "\x01\x02\x03", 3);
+	DEFINE_BYTE_ARRAY(data2, 3);
+	memmove(data2, "\x01\x02\x03", 3);
+	DEFINE_BYTE_ARRAY(data3, 3);
+	memmove(data3, "\x00\x02\x03", 3);
+	DEFINE_BYTE_ARRAY(data4, 4);
+	memmove(data4, "\x00\x02\x03\x03", 4);
+	DEFINE_BYTE_ARRAY(data5, 4);
+	memmove(data5, "\x00\x02\x03\x04", 4);
+
+	EXPECT_TRUE(CommonTool::MsgTool::isBytesDataEQ(data1, data2, 3));
+	EXPECT_FALSE(CommonTool::MsgTool::isBytesDataEQ(data1, data3, 3));
+	EXPECT_TRUE(CommonTool::MsgTool::isBytesDataEQ(data3, data4, 3));
+	EXPECT_FALSE(CommonTool::MsgTool::isBytesDataEQ(data4, data5, 4));
+	EXPECT_TRUE(CommonTool::MsgTool::isBytesDataEQ(data4, data5, 3));
+}
