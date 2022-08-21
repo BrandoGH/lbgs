@@ -16,6 +16,7 @@ void onHandlerHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data,
 		LOG_PROXYSERVER.printLog("msg data error");
 		return;
 	}
+	LOG_PROXYSERVER.printLog("read heart msg from gateserver");
 	callHandler(MSG_TYPE_GATE_PROXY_HEART_PG, linker, data, dataSize);
 }
 
