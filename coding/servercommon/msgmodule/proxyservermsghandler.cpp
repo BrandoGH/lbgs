@@ -16,8 +16,12 @@ void onHandlerHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data,
 		LOG_PROXYSERVER.printLog("msg data error");
 		return;
 	}
+	callHandler(MSG_TYPE_GATE_PROXY_HEART_PG, linker, data, dataSize);
+}
 
-	MsgInHeartCS sendMsg;
+void onHandlerHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize)
+{
+	MsgInHeartSC sendMsg;
 	memmove(sendMsg.m_bytesHeart, "\x53\x47\x42\x4C", sizeof(sendMsg.m_bytesHeart));
 
 	MsgHeader header;
@@ -42,10 +46,17 @@ void onHandlerHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data,
 HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 {
 	onHandlerHeartCS,
+	onHandlerHeartSC,
 };
 
 void callHandler(int msgType, const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize)
 {
+	if (!linker.get())
+	{
+		LOG_PROXYSERVER.printLog("linker NULL");
+		return;
+	}
+
 	if(msgType < MSG_TYPE_GATE_PROXY_HEART_GP || msgType >= MSG_IN_TYPE_MAX)
 	{
 		LOG_PROXYSERVER.printLog("msgtype error");

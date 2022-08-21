@@ -11,6 +11,7 @@ namespace ProxyServerMsgHandler
 typedef void(*HandlerFunc)(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 
 void onHandlerHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
+void onHandlerHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 
 void callHandler(int msgType, const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 }

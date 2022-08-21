@@ -40,5 +40,5 @@ void TimerProxySrvHeart::timeoutRun()
 	memmove(sendInfo, (const char*)&header, sizeof(MsgHeader));
 	memmove(sendInfo + sizeof(MsgHeader), (const char*)&msg, sizeof(MsgInHeartCS));
 
-	 m_pGateServer->onSendDataToProxy((const byte*)sendInfo, sizeof(sendInfo));
+	m_pGateServer->onSendDataToProxy((const byte*)sendInfo, sizeof(sendInfo));
 }

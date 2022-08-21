@@ -20,6 +20,8 @@
 ./msgmodule/msgcommondef.h
 ./msgmodule/proxyservermsghandler.h
 ./msgmodule/proxyservermsghandler.cpp
+./msgmodule/gateservermsghandler.h
+./msgmodule/gateservermsghandler.cpp
 ./commontool/commontool.h
 ./commontool/commontool.cpp
 ./commontool/msgtool/msgtool.h

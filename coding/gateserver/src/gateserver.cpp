@@ -7,7 +7,11 @@
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/proxyserverconfig.h>
 #include <exception>
+#include "msgmodule/gateservermsghandler.h"
 
+#define GATE_SERVER_READ_MSG_CONTINUE \
+	m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen; \
+	continue
 
 namespace 
 {
@@ -103,8 +107,10 @@ void GateServer::initData()
 	m_nPort = 0;
 	m_bInnerRunOnce = false;
 	m_bConnectProxySrv = false;
-	initInnerClient();
+	m_nHasReadProxyDataSize = 0;
 	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
+	memset(m_bytesInnerSrvOnceMsg, 0, MsgBuffer::g_nOnceMsgSize);
+	initInnerClient();
 	m_innerSrvHeart.setGateServer(this);
 	//m_innerSrvHeart.setInterval(1000 * 30);
 	m_innerSrvHeart.setInterval(3000);
@@ -322,7 +328,7 @@ void GateServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize)
 
 void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 {
-	if(ec)
+	if (ec)
 	{
 		LOG_GATESERVER.printLog("ecode[%d],messages[%s]",
 			ec.value(),
@@ -337,7 +343,52 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 	}
 
 	// TODO 获取代理服消息
-	//printf("read msg from proxyserver: %s\n", m_bytesInnerSrvBuffer);
+	MsgHeader m_msgHeader;
+	m_nHasReadProxyDataSize = 0;
+
+	while (m_nHasReadProxyDataSize < readSize)
+	{
+		memset(m_bytesInnerSrvOnceMsg, 0, sizeof(m_bytesInnerSrvOnceMsg));
+
+		m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize);
+
+		// 一条协议最大长度判断
+		if (m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
+			m_msgHeader.m_nMsgLen <= 0)
+		{
+			LOG_GATESERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
+				m_msgHeader.m_nMsgType,
+				m_msgHeader.m_nMsgLen,
+				m_bytesInnerSrvBuffer);
+			break;
+		}
+		memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, m_msgHeader.m_nMsgLen);
+
+		if (m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER ||
+			m_msgHeader.m_nSender != MsgHeader::F_PROXYSERVER ||
+			m_msgHeader.m_nReceiver != MsgHeader::F_GATESERVER
+			)
+		{
+			LOG_GATESERVER.printLog("MsgHeader Info Error");
+			GATE_SERVER_READ_MSG_CONTINUE;
+		}
+
+		// 如果此条协议是只和网关通信的
+		if (m_msgHeader.m_nMsgType >= MSG_TYPE_GATE_PROXY_HEART_GP && 
+			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX
+			)
+		{
+			GateServerMsgHandler::callHandler(
+				m_msgHeader.m_nMsgType, 
+				this, 
+				m_bytesInnerSrvOnceMsg + sizeof(MsgHeader),
+				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+			GATE_SERVER_READ_MSG_CONTINUE;
+		}
+
+		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
+
+	}
 
 	readFromProxySrv();
 }

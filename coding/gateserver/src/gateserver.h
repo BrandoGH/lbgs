@@ -81,7 +81,10 @@ private:
 	CommonBoost::SocketPtr m_pInnerSocket;
 	CommonBoost::Endpoint m_innerEndpoint;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
+	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	TimerProxySrvHeart m_innerSrvHeart;
+	ushort m_nHasReadProxyDataSize;
+
 };
 
 #endif

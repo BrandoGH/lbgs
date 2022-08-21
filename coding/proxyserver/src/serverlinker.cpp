@@ -6,7 +6,7 @@
 
 namespace
 {
-#define READ_MSG_CONTINUE \
+#define PROXY_SERVER_READ_MSG_CONTINUE \
 	m_nHasReadDataSize += m_msgHeader.m_nMsgLen; \
 	continue
 }
@@ -125,7 +125,7 @@ void ServerLinker::onAyncRead(
 		if(m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
 			m_msgHeader.m_nMsgLen <= 0)
 		{
-			LOG_GATESERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
+			LOG_PROXYSERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
 				m_msgHeader.m_nMsgType,
 				m_msgHeader.m_nMsgLen,
 				m_bytesReadBuffer);
@@ -136,7 +136,7 @@ void ServerLinker::onAyncRead(
 		if(m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER)
 		{
 			LOG_PROXYSERVER.printLog("m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER");
-			READ_MSG_CONTINUE;
+			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
 		// 发送方验证
@@ -144,7 +144,7 @@ void ServerLinker::onAyncRead(
 			m_msgHeader.m_nSender >= MsgHeader::F_MAX)
 		{
 			LOG_PROXYSERVER.printLog("m_msgHeader.m_nSender error");
-			READ_MSG_CONTINUE;
+			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
 		// 接收方验证
@@ -152,7 +152,7 @@ void ServerLinker::onAyncRead(
 			m_msgHeader.m_nReceiver >= MsgHeader::F_MAX)
 		{
 			LOG_PROXYSERVER.printLog("m_msgHeader.m_nReceiver error");
-			READ_MSG_CONTINUE;
+			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
 		// 和代理服通信的协议
@@ -163,13 +163,13 @@ void ServerLinker::onAyncRead(
 				shared_from_this(),
 				m_bytesOnceMsg + sizeof(MsgHeader),
 				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
-			READ_MSG_CONTINUE;
+			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
 		// TODO 转发到指定服务器
 		//ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
 		printf("get inner server msg: %s\n", m_bytesOnceMsg);
-		ayncSend((byte*)"123456789", 9);
+		//ayncSend((byte*)"123456789", 9);
 
 		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
 	}
