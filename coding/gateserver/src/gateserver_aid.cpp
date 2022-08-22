@@ -41,5 +41,4 @@ void TimerProxySrvHeart::timeoutRun()
 	memmove(sendInfo + sizeof(MsgHeader), (const char*)&msg, sizeof(MsgInHeartCS));
 
 	m_pGateServer->onSendDataToProxy((const byte*)sendInfo, sizeof(sendInfo));
-	LOG_GATESERVER.printLog("sent heart to proxy");
 }
