@@ -2,6 +2,7 @@ set(CODE_FILE
 ./main.cpp
 ./exampletest.cpp
 ./servercommon/commontooltest.cpp
+./servercommon/safequeuetest.cpp
 )
 
 set(BIN_NAME test)
