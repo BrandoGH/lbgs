@@ -3,6 +3,8 @@
 
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/msgmodule/proxyservermsghandler.h>
+#include "msgmodule/msgcommondef.h"
+#include "commontool/msgtool/msgtool.h"
 
 namespace
 {
@@ -28,7 +30,7 @@ CommonBoost::SocketPtr& ServerLinker::getSocket()
 	return m_pSocket;
 }
 
-void ServerLinker::ayncRead()
+void ServerLinker::ayncRead(bool bFirstConnect)
 {
 	if(!m_pSocket)
 	{
@@ -39,7 +41,7 @@ void ServerLinker::ayncRead()
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	m_pSocket->async_read_some(
 		MSG_BUFFER(m_bytesReadBuffer, sizeof(m_bytesReadBuffer)),
-		BIND(&ServerLinker::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
+		BIND(&ServerLinker::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2, bFirstConnect)
 	);
 }
 
@@ -70,6 +72,17 @@ int ServerLinker::slotConnect(ProxyServer* proxyServer)
 		proxyServer,
 		boost::placeholders::_1,
 		boost::placeholders::_2));
+	sigFirstConnect.connect(BIND(
+		&ProxyServer::onLinkerFirstConnect,
+		proxyServer,
+		boost::placeholders::_1,
+		boost::placeholders::_2));
+	sigSendToDstServer.connect(BIND(
+		&ProxyServer::onSendToDstServer,
+		proxyServer,
+		boost::placeholders::_1,
+		boost::placeholders::_2,
+		boost::placeholders::_3));
 
 	return CONNECT_OK;
 }
@@ -97,7 +110,8 @@ void ServerLinker::closeSocket()
 
 void ServerLinker::onAyncRead(
 	const CommonBoost::ErrorCode& ec,
-	uint readSize
+	uint readSize,
+	bool bFirstConnect
 )
 {
 	if(ec)
@@ -108,6 +122,22 @@ void ServerLinker::onAyncRead(
 	if(readSize <= 0 || readSize > MsgBuffer::g_nReadBufferSize)
 	{
 		LOG_PROXYSERVER.printLog("size error,readSize[%d],g_nReadBufferSize[%d]", readSize, MsgBuffer::g_nReadBufferSize);
+		return;
+	}
+
+	// 第一次连接发送的一个字节，告诉代理服本次连接的是哪个服务器
+	if (bFirstConnect)
+	{
+		if (readSize != 1)
+		{
+			LOG_PROXYSERVER.printLog("readSize != 1");
+			return;
+		}
+		int listIndex = *(int *)m_bytesReadBuffer;
+		std::string strLinkerServerInfo = CommonTool::MsgTool::getMsgHeaderFlagString(listIndex);
+		LOG_PROXYSERVER.printLog("A inner server connected!! server type[%s]", strLinkerServerInfo.data());
+		sigFirstConnect(shared_from_this(), listIndex);
+		ayncRead();
 		return;
 	}
 
@@ -167,9 +197,9 @@ void ServerLinker::onAyncRead(
 		}
 
 		// TODO 转发到指定服务器
-		//ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
-		printf("get inner server msg: %s\n", m_bytesOnceMsg);
-		//ayncSend((byte*)"123456789", 9);
+		sigSendToDstServer(m_msgHeader.m_nReceiver,
+			m_bytesOnceMsg,
+			m_msgHeader.m_nMsgLen);
 
 		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
 	}

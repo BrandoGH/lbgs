@@ -82,6 +82,12 @@ void GateServer::start()
 	while (1);
 }
 
+void GateServer::OnSendToProxySrvByUser(const byte* data, uint size, boost::shared_ptr<User> sendOriginUser)
+{
+	m_queueSendProxySrvUser.push(sendOriginUser);
+	sendToProxySrv(data, size);
+}
+
 void GateServer::accept()
 {
 	if (!m_pAcceptor)
@@ -113,6 +119,7 @@ void GateServer::initData()
 	initInnerClient();
 	m_innerSrvHeart.setGateServer(this);
 	//m_innerSrvHeart.setInterval(1000 * 30);
+	// TODO 这里的心跳频率按需调整 这里知识测试用
 	m_innerSrvHeart.setInterval(3000);
 }
 
@@ -189,7 +196,7 @@ void GateServer::sendServerInfo(const boost::shared_ptr<User>& user)
 	user->ayncSend(mode, sizeof(mode));
 }
 
-void GateServer::onSendDataToProxy(const byte* data, uint size)
+void GateServer::sendToProxySrv(const byte* data, uint size)
 {
 	if(!m_pInnerSocket)
 	{
@@ -310,6 +317,11 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 
 	m_innerSrvHeart.start();
 
+	// 发送一个字节，告诉代理服自己的身份
+	DEFINE_BYTE_ARRAY(firstData, 1);
+	firstData[0] = MsgHeader::F_GATESERVER;
+	sendToProxySrv(firstData, 1);
+
 	readFromProxySrv();
 }
 
@@ -385,6 +397,17 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
 			GATE_SERVER_READ_MSG_CONTINUE;
 		}
+
+		// TODO 回给客户端信息 sendinfotoclient
+		// test ok
+		/*LOG_GATESERVER.printLog("print info to client");
+		boost::shared_ptr<User> callbackUser = m_queueSendProxySrvUser.front();
+		if (callbackUser)
+		{
+			callbackUser->ayncSend((const byte*)"12345679", 9);
+			m_queueSendProxySrvUser.pop();
+		}*/
+		
 
 		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
 

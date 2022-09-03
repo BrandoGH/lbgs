@@ -28,6 +28,7 @@
 ./commontool/msgtool/msgtool.cpp
 ./timermodule/timer.h
 ./timermodule/timer.cpp
+./queuemodule/safequeue.hpp
 )
 
 set(LIB_NAME servercommon)

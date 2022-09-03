@@ -104,14 +104,10 @@ void User::onAyncRead(
 			continue;
 		}
 
-		// TODO 协议转发给内部服务器 实现一个mq来发送 可以直接用gateserver slotconnet传进来的，user是gateserver的友元
-		// (m_bytesOnceMsg,userDataSize,shared_from_this())
-		// 重新组装报文 转发协议头 + m_bytesOnceMsg
-		// test
-		//ayncSend(m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
-		//printf("send inner server: %s, readSize: %d\n", m_bytesOnceMsg, m_msgHeader.m_nMsgLen);
+		// 优化： 协议转发给内部服务器 实现一个mq来发送（这里是否需要）
 		// 
-		// 不需要MsgEnder的验证长度了
+		// 重新组装报文 转发协议头 + m_bytesOnceMsg
+		// 转发给内部逻辑服务器，不需要MsgEnder的验证长度了
 		forwardToProxy(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize);
 
 		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
@@ -167,10 +163,11 @@ int User::slotConnect(GateServer* gateServer)
 		boost::placeholders::_2));
 
 	sigSendDataToProxy.connect(BIND(
-		&GateServer::onSendDataToProxy,
+		&GateServer::OnSendToProxySrvByUser,
 		gateServer,
 		boost::placeholders::_1,
-		boost::placeholders::_2));
+		boost::placeholders::_2,
+		boost::placeholders::_3));
 
 	return CONNECT_OK;
 }
@@ -200,5 +197,5 @@ void User::forwardToProxy(const byte* readOnceMsg, uint msgSize)
 	header->m_nProxyer = MsgHeader::F_PROXYSERVER;
 
 
-	sigSendDataToProxy(readOnceMsg, msgSize);
+	sigSendDataToProxy(readOnceMsg, msgSize, shared_from_this());
 }

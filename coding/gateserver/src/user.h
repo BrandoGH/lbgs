@@ -37,7 +37,8 @@ SIGNALS:
 		const CommonBoost::ErrorCode&), sigError);
 	DEFINE_SIGNAL(void(
 		const byte* data,
-		uint dataSize), sigSendDataToProxy);
+		uint dataSize, 
+		boost::shared_ptr<User>), sigSendDataToProxy);
 
 HANDLER:
 	void onAyncRead(

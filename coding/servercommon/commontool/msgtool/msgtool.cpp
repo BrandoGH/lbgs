@@ -1,4 +1,5 @@
 #include "msgtool.h"
+#include "msgmodule/msgcommondef.h"
 
 #include <memory>
 
@@ -35,6 +36,30 @@ bool isBytesDataEQ(const byte* data1, const byte* data2, uint len)
 	}
 
 	return true;
+}
+
+const std::string getMsgHeaderFlagString(int flag)
+{
+	std::string retString;
+	switch (flag)
+	{
+	case MsgHeader::F_DEFAULT:
+		retString = "Default";
+		break;
+	case MsgHeader::F_PROXYSERVER:
+		retString = "ProxyServer";
+		break;
+	case MsgHeader::F_GATESERVER:
+		retString = "GateServer";
+		break;
+	case MsgHeader::F_LOGICSERVER:
+		retString = "LogicServer";
+		break;
+	default:
+		retString = "NULL";
+		break;
+	}
+	return retString;
 }
 
 }}

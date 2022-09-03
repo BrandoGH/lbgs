@@ -21,7 +21,7 @@ public:
 	~ServerLinker();
 
 	CommonBoost::SocketPtr& getSocket();
-	void ayncRead();
+	void ayncRead(bool bFirstConnect = false);
 	void ayncSend(const byte* data, uint size);
 	void closeSocket();
 
@@ -32,24 +32,30 @@ SIGNALS:
 	DEFINE_SIGNAL(void(
 		boost::shared_ptr<ServerLinker>,
 		const CommonBoost::ErrorCode&), sigError);
+	DEFINE_SIGNAL(void(
+		boost::shared_ptr<ServerLinker>,
+		int listIndex),sigFirstConnect);
+	DEFINE_SIGNAL(void(
+		int dstServerType,
+		const byte* data,
+		uint size), sigSendToDstServer);
 
 HANDLER:
 	void onAyncRead(
 		const CommonBoost::ErrorCode& ec,
-		uint readSize
+		uint readSize,
+		bool bFirstConnect = false
 	);
 	void onAyncSend(
 		const CommonBoost::ErrorCode& ec,
 		uint readSize
 	);
-
 private:
 	CommonBoost::SocketPtr m_pSocket;
 	byte m_bytesReadBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	MsgHeader m_msgHeader;
 	ushort m_nHasReadDataSize;
-
 };
 
 #endif // !__SERVER_LINKER_H__

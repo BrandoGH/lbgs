@@ -195,6 +195,9 @@ bool isBytesMd5EQ(BytesArrayMd51& data1, BytesArrayMd512& data2)
 	return true;
 }
 
+// 获取报文头部的枚举字符串
+const std::string getMsgHeaderFlagString(int flag);
+
 }}
 
 #endif // !__MSG_TOOL_H__

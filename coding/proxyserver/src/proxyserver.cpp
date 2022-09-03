@@ -96,6 +96,46 @@ void ProxyServer::onThreadRunAcceptorIOServer()
 	}
 }
 
+void ProxyServer::onLinkerFirstConnect(boost::shared_ptr<ServerLinker> linker, int listIndex)
+{
+	if (!linker.get() || 
+		(listIndex <= MsgHeader::F_DEFAULT || listIndex >= MsgHeader::F_MAX))
+	{
+		LOG_PROXYSERVER.printLog("error");
+		return;
+	}
+	m_linkerList[listIndex] = linker;
+}
+
+void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSize)
+{
+	if ((listIndex <= MsgHeader::F_DEFAULT || listIndex >= MsgHeader::F_MAX) ||
+		!data || dataSize == 0)
+	{
+		LOG_PROXYSERVER.printLog("error");
+		return;
+	}
+
+	if (!m_linkerList[listIndex])
+	{
+		LOG_PROXYSERVER.printLog("m_linkerList[%d] NULL", listIndex);
+		return;
+	}
+
+	MsgHeader* pMsgHeader = (MsgHeader*)(data);
+	if (!pMsgHeader)
+	{
+		return;
+	}
+	pMsgHeader->m_nSender = MsgHeader::F_PROXYSERVER;
+	pMsgHeader->m_nProxyer = MsgHeader::F_PROXYSERVER;
+	pMsgHeader->m_nReceiver = listIndex;
+
+	// ÆäËû²Ù×÷ TODO
+
+	m_linkerList[listIndex]->ayncSend(data, dataSize);
+}
+
 void ProxyServer::onLinkerError(
 	boost::shared_ptr<ServerLinker> linker,
 	const CommonBoost::ErrorCode& ec)
@@ -137,7 +177,6 @@ void ProxyServer::onAcceptHandler(
 	const boost::shared_ptr<ServerLinker>& linker
 )
 {
-
 	if(err)
 	{
 		LOG_PROXYSERVER.printLog("connect error value[%d],message[%s]", err.value(), err.message().data());
@@ -151,6 +190,6 @@ void ProxyServer::onAcceptHandler(
 		return;
 	}
 
-	linker->ayncRead();
+	linker->ayncRead(true);
 	accept();
 }

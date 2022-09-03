@@ -49,8 +49,6 @@ typedef boost::shared_ptr<IOServer::work>	WorkPtr;
 
 // config
 typedef boost::property_tree::ptree			PTree;
-
-
 }
 
 

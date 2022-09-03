@@ -15,7 +15,7 @@ struct MsgHeader
 {
 	enum Flag
 	{
-		F_DEFAULT,
+		F_DEFAULT = -1,
 		F_PROXYSERVER,		// 代理服
 		F_GATESERVER,		// 网关服
 		F_LOGICSERVER,		// 逻辑服
@@ -76,10 +76,11 @@ enum EnMsgType
 	MSG_IN_TYPE_MAX,
 
 	// 客户端心跳包
-	MSG_TYPE_HEART_CS		= 150,
+	MSG_TYPE_CLIENT_START	= 150,
+	MSG_TYPE_HEART_CS		= MSG_TYPE_CLIENT_START,
 	MSG_TYPE_HEART_SC		= 151,
-
 	MSG_CODE_MAX,
+	MSG_TYPE_CLIENT_SIZE = MSG_CODE_MAX - MSG_TYPE_CLIENT_START,
 };
 
 #pragma pack(pop)

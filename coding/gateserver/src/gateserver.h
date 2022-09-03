@@ -6,6 +6,7 @@
 
 #include <boostmodule/basedef.h>
 #include <boost/atomic.hpp>
+#include "queuemodule/safequeue.hpp"
 
 /*
 * Íø¹Ø·þÎñÆ÷
@@ -29,13 +30,13 @@ public:
 	~GateServer();
 
 	void start();
+	void sendToProxySrv(const byte* data, uint size);
 
 SLOTS:
 	void onUserError(
 		boost::shared_ptr<User> user,
 		const CommonBoost::ErrorCode& ec);
-	void onSendDataToProxy(const byte* data, uint size);
-
+	void OnSendToProxySrvByUser(const byte* data, uint size, boost::shared_ptr<User> sendOriginUser);
 
 HANDLER:
 	void onAcceptHandler(
@@ -84,7 +85,7 @@ private:
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	TimerProxySrvHeart m_innerSrvHeart;
 	ushort m_nHasReadProxyDataSize;
-
+	SafeQueue< boost::shared_ptr<User> > m_queueSendProxySrvUser;
 };
 
 #endif

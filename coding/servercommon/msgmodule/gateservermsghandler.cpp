@@ -8,6 +8,31 @@
 
 namespace GateServerMsgHandler
 {
+void onHandlerHeartCS(const GateServer* gateServer, byte* data, uint dataSize)
+{
+	if (!gateServer)
+	{
+		LOG_GATESERVER.printLog("gateServer NULL");
+		return;
+	}
+
+	MsgInHeartCS msg;
+	memmove(msg.m_bytesHeart, "\x4C\x42\x47\x53", sizeof(msg.m_bytesHeart));
+
+	MsgHeader header;
+	header.m_nMsgLen = sizeof(MsgHeader) + sizeof(msg.m_bytesHeart);
+	header.m_nMsgType = MSG_TYPE_GATE_PROXY_HEART_GP;
+	header.m_nSender = MsgHeader::F_GATESERVER;
+	header.m_nReceiver = MsgHeader::F_PROXYSERVER;
+	header.m_nProxyer = MsgHeader::F_PROXYSERVER;
+
+	DEFINE_BYTE_ARRAY(sendInfo, sizeof(MsgHeader) + sizeof(msg.m_bytesHeart));
+	memmove(sendInfo, (const char*)&header, sizeof(MsgHeader));
+	memmove(sendInfo + sizeof(MsgHeader), (const char*)&msg, sizeof(MsgInHeartCS));
+
+	const_cast<GateServer*>(gateServer)->sendToProxySrv((const byte*)sendInfo, sizeof(sendInfo));
+}
+
 void onHandlerHeartSC(const GateServer* gateServer, byte* data, uint dataSize)
 {
 	if (!gateServer || !data)
@@ -20,11 +45,6 @@ void onHandlerHeartSC(const GateServer* gateServer, byte* data, uint dataSize)
 		LOG_PROXYSERVER.printLog("msg data error");
 		return;
 	}
-}
-
-void onHandlerHeartCS(const GateServer* gateServer, byte* data, uint dataSize)
-{
-	// ‘›Œﬁ µœ÷
 }
 
 
