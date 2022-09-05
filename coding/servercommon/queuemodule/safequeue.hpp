@@ -41,12 +41,12 @@ public:
 		return m_mtx;
 	}
 
-	bool empty() noexcept(noexcept(m_queue.empty()))
+	bool empty()
 	{
 		return m_queue.empty();
 	}
 
-	SizeType size() noexcept(noexcept(m_queue.size()))
+	SizeType size()
 	{
 		return m_queue.size();
 	}
@@ -61,27 +61,27 @@ public:
 		m_queue.push(val);
 	}
 
-	void pop() noexcept(noexcept(m_queue.pop()))
+	void pop()
 	{
 		m_queue.pop();
 	}
 
-	Reference front() noexcept(noexcept(m_queue.front()))
+	Reference front()
 	{
 		return m_queue.front();
 	}
 
-	ConstReference front() const noexcept(noexcept(m_queue.front()))
+	ConstReference front() const
 	{
 		return m_queue.front();
 	}
 
-	Reference back() noexcept(noexcept(m_queue.back()))
+	Reference back()
 	{
 		return m_queue.back();
 	}
 
-	ConstReference back() const noexcept(noexcept(m_queue.back()))
+	ConstReference back() const
 	{
 		return m_queue.back();
 	}
