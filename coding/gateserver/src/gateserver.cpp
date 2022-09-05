@@ -293,7 +293,7 @@ void GateServer::onThreadRunAcceptorIOServer()
 		try
 		{
 			m_server.run();
-      break;
+			break;
 		}catch (std::exception& e)
 		{
 			LOG_GATESERVER.printLog("m_server run exception!! info[%s] server will re-start!!",e.what());

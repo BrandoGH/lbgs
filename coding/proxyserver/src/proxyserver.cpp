@@ -88,7 +88,7 @@ void ProxyServer::onThreadRunAcceptorIOServer()
 		try
 		{
 			m_server.run();
-      break;
+			break;
 		}
 		catch(std::exception& e)
 		{
