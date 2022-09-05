@@ -56,6 +56,7 @@ private:
 
 private:
 	CommonBoost::SocketPtr m_pSocket;
+	CommonBoost::StrandPtr m_pStrand;
 	byte m_bytesReadBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	MsgHeader m_msgHeader;

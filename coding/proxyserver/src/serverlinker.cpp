@@ -17,7 +17,9 @@ ServerLinker::ServerLinker(CommonBoost::IOServer& ioserver)
 	: m_nHasReadDataSize(0)
 {
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
+	m_pStrand = boost::make_shared<CommonBoost::Strand>(ioserver);
 	assert(m_pSocket != NULL);
+	assert(m_pStrand != NULL);
 	memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
 }
 
@@ -32,30 +34,30 @@ CommonBoost::SocketPtr& ServerLinker::getSocket()
 
 void ServerLinker::ayncRead(bool bFirstConnect)
 {
-	if(!m_pSocket)
+	if(!m_pSocket || !m_pStrand)
 	{
-		LOG_PROXYSERVER.printLog("m_pSocket == NULL");
+		LOG_PROXYSERVER.printLog("m_pSocket == NULL || m_pStrand == NULL");
 		return;
 	}
 
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	m_pSocket->async_read_some(
 		MSG_BUFFER(m_bytesReadBuffer, sizeof(m_bytesReadBuffer)),
-		BIND(&ServerLinker::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2, bFirstConnect)
+		m_pStrand->wrap(BIND(&ServerLinker::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2, bFirstConnect))
 	);
 }
 
 void ServerLinker::ayncSend(const byte* data, uint size)
 {
-	if(!m_pSocket)
+	if(!m_pSocket || !m_pStrand)
 	{
-		LOG_PROXYSERVER.printLog("m_pSocket == NULL");
+		LOG_PROXYSERVER.printLog("m_pSocket == NULL || m_pStrand == NULL");
 		return;
 	}
 
 	m_pSocket->async_write_some(
 		MSG_BUFFER(data, size),
-		BIND(&ServerLinker::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
+		m_pStrand->wrap(BIND(&ServerLinker::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2))
 	);
 }
 

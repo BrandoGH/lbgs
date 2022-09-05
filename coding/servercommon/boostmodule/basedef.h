@@ -12,6 +12,8 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp> 
+#include "boost/asio/strand.hpp"
+#include "boost/asio/io_context.hpp"
 
 #define READ_XML boost::property_tree::xml_parser::read_xml
 #define CAST_TO(type,value) boost::lexical_cast<type>((value))
@@ -28,6 +30,7 @@ namespace CommonBoost
 {
 // asio
 typedef boost::asio::io_service			IOServer;
+typedef boost::asio::io_service::strand				Strand;
 typedef boost::asio::deadline_timer		DeadlineTimer;
 typedef boost::asio::ip::tcp			TCP;
 typedef boost::asio::ip::tcp::acceptor	Acceptor;
@@ -40,10 +43,12 @@ typedef boost::thread						Thread;
 typedef boost::asio::thread_pool			ThreadPool;
 typedef boost::mutex						Mutex;
 typedef boost::unique_lock<boost::mutex>	UniqueLock;
+typedef boost::lock_guard<boost::mutex>		GuardLock;
 typedef boost::system::error_code			ErrorCode;
 
 // pointer
 typedef boost::shared_ptr<Socket>			SocketPtr;
+typedef boost::shared_ptr<Strand>			StrandPtr;
 typedef boost::shared_ptr<Endpoint>			EndpointPtr;
 typedef boost::shared_ptr<IOServer::work>	WorkPtr;
 

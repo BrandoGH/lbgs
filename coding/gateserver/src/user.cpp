@@ -2,6 +2,8 @@
 #include "gateserver.h"
 
 #include <servercommon/commontool/msgtool/msgtool.h>
+#include "boost/asio/bind_executor.hpp"
+#include "boost/asio/basic_stream_socket.hpp"
 
 User::User(CommonBoost::IOServer& ioserver)
 	: m_nHasReadDataSize(0)
@@ -9,7 +11,9 @@ User::User(CommonBoost::IOServer& ioserver)
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
+	m_pStrand = boost::make_shared<CommonBoost::Strand>(ioserver);
 	assert(m_pSocket != NULL);
+	assert(m_pStrand != NULL);
 }
 
 User::~User()
@@ -19,30 +23,30 @@ User::~User()
 
 void User::ayncRead()
 {
-	if (!m_pSocket)
+	if (!m_pSocket || !m_pStrand)
 	{
-		LOG_GATESERVER.printLog("m_pSocket == NULL");
+		LOG_GATESERVER.printLog("m_pSocket == NULL || m_pStrand == NULL");
 		return;
 	}
 
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	m_pSocket->async_read_some(
 		MSG_BUFFER(m_bytesReadBuffer, sizeof(m_bytesReadBuffer)),
-		BIND(&User::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
-		);
+		m_pStrand->wrap(BIND(&User::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2))
+	);
 }
 
 void User::ayncSend(const byte* data, uint size)
 {
-	if (!m_pSocket)
+	if (!m_pSocket || !m_pStrand)
 	{
-		LOG_GATESERVER.printLog("m_pSocket == NULL");
+		LOG_GATESERVER.printLog("m_pSocket == NULL || m_pStrand == NULL");
 		return;
 	}
 
 	m_pSocket->async_write_some(
 		MSG_BUFFER(data, size),
-		BIND(&User::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
+		m_pStrand->wrap(BIND(&User::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2))
 	);
 }
 
