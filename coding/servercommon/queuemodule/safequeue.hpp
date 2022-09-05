@@ -4,6 +4,14 @@
 #include <queue>
 #include <boostmodule/basedef.h>
 
+/*
+*	对std::queue简单封装
+*	具有线程安全性质的队列
+* 
+* 1.在opStart()和opEnd()之间进行队列操作，这是这种方法要注意，是否会产生死锁
+* 2.外部可调用CommonBoost::UniqueLock(getMutex())方法，推荐使用
+*
+*/
 template <class InputDataType, class _Container = std::deque<InputDataType>>
 class SafeQueue
 {
@@ -18,56 +26,63 @@ public:
 	SafeQueue() {}
 	~SafeQueue() {}
 
-	bool empty() const
+	void opStart()
 	{
-		CommonBoost::UniqueLock lock(m_mtx);
+		m_mtx.lock();
+	}
+
+	void opEnd()
+	{
+		m_mtx.unlock();
+	}
+
+	CommonBoost::Mutex& getMutex()
+	{
+		return m_mtx;
+	}
+
+	bool empty() noexcept(noexcept(m_queue.empty()))
+	{
 		return m_queue.empty();
 	}
 
-	SizeType size() const
+	SizeType size() noexcept(noexcept(m_queue.size()))
 	{
 		return m_queue.size();
 	}
 
 	void push(const ValueType& val)
 	{
-		CommonBoost::UniqueLock lock(m_mtx);
 		m_queue.push(val);
 	}
 
 	void push(ValueType&& val)
 	{
-		CommonBoost::UniqueLock lock(m_mtx);
 		m_queue.push(val);
 	}
 
-	void pop()
+	void pop() noexcept(noexcept(m_queue.pop()))
 	{
-		CommonBoost::UniqueLock lock(m_mtx);
 		m_queue.pop();
 	}
 
-	Reference front()
+	Reference front() noexcept(noexcept(m_queue.front()))
 	{
-		CommonBoost::UniqueLock lock(m_mtx);
 		return m_queue.front();
 	}
 
-	ConstReference front() const
+	ConstReference front() const noexcept(noexcept(m_queue.front()))
 	{
-		CommonBoost::UniqueLock lock(m_mtx);
 		return m_queue.front();
 	}
 
-	Reference back()
+	Reference back() noexcept(noexcept(m_queue.back()))
 	{
-		CommonBoost::UniqueLock lock(m_mtx);
 		return m_queue.back();
 	}
 
-	ConstReference back() const
+	ConstReference back() const noexcept(noexcept(m_queue.back()))
 	{
-		CommonBoost::UniqueLock lock(m_mtx);
 		return m_queue.back();
 	}
 

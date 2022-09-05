@@ -104,6 +104,8 @@ void ProxyServer::onLinkerFirstConnect(boost::shared_ptr<ServerLinker> linker, i
 		LOG_PROXYSERVER.printLog("error");
 		return;
 	}
+
+	CommonBoost::UniqueLock lock(m_mtxLinkerList);
 	m_linkerList[listIndex] = linker;
 }
 
@@ -116,11 +118,13 @@ void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSi
 		return;
 	}
 
+	CommonBoost::UniqueLock lock(m_mtxLinkerList);
 	if (!m_linkerList[listIndex])
 	{
 		LOG_PROXYSERVER.printLog("m_linkerList[%d] NULL", listIndex);
 		return;
 	}
+	lock.unlock();
 
 	MsgHeader* pMsgHeader = (MsgHeader*)(data);
 	if (!pMsgHeader)
@@ -132,7 +136,7 @@ void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSi
 	pMsgHeader->m_nReceiver = listIndex;
 
 	// ÆäËû²Ù×÷ TODO
-
+	lock.lock();
 	m_linkerList[listIndex]->ayncSend(data, dataSize);
 }
 

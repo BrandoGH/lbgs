@@ -84,7 +84,10 @@ void GateServer::start()
 
 void GateServer::OnSendToProxySrvByUser(const byte* data, uint size, boost::shared_ptr<User> sendOriginUser)
 {
+	CommonBoost::UniqueLock lock(m_queueSendProxySrvUser.getMutex());
 	m_queueSendProxySrvUser.push(sendOriginUser);
+	lock.unlock();
+
 	sendToProxySrv(data, size);
 }
 
@@ -401,12 +404,14 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		// TODO 回给客户端信息 sendinfotoclient
 		// test ok
 		/*LOG_GATESERVER.printLog("print info to client");
+		CommonBoost::UniqueLock lock(m_mtxQueueUsers);
 		boost::shared_ptr<User> callbackUser = m_queueSendProxySrvUser.front();
 		if (callbackUser)
 		{
 			callbackUser->ayncSend((const byte*)"12345679", 9);
 			m_queueSendProxySrvUser.pop();
-		}*/
+		}
+		lock.unlock()*/
 		
 
 		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;

@@ -45,6 +45,7 @@ private:
 
 	// 和代理服连接的所有linker列表
 	boost::shared_ptr<ServerLinker> m_linkerList[MsgHeader::F_MAX];
+	CommonBoost::Mutex m_mtxLinkerList;
 
 };
 
