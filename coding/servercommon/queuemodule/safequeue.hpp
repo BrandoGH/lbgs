@@ -10,6 +10,7 @@
 * 
 * 1.在opStart()和opEnd()之间进行队列操作，这是这种方法要注意，是否会产生死锁
 * 2.外部可调用CommonBoost::UniqueLock(getMutex())方法，推荐使用
+* 3.当然，也可以在操作开始前设置setAutoLock自动锁，后续的操作不用手动去向第2点那样加锁，这个看需求调用，也推荐
 *
 */
 template <class InputDataType, class _Container = std::deque<InputDataType>>
@@ -23,7 +24,9 @@ public:
 	typedef typename _Container::reference			Reference;
 	typedef typename _Container::const_reference	ConstReference;
 public:
-	SafeQueue() {}
+	SafeQueue() 
+		: m_bAutoLock(false)
+	{}
 	~SafeQueue() {}
 
 	void opStart()
@@ -36,6 +39,14 @@ public:
 		m_mtx.unlock();
 	}
 
+	/*
+		操作开始自动加锁，应该在所有操作前去调用，比如构造
+	*/
+	void setAutoLock(bool bAutoLock)
+	{
+		m_bAutoLock = bAutoLock;
+	}
+
 	CommonBoost::Mutex& getMutex()
 	{
 		return m_mtx;
@@ -43,52 +54,88 @@ public:
 
 	bool empty()
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		return m_queue.empty();
 	}
 
 	SizeType size()
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		return m_queue.size();
 	}
 
 	void push(const ValueType& val)
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		m_queue.push(val);
 	}
 
 	void push(ValueType&& val)
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		m_queue.push(val);
 	}
 
 	void pop()
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		m_queue.pop();
 	}
 
 	Reference front()
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		return m_queue.front();
 	}
 
 	ConstReference front() const
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		return m_queue.front();
 	}
 
 	Reference back()
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		return m_queue.back();
 	}
 
 	ConstReference back() const
 	{
+		if (m_bAutoLock)
+		{
+			CommonBoost::UniqueLock lock(m_mtx);
+		}
 		return m_queue.back();
 	}
 
 private:
 	QueueType m_queue;
-
+	bool m_bAutoLock;
 	CommonBoost::Mutex m_mtx;
 };
 

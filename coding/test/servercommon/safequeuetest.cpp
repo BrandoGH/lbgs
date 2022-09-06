@@ -32,59 +32,99 @@ TEST(SafeQueue, queue_type)
 	EXPECT_EQ(typeid(q_string.front()), typeid(std::string));
 }
 
-
-TEST(SafeQueue, queue_multi_thread_example)
+// 案例测试
+TEST(SafeQueue, queue_multi_thread_example_opstart_opend)
 {
 	/*
 		1.多线程例子，检测是否线程安全
-		2.取消注释即可测试
 	*/
-	//SafeQueue<int> q;
-	//for (int i = 0; i < 20; ++i)
-	//{
-	//	q.push(i);
-	//}
+	/*SafeQueue<int> q;
+	for (int i = 0; i < 20; ++i)
+	{
+		q.push(i);
+	}
 
-	//boost::atomic_int atNum = 15;
-	//CommonBoost::Mutex mtx;
+	auto lambdaFun = [&](const std::string& name)
+	{
+		while (1)
+		{
+			q.opStart();
+			if (q.empty())
+			{
+				q.opEnd();
+				continue;
+			}
+			THREAD_SLEEP(1);
+			printf("%s---queue size[%d] get front: [%d]\n", name.data(), q.size(), q.front());
+			q.pop();
+			q.opEnd();
 
-	//auto lambdaFun = [&](const std::string& name)
-	//{
-	//	while (1)
-	//	{
-	//		//CommonBoost::UniqueLock lock(q.getMutex());
-	//		q.opStart();
-	//		if (q.empty())
-	//		{
-	//			q.opEnd();
-	//			continue;
-	//		}
-	//		THREAD_SLEEP(1);
-	//		printf("%s---queue size[%d] get front: [%d]\n", name.data(), q.size(), q.front());
-	//		q.pop();
-	//		q.opEnd();
+		}
+	};
 
-	//	}
-	//};
+	auto lambdaPush = [&](const std::string& name)
+	{
+		while (1)
+		{
+			q.opStart();
+			int p = rand();
+			q.push(p);
+			printf("%s---queue size[%d] push[%d]\n", name.data(), q.size(), p);
+			q.opEnd();
+			THREAD_SLEEP(1);
+		}
+	};
 
-	//auto lambdaPush = [&](const std::string& name)
-	//{
-	//	while (1)
-	//	{
-	//		//CommonBoost::UniqueLock lock(q.getMutex());
-	//		q.opStart();
-	//		int p = rand();
-	//		q.push(p);
-	//		printf("%s---queue size[%d] push[%d]\n", name.data(), q.size(), p);
-	//		q.opEnd();
-	//	}
-	//};
+	CommonBoost::Thread t1(lambdaFun, "t1");
+	CommonBoost::Thread t2(lambdaFun, "t2");
+	CommonBoost::Thread t3(lambdaPush, "t3push");
+	t1.join();
+	t2.join();
+	t3.join();*/
+}
 
-	//CommonBoost::Thread t1(lambdaFun, "t1");
-	//CommonBoost::Thread t2(lambdaFun, "t2");
-	//CommonBoost::Thread t3(lambdaPush, "t3push");
-	//t1.join();
-	//t2.join();
-	//t3.join();
+TEST(SafeQueue, queue_multi_thread_example_uniquelock)
+{
+	/*
+		2.多线程例子，检测是否线程安全
+	*/
+	/*SafeQueue<int> q;
+	for (int i = 0; i < 20; ++i)
+	{
+		q.push(i);
+	}
 
+	auto lambdaFun = [&](const std::string& name)
+	{
+		while (1)
+		{
+			CommonBoost::UniqueLock lock(q.getMutex());
+			if (q.empty())
+			{
+				continue;
+			}
+			THREAD_SLEEP(1);
+			printf("%s---queue size[%d] get front: [%d]\n", name.data(), q.size(), q.front());
+			q.pop();
+		}
+	};
+
+	auto lambdaPush = [&](const std::string& name)
+	{
+		while (1)
+		{
+			CommonBoost::UniqueLock lock(q.getMutex());
+			int p = rand();
+			q.push(p);
+			printf("%s---queue size[%d] push[%d]\n", name.data(), q.size(), p);
+			THREAD_SLEEP(1);
+		}
+	};
+
+	CommonBoost::Thread t1(lambdaFun, "t1");
+	CommonBoost::Thread t2(lambdaFun, "t2");
+	CommonBoost::Thread t3(lambdaPush, "t3push");
+	t1.join();
+	t2.join();
+	t3.join();*/
 }
