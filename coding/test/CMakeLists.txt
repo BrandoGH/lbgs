@@ -51,5 +51,6 @@ elseif(UNIX)
 	libcrypto.a
  	libboost_thread.a
  	libboost_chrono.a
+	liblua.a
 	)
 endif()
