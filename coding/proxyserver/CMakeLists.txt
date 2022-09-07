@@ -52,6 +52,7 @@ elseif(UNIX)
  	libssl.a
  	libcrypto.a
  	libboost_filesystem.a
+	 libboost_chrono.a
 	dl
 	)
 endif()
