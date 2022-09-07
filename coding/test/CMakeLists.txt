@@ -37,6 +37,7 @@ if (WIN32)
 	servercommon
 	gtest
 	gmock
+	lua
 	)
 
 elseif(UNIX)
