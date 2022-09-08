@@ -127,6 +127,7 @@ message("-- CMAKE_SHARED_LINKER_FLAGS_RELEASE : ${CMAKE_SHARED_LINKER_FLAGS_RELE
 #顺序比较重要，先编译通用库
 add_subdirectory(./servercommon)
 add_subdirectory(./gateserver)
+add_subdirectory(./logicserver)
 add_subdirectory(./proxyserver)
 
 if(ENABLE_UNITEST)
