@@ -7,6 +7,7 @@ struct ProxyServerConfigInfo
 {
 	std::string ip;
 	ushort port;
+	ushort heart_time;	// 和代理服的心跳时间
 };
 
 class ProxyServerConfig : public ConfigInterface
@@ -16,6 +17,7 @@ public:
 	{
 		ERROR_PORT = 1,
 		ERROR_IP,
+		ERROR_HEART_TIME,
 	};
 
 public:

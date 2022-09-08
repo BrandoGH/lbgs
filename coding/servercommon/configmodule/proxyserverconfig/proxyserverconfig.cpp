@@ -27,6 +27,7 @@ int ProxyServerConfig::initInfoCfg(CommonBoost::PTree& rootNode)
 
 		m_info.ip = dataNode.get_child("ip").data();
 		m_info.port = CAST_TO(ushort, dataNode.get_child("port").data());
+		m_info.heart_time = CAST_TO(ushort, dataNode.get_child("heart_time").data());
 
 		if(!CommonTool::isIpFormat(m_info.ip))
 		{
@@ -37,6 +38,11 @@ int ProxyServerConfig::initInfoCfg(CommonBoost::PTree& rootNode)
 		{
 			LOG_PROXYSERVER.printLog("port read error");
 			return ERROR_PORT;
+		}
+		if (m_info.heart_time <= 0 || m_info.port > 65535)
+		{
+			LOG_PROXYSERVER.printLog("read heart_time error");
+			return ERROR_HEART_TIME;
 		}
 	}
 

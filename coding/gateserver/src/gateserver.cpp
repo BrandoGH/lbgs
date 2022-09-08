@@ -113,6 +113,7 @@ void GateServer::accept()
 
 void GateServer::initData()
 {
+	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	m_pAcceptor = NULL;
 	m_nConnectCount = 0;
 	m_nPort = 0;
@@ -123,9 +124,7 @@ void GateServer::initData()
 	memset(m_bytesInnerSrvOnceMsg, 0, MsgBuffer::g_nOnceMsgSize);
 	initInnerClient();
 	m_innerSrvHeart.setGateServer(this);
-	//m_innerSrvHeart.setInterval(1000 * 30);
-	// TODO 这里的心跳频率按需调整 这里知识测试用
-	m_innerSrvHeart.setInterval(3000);
+	m_innerSrvHeart.setInterval(info.heart_time);
 }
 
 void GateServer::initInnerClient()
