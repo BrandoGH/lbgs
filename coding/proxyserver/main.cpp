@@ -22,6 +22,25 @@ void optPort(const boost::program_options::variables_map& vm, ProxyServer*& pPro
 	printf("new ProxyServer()\n");
 }
 
+void optLogDir(const boost::program_options::variables_map& vm)
+{
+	if (vm.count("logdir"))
+	{
+		for (int i = 0; i < CommonLog::g_vecLogModule.size(); ++i)
+		{
+			if (!CommonLog::g_vecLogModule[i])
+			{
+				printf("CommonLog::g_vecLogModule[%d] is NULL!!\n", i);
+				continue;
+			}
+			CommonLog::g_vecLogModule[i]->setLogDir(vm["logdir"].as<std::string>());
+		}
+	}
+}
+
+/*
+	command: proxyserver --port=xxx --logdir=xxx
+*/
 int main(int argc,char* argv[])
 {
 #ifdef WIN_OS
@@ -35,6 +54,7 @@ int main(int argc,char* argv[])
 	opts.add_options()
 		("help", "get option help")
 		("port", boost::program_options::value<uint>(), "set listen port")
+		("logdir", boost::program_options::value<std::string>(), "set log output path dir")
 		;
 	try
 	{
@@ -61,6 +81,7 @@ int main(int argc,char* argv[])
 			return 0;
 		}
 
+		optLogDir(vm);
 		optPort(vm, pProxySrv);
 	} while(0);
 
