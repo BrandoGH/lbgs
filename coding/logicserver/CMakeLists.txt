@@ -1,5 +1,7 @@
 set(CODE_FILE 
 main.cpp
+src/logicserver.h
+src/logicserver.cpp
 )
 set(BIN_NAME logicserver)
 
