@@ -66,7 +66,6 @@ int main(int argc,char* argv[])
 
 
 	assert(pProxySrv);
-	// Æô¶¯·þÎñ
 	pProxySrv->start();
 	if(pProxySrv)
 	{
