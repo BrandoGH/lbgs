@@ -22,7 +22,7 @@
 #define PRINTF_GREEN "\033[1;32;40m"
 #define PRINTF_YELLOW "\033[1;33;40m"
 #define printf_color(color, str, ...) \
-	printf(color##str PRINTF_COLOR_CLEAR, __VA_ARGS__ )
+	printf(color str PRINTF_COLOR_CLEAR, __VA_ARGS__ )
 
 #define TO_STRING(param) #param
 #define DEFINE_BYTE_ARRAY(name,len)	\
