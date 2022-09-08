@@ -310,6 +310,7 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 	if(err)
 	{
 		LOG_GATESERVER.printLog("Please run ProxyServer first.......");
+		printf_color(PRINTF_RED,"\nPlease run ProxyServer first.......\n");
 		return;
 	}
 
@@ -320,6 +321,7 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 	}
 
 	LOG_GATESERVER.printLog("link proxy server succ");
+	printf_color(PRINTF_GREEN, "\nlink proxy server succ\n");
 	m_bConnectProxySrv = true;
 
 	m_innerSrvHeart.start();
