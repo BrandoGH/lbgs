@@ -180,6 +180,7 @@ void GateServer::runInnnerIOServerOnce()
 			try
 			{
 				m_innerServer.run();
+				break;
 			}
 			catch(std::exception& e)
 			{
