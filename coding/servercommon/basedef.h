@@ -15,6 +15,15 @@
 #include <pthread.h>  
 #endif
 
+// printf函数输出颜色
+#define PRINTF_COLOR_CLEAR "\033[0m"		//表示清除前面设置的格式
+#define PRINTF_RED "\033[1;31;40m"		//40:背景色为黑色, 1:表示高亮
+#define PRINTF_BLUE "\033[1;34;40m"
+#define PRINTF_GREEN "\033[1;32;40m"
+#define PRINTF_YELLOW "\033[1;33;40m"
+#define printf_color(color, str, ...) \
+	printf(color##str PRINTF_COLOR_CLEAR, __VA_ARGS__ )
+
 #define TO_STRING(param) #param
 #define DEFINE_BYTE_ARRAY(name,len)	\
 	byte name[len];					\

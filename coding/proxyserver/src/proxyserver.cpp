@@ -3,7 +3,7 @@
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/configmodule/configmanager.h>
-
+#include <servercommon/basedef.h>
 
 ProxyServer::ProxyServer()
 {
@@ -44,8 +44,8 @@ void ProxyServer::start()
 		boost::thread tAccServer(BIND(&ProxyServer::onThreadRunAcceptorIOServer, this));
 		tAccServer.detach();
 	}
-	printf("--ProxyServer start successed!!!!!!!!!!\n");
-	while(1);
+	printf_color(PRINTF_GREEN, "--ProxyServer start successed!!!!!!!!!!,port[%d]\n", m_nPort);
+	while (1);
 }
 
 void ProxyServer::initData()

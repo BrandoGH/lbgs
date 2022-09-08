@@ -6,8 +6,9 @@
 #include <servercommon/sysinfomodule/sysinfo.h>
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/proxyserverconfig.h>
+#include <servercommon/basedef.h>
 #include <exception>
-#include "msgmodule/gateservermsghandler.h"
+#include <msgmodule/gateservermsghandler.h>
 
 #define GATE_SERVER_READ_MSG_CONTINUE \
 	m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen; \
@@ -76,7 +77,8 @@ void GateServer::start()
 		boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
 		tAccServer.detach();
 	}
-	printf("--Gateserver start successed!!!!!!!!!!\n");
+	printf_color(PRINTF_GREEN, 
+		"--Gateserver start successed!!!!!!!!!!port[%d],max link count[%d]\n", m_nPort, g_nConnectMaxCount);
 	boost::thread tConnect(BIND(&GateServer::runInnnerIOServerOnce, this));
 	tConnect.detach();
 	while (1);
