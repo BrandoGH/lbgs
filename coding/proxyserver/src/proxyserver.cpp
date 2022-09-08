@@ -44,6 +44,7 @@ void ProxyServer::start()
 		boost::thread tAccServer(BIND(&ProxyServer::onThreadRunAcceptorIOServer, this));
 		tAccServer.detach();
 	}
+	printf("--ProxyServer start successed!!!!!!!!!!\n");
 	while(1);
 }
 

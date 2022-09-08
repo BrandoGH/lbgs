@@ -76,7 +76,7 @@ void GateServer::start()
 		boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
 		tAccServer.detach();
 	}
-	
+	printf("--Gateserver start successed!!!!!!!!!!\n");
 	boost::thread tConnect(BIND(&GateServer::runInnnerIOServerOnce, this));
 	tConnect.detach();
 	while (1);
