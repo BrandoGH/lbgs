@@ -1,20 +1,28 @@
 #include "logicserver_aid.h"
 #include <logmodule/logdef.h>
+#include <msgmodule/singletoproxymsghandler.h>
+#include <msgmodule/msgcommondef.h>
 
-TimerProxySrvHeart::TimerProxySrvHeart()
+TimerLogicProxySrvHeart::TimerLogicProxySrvHeart()
 	: m_pLogicServer(NULL)
 {
 }
 
-TimerProxySrvHeart::~TimerProxySrvHeart()
+TimerLogicProxySrvHeart::~TimerLogicProxySrvHeart()
 {
 }
 
-void TimerProxySrvHeart::setLogicServer(LogicServer* pLogicServer)
+void TimerLogicProxySrvHeart::setLogicServer(LogicServer* pLogicServer)
 {
 	m_pLogicServer = pLogicServer;
 }
 
-void TimerProxySrvHeart::timeoutRun()
+void TimerLogicProxySrvHeart::timeoutRun()
 {
+	SingleToProxyMsgHandler::callHandler(
+	MSG_TYPE_GATE_PROXY_HEART_LP,
+	(const byte*)m_pLogicServer,
+	NULL,
+	0);
+
 }

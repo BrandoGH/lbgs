@@ -4,11 +4,11 @@
 #include <servercommon/timermodule/timer.h>
 
 class LogicServer;
-class TimerProxySrvHeart : public Timer
+class TimerLogicProxySrvHeart : public Timer
 {
 public:
-	TimerProxySrvHeart();
-	~TimerProxySrvHeart();
+	TimerLogicProxySrvHeart();
+	~TimerLogicProxySrvHeart();
 
 	void setLogicServer(LogicServer* pLogicServer);
 	virtual void timeoutRun();

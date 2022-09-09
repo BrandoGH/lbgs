@@ -3,27 +3,29 @@
 #include "gateservermsg/gateservermsg.h"
 
 #include <servercommon/logmodule/logdef.h>
-#include "msgmodule/gateservermsghandler.h"
+#include <msgmodule/singletoproxymsghandler.h>
+#include <msgmodule/msgcommondef.h>
 
-TimerProxySrvHeart::TimerProxySrvHeart()
+TimerGateProxySrvHeart::TimerGateProxySrvHeart()
 	: m_pGateServer(NULL)
 {
 }
 
-TimerProxySrvHeart::~TimerProxySrvHeart()
+TimerGateProxySrvHeart::~TimerGateProxySrvHeart()
 {
 }
 
-void TimerProxySrvHeart::setGateServer(GateServer* gateserver)
+void TimerGateProxySrvHeart::setGateServer(GateServer* gateserver)
 {
 	m_pGateServer = gateserver;
 }
 
-void TimerProxySrvHeart::timeoutRun()
+void TimerGateProxySrvHeart::timeoutRun()
 {
-	GateServerMsgHandler::callHandler(
+	SingleToProxyMsgHandler::callHandler(
 		MSG_TYPE_GATE_PROXY_HEART_GP,
-		m_pGateServer,
+		(const byte*)m_pGateServer,
 		NULL,
 		0);
+	m_pGateServer->sendToProxySrv(SingleToProxyMsgHandler::g_GateSendProxy, sizeof(SingleToProxyMsgHandler::g_GateSendProxy));
 }

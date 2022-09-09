@@ -8,7 +8,7 @@
 #include <servercommon/proxyserverconfig.h>
 #include <servercommon/basedef.h>
 #include <exception>
-#include <msgmodule/gateservermsghandler.h>
+#include <msgmodule/singletoproxymsghandler.h>
 
 #define GATE_SERVER_READ_MSG_CONTINUE \
 	m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen; \
@@ -398,9 +398,9 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX
 			)
 		{
-			GateServerMsgHandler::callHandler(
+			SingleToProxyMsgHandler::callHandler(
 				m_msgHeader.m_nMsgType, 
-				this, 
+				(const byte*)this, 
 				m_bytesInnerSrvOnceMsg + sizeof(MsgHeader),
 				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
 			GATE_SERVER_READ_MSG_CONTINUE;

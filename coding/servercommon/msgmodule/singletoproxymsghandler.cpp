@@ -1,16 +1,19 @@
-#include "proxyservermsghandler.h"
+#include "singletoproxymsghandler.h"
 #include "logmodule/logdef.h"
 #include "commontool/msgtool/msgtool.h"
 
 #include <proxyserver/src/serverlinker.h>
-#include <gateserver/gateservermsg/gateservermsg.h>
-#include "gateservermsghandler.h"
 
-namespace GateServerMsgHandler
+#include <gateserver/src/gateserver.h>
+
+namespace SingleToProxyMsgHandler
 {
-void onHandlerHeartCS(const GateServer* gateServer, byte* data, uint dataSize)
+byte g_GateSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
+
+void onHandlerGPHeartCS(const byte* objServer, byte* data, uint dataSize)
 {
-	if (!gateServer)
+	GateServer* gateServer = (GateServer*)objServer;
+	if (!gateServer || !objServer)
 	{
 		LOG_GATESERVER.printLog("gateServer NULL");
 		return;
@@ -26,18 +29,17 @@ void onHandlerHeartCS(const GateServer* gateServer, byte* data, uint dataSize)
 	header.m_nReceiver = MsgHeader::F_PROXYSERVER;
 	header.m_nProxyer = MsgHeader::F_PROXYSERVER;
 
-	DEFINE_BYTE_ARRAY(sendInfo, sizeof(MsgHeader) + sizeof(msg.m_bytesHeart));
-	memmove(sendInfo, (const char*)&header, sizeof(MsgHeader));
-	memmove(sendInfo + sizeof(MsgHeader), (const char*)&msg, sizeof(MsgInHeartCS));
-
-	const_cast<GateServer*>(gateServer)->sendToProxySrv((const byte*)sendInfo, sizeof(sendInfo));
+	memset(g_GateSendProxy, 0, sizeof(MsgHeader) + sizeof(MsgInHeartCS));
+	memmove(g_GateSendProxy, (const char*)&header, sizeof(MsgHeader));
+	memmove(g_GateSendProxy + sizeof(MsgHeader), (const char*)&msg, sizeof(MsgInHeartCS));
 }
 
-void onHandlerHeartSC(const GateServer* gateServer, byte* data, uint dataSize)
+void onHandlerPGHeartSC(const byte* objServer, byte* data, uint dataSize)
 {
-	if (!gateServer || !data)
+	if (!objServer || !data)
 	{
 		LOG_GATESERVER.printLog("call handler error");
+		return;
 	}
 	MsgInHeartSC* msg = (MsgInHeartSC*)data;
 	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart, (const byte*)"\x53\x47\x42\x4C", sizeof(msg->m_bytesHeart)))
@@ -47,19 +49,30 @@ void onHandlerHeartSC(const GateServer* gateServer, byte* data, uint dataSize)
 	}
 }
 
+void onHandlerLPHeartCS(const byte* objServer, byte* data, uint dataSize)
+{
+	LOG_PROXYSERVER.printLog("send logic heart to proxy\n");
+}
+
+void onHandlerPLHeartSC(const byte* objServer, byte* data, uint dataSize)
+{
+	
+}
 
 // 非handler跳转部分
 HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 {
-	onHandlerHeartCS,
-	onHandlerHeartSC,
+	onHandlerGPHeartCS,
+	onHandlerPGHeartSC,
+	onHandlerLPHeartCS,
+	onHandlerPLHeartSC,
 };
 
-void callHandler(int msgType, const GateServer* gateServer, byte* data, uint dataSize)
+void callHandler(int msgType, const byte* objServer, byte* data, uint dataSize)
 {
-	if (!gateServer)
+	if (!objServer)
 	{
-		LOG_GATESERVER.printLog("gateServer NULL");
+		LOG_GATESERVER.printLog("objServer NULL");
 		return;
 	}
 
@@ -75,8 +88,7 @@ void callHandler(int msgType, const GateServer* gateServer, byte* data, uint dat
 		return;
 	}
 
-	g_handlerList[msgType](gateServer, data, dataSize);
-
+	g_handlerList[msgType](objServer, data, dataSize);;
 }
 
 }

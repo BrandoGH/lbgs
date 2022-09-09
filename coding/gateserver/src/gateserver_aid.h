@@ -4,11 +4,11 @@
 #include <servercommon/timermodule/timer.h>
 
 class GateServer;
-class TimerProxySrvHeart : public Timer
+class TimerGateProxySrvHeart : public Timer
 {
 public:
-	TimerProxySrvHeart();
-	~TimerProxySrvHeart();
+	TimerGateProxySrvHeart();
+	~TimerGateProxySrvHeart();
 
 	void setGateServer(GateServer* gateserver);
 	virtual void timeoutRun();

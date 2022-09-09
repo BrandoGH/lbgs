@@ -17,7 +17,7 @@ struct GateServerConfigInfo;
 class GateServer
 {
 	friend class User;
-	friend class TimerProxySrvHeart;
+	friend class TimerGateProxySrvHeart;
 public:
 	enum EnUserStatus
 	{
@@ -83,7 +83,7 @@ private:
 	CommonBoost::Endpoint m_innerEndpoint;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
-	TimerProxySrvHeart m_innerSrvHeart;
+	TimerGateProxySrvHeart m_innerSrvHeart;
 	ushort m_nHasReadProxyDataSize;
 	SafeQueue< boost::shared_ptr<User> > m_queueSendProxySrvUser;
 };

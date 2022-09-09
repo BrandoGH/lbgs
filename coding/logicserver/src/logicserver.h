@@ -42,7 +42,7 @@ private:
 	bool m_bInnerRunOnce;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
 	// 和代理服的心跳
-	TimerProxySrvHeart m_innerSrvHeart;
+	TimerLogicProxySrvHeart m_innerSrvHeart;
 };
 
 #endif  //__LOGIC_SERVER_H

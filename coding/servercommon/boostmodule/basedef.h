@@ -12,8 +12,10 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp> 
-#include "boost/asio/strand.hpp"
-#include "boost/asio/io_context.hpp"
+#include <boost/asio/strand.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/interprocess/shared_memory_object.hpp> 
+#include <boost/interprocess/mapped_region.hpp> 
 
 #define READ_XML boost::property_tree::xml_parser::read_xml
 #define CAST_TO(type,value) boost::lexical_cast<type>((value))
@@ -54,6 +56,10 @@ typedef boost::shared_ptr<IOServer::work>	WorkPtr;
 
 // config
 typedef boost::property_tree::ptree			PTree;
+
+// share memmory
+typedef boost::interprocess::shared_memory_object		SharedMemmoryObj;
+typedef boost::interprocess::mapped_region				SharedMemoryMapRegin;
 }
 
 
