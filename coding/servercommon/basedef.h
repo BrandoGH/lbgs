@@ -21,8 +21,9 @@
 #define PRINTF_BLUE "\033[1;34;40m"
 #define PRINTF_GREEN "\033[1;32;40m"
 #define PRINTF_YELLOW "\033[1;33;40m"
+// ##__VA_ARGS__ 宏前面加上##的作用在于，当可变参数的个数为0时，这里的##起到把前面多余的","去掉的作用，否则会编译出错
 #define printf_color(color, str, ...) \
-	printf(color str PRINTF_COLOR_CLEAR, __VA_ARGS__ )
+	printf(color str PRINTF_COLOR_CLEAR, ##__VA_ARGS__ )
 
 #define TO_STRING(param) #param
 #define DEFINE_BYTE_ARRAY(name,len)	\
