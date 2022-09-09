@@ -12,6 +12,7 @@ LogicServer::LogicServer()
 	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	m_innerSrvHeart.setLogicServer(this);
 	m_innerSrvHeart.setInterval(info.heart_time);
+	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
 
 	initInnerClient();
 }
@@ -75,6 +76,23 @@ void LogicServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize
 	}
 }
 
+void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
+{
+	if (ec)
+	{
+		LOG_LOGICSERVER.printLog("ecode[%d],messages[%s]",
+			ec.value(),
+			ec.message().data());
+		connectInnerServer();
+		return;
+	}
+	if (readSize <= 0 || readSize > MsgBuffer::g_nReadBufferSize)
+	{
+		LOG_LOGICSERVER.printLog("size error,readSize[%d],g_nReadBufferSize[%d]", readSize, MsgBuffer::g_nReadBufferSize);
+		return;
+	}
+}
+
 void LogicServer::initInnerClient()
 {
 	if (!CONFIG_MGR->GetProxyServerConfig())
@@ -115,6 +133,21 @@ void LogicServer::closeInnerSocket()
 		return;
 	}
 	m_pInnerSocket->close();
+}
+
+void LogicServer::readFromProxySrv()
+{
+	if (!m_pInnerSocket)
+	{
+		LOG_LOGICSERVER.printLog("m_pInnerSocket == NULL");
+		return;
+	}
+
+	memset(m_bytesInnerSrvBuffer, 0, sizeof(m_bytesInnerSrvBuffer));
+	m_pInnerSocket->async_read_some(
+		MSG_BUFFER(m_bytesInnerSrvBuffer, sizeof(m_bytesInnerSrvBuffer)),
+		BIND(&LogicServer::onProxySrvRead, this, boost::placeholders::_1, boost::placeholders::_2)
+	);
 }
 
 void LogicServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)

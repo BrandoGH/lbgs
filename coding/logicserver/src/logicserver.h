@@ -4,6 +4,7 @@
 #include "logicserver_aid.h"
 
 #include <boostmodule/basedef.h>
+#include <msgmodule/msgcommondef.h>
 
 class LogicServer
 {
@@ -21,12 +22,17 @@ HANDLER:
 		const CommonBoost::ErrorCode& ec,
 		uint readSize
 	);
+	void onProxySrvRead(
+		const CommonBoost::ErrorCode& ec,
+		uint readSize
+	);
 
 private:
 	// 连接到代理服操作
 	void initInnerClient();
 	void connectInnerServer();
 	void closeInnerSocket();
+	void readFromProxySrv();
 
 private:
 	CommonBoost::IOServer m_innerServer;
@@ -34,6 +40,7 @@ private:
 	CommonBoost::Endpoint m_innerEndpoint;
 	bool m_bConnectProxySrv;
 	bool m_bInnerRunOnce;
+	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
 	// 和代理服的心跳
 	TimerProxySrvHeart m_innerSrvHeart;
 };
