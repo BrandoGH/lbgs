@@ -103,7 +103,7 @@ void callHandler(int msgType, const byte* objServer, byte* data, uint dataSize)
 		return;
 	}
 
-	g_handlerList[msgType](objServer, data, dataSize);;
+	g_handlerList[msgType](objServer, data, dataSize);
 }
 
 }
