@@ -10,8 +10,10 @@ namespace ProxyServerMsgHandler
 {
 typedef void(*HandlerFunc)(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 
-void onHandlerHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
-void onHandlerHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
+void onHandlerGateHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
+void onHandlerGateHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
+void onHandlerLogicHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
+void onHandlerLogicHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 
 void callHandler(int msgType, const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 }

@@ -8,6 +8,7 @@
 
 class LogicServer
 {
+	friend class TimerLogicProxySrvHeart;
 public:
 	LogicServer();
 	~LogicServer();
@@ -41,6 +42,8 @@ private:
 	bool m_bConnectProxySrv;
 	bool m_bInnerRunOnce;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
+	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
+	ushort m_nHasReadProxyDataSize;
 	// 和代理服的心跳
 	TimerLogicProxySrvHeart m_innerSrvHeart;
 };

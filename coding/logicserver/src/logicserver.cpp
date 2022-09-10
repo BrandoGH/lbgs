@@ -4,10 +4,16 @@
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
 #include <logmodule/logdef.h>
 #include <msgmodule/msgcommondef.h>
+#include <msgmodule/singletoproxymsghandler.h>
+
+#define LOGIC_SERVER_READ_MSG_CONTINUE \
+	m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen; \
+	continue
 
 LogicServer::LogicServer()
 	: m_bConnectProxySrv(false)
 	, m_bInnerRunOnce(false)
+	, m_nHasReadProxyDataSize(0)
 {
 	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	m_innerSrvHeart.setLogicServer(this);
@@ -91,6 +97,55 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 		LOG_LOGICSERVER.printLog("size error,readSize[%d],g_nReadBufferSize[%d]", readSize, MsgBuffer::g_nReadBufferSize);
 		return;
 	}
+
+	MsgHeader m_msgHeader;
+	m_nHasReadProxyDataSize = 0;
+
+	while (m_nHasReadProxyDataSize < readSize)
+	{
+		memset(m_bytesInnerSrvOnceMsg, 0, sizeof(m_bytesInnerSrvOnceMsg));
+
+		m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize);
+		// 一条协议最大长度判断
+		if (m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
+			m_msgHeader.m_nMsgLen <= 0)
+		{
+			LOG_LOGICSERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
+				m_msgHeader.m_nMsgType,
+				m_msgHeader.m_nMsgLen,
+				m_bytesInnerSrvBuffer);
+			break;
+		}
+		memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, m_msgHeader.m_nMsgLen);
+
+		if (m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER ||
+			m_msgHeader.m_nSender != MsgHeader::F_PROXYSERVER ||
+			m_msgHeader.m_nReceiver != MsgHeader::F_LOGICSERVER
+			)
+		{
+			LOG_LOGICSERVER.printLog("MsgHeader Info Error");
+			LOGIC_SERVER_READ_MSG_CONTINUE;
+		}
+
+		// 如果此条协议是只和网关通信的
+		if (m_msgHeader.m_nMsgType >= MSG_TYPE_GATE_PROXY_HEART_GP &&
+			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX
+			)
+		{
+			SingleToProxyMsgHandler::callHandler(
+				m_msgHeader.m_nMsgType,
+				(const byte*)this,
+				m_bytesInnerSrvOnceMsg + sizeof(MsgHeader),
+				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+			LOGIC_SERVER_READ_MSG_CONTINUE;
+		}
+
+
+		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
+	}
+
+
+	readFromProxySrv();
 }
 
 void LogicServer::initInnerClient()
@@ -175,5 +230,7 @@ void LogicServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 	DEFINE_BYTE_ARRAY(firstData, 1);
 	firstData[0] = MsgHeader::F_LOGICSERVER;
 	sendToProxySrv(firstData, 1);
+
+	readFromProxySrv();
 }
 

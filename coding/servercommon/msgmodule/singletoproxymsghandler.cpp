@@ -6,32 +6,37 @@
 
 #include <gateserver/src/gateserver.h>
 
-namespace SingleToProxyMsgHandler
+namespace
 {
-byte g_GateSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
-
-void onHandlerGPHeartCS(const byte* objServer, byte* data, uint dataSize)
-{
-	GateServer* gateServer = (GateServer*)objServer;
-	if (!gateServer || !objServer)
-	{
-		LOG_GATESERVER.printLog("gateServer NULL");
-		return;
-	}
-
+// 发送心跳包
+template<int len>
+void sendProxyHeartInfo(byte(&targetInfoData)[len], ushort msgType, ushort sender)
+{ 
 	MsgInHeartCS msg;
 	memmove(msg.m_bytesHeart, "\x4C\x42\x47\x53", sizeof(msg.m_bytesHeart));
 
 	MsgHeader header;
 	header.m_nMsgLen = sizeof(MsgHeader) + sizeof(msg.m_bytesHeart);
-	header.m_nMsgType = MSG_TYPE_GATE_PROXY_HEART_GP;
-	header.m_nSender = MsgHeader::F_GATESERVER;
+	header.m_nMsgType = msgType;
+	header.m_nSender = sender;
 	header.m_nReceiver = MsgHeader::F_PROXYSERVER;
 	header.m_nProxyer = MsgHeader::F_PROXYSERVER;
 
-	memset(g_GateSendProxy, 0, sizeof(MsgHeader) + sizeof(MsgInHeartCS));
-	memmove(g_GateSendProxy, (const char*)&header, sizeof(MsgHeader));
-	memmove(g_GateSendProxy + sizeof(MsgHeader), (const char*)&msg, sizeof(MsgInHeartCS));
+	memset(targetInfoData, 0, sizeof(MsgHeader) + sizeof(MsgInHeartCS));
+	memmove(targetInfoData, (const char*)&header, sizeof(MsgHeader));
+	memmove(targetInfoData + sizeof(MsgHeader), (const char*)&msg, sizeof(MsgInHeartCS));
+}
+
+}
+
+namespace SingleToProxyMsgHandler
+{
+byte g_GateSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
+byte g_LogicSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
+
+void onHandlerGPHeartCS(const byte* objServer, byte* data, uint dataSize)
+{
+	sendProxyHeartInfo(g_GateSendProxy, MSG_TYPE_GATE_PROXY_HEART_GP, MsgHeader::F_GATESERVER);
 }
 
 void onHandlerPGHeartSC(const byte* objServer, byte* data, uint dataSize)
@@ -44,19 +49,29 @@ void onHandlerPGHeartSC(const byte* objServer, byte* data, uint dataSize)
 	MsgInHeartSC* msg = (MsgInHeartSC*)data;
 	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart, (const byte*)"\x53\x47\x42\x4C", sizeof(msg->m_bytesHeart)))
 	{
-		LOG_PROXYSERVER.printLog("msg data error");
+		LOG_GATESERVER.printLog("msg data error");
 		return;
 	}
 }
 
 void onHandlerLPHeartCS(const byte* objServer, byte* data, uint dataSize)
 {
-	LOG_PROXYSERVER.printLog("send logic heart to proxy\n");
+	sendProxyHeartInfo(g_LogicSendProxy, MSG_TYPE_GATE_PROXY_HEART_LP, MsgHeader::F_LOGICSERVER);
 }
 
 void onHandlerPLHeartSC(const byte* objServer, byte* data, uint dataSize)
 {
-	
+	if (!objServer || !data)
+	{
+		LOG_LOGICSERVER.printLog("call handler error");
+		return;
+	}
+	MsgInHeartSC* msg = (MsgInHeartSC*)data;
+	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart, (const byte*)"\x53\x47\x42\x4C", sizeof(msg->m_bytesHeart)))
+	{
+		LOG_LOGICSERVER.printLog("msg data error");
+		return;
+	}
 }
 
 // 非handler跳转部分
