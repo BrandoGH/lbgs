@@ -6,7 +6,6 @@ main.cpp
 ./src/gateserver_aid.cpp
 ./src/user.h
 ./src/user.cpp
-./gateservermsg/gateservermsg.h
 )
 set(BIN_NAME gateserver)
 

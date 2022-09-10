@@ -1,10 +1,10 @@
 #include "gateserver_aid.h"
 #include "gateserver.h"
-#include "gateservermsg/gateservermsg.h"
 
 #include <servercommon/logmodule/logdef.h>
 #include <msgmodule/singletoproxymsghandler.h>
 #include <msgmodule/msgcommondef.h>
+#include <msgmodule/innerserverheartmsg.h>
 
 TimerGateProxySrvHeart::TimerGateProxySrvHeart()
 	: m_pGateServer(NULL)

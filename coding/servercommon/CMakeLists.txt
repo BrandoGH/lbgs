@@ -22,6 +22,7 @@
 ./msgmodule/proxyservermsghandler.cpp
 ./msgmodule/singletoproxymsghandler.h
 ./msgmodule/singletoproxymsghandler.cpp
+./msgmodule/innerserverheartmsg.h
 ./commontool/commontool.h
 ./commontool/commontool.cpp
 ./commontool/msgtool/msgtool.h

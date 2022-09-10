@@ -5,10 +5,10 @@
 #include <QtCore/QString>
 #include <QtCore/QMetaEnum>
 
-#include <gateserver/gateservermsg/gateservermsg.h>
 #include <servercommon/commontool/commontool.h>
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/msgmodule/msgcommondef.h>
+#include <servercommon/msgmodule/innerserverheartmsg.h>
 
 User::User(
 	const QString& ip,

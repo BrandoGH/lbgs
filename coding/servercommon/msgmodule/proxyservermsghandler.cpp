@@ -1,9 +1,9 @@
 #include "proxyservermsghandler.h"
 #include "logmodule/logdef.h"
 #include "commontool/msgtool/msgtool.h"
+#include "innerserverheartmsg.h"
 
 #include <proxyserver/src/serverlinker.h>
-#include <gateserver/gateservermsg/gateservermsg.h>
 
 namespace ProxyServerMsgHandler
 {

@@ -4,8 +4,7 @@
 #include "basedef.h"
 #include "msgcommondef.h"
 #include "boostmodule/basedef.h"
-
-#include <gateserver/gateservermsg/gateservermsg.h>
+#include "innerserverheartmsg.h"
 
 namespace SingleToProxyMsgHandler
 {

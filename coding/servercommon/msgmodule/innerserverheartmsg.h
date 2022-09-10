@@ -1,5 +1,5 @@
-#ifndef __GATESERVER_MSG_H__
-#define __GATESERVER_MSG_H__
+#ifndef __INNER_SERVER_MSG_H__
+#define __INNER_SERVER_MSG_H__
 
 #include <servercommon/basedef.h>
 #include <boost/static_assert.hpp>
@@ -50,4 +50,4 @@ struct MsgHeartSC	// 151-心跳包回应
 BOOST_STATIC_ASSERT(sizeof(MsgHeartSC) == 4);
 
 #pragma pack(pop)
-#endif // !__GATESERVER_MSG_H__
+#endif // !__INNER_SERVER_MSG_H__
