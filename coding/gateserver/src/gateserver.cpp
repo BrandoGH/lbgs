@@ -362,7 +362,6 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		return;
 	}
 
-	// TODO 获取代理服消息
 	MsgHeader m_msgHeader;
 	m_nHasReadProxyDataSize = 0;
 

@@ -22,6 +22,11 @@ void TimerGateProxySrvHeart::setGateServer(GateServer* gateserver)
 
 void TimerGateProxySrvHeart::timeoutRun()
 {
+	if (!m_pGateServer)
+	{
+		LOG_GATESERVER.printLog("m_pGateServer NULL");
+		return;
+	}
 	SingleToProxyMsgHandler::callHandler(
 		MSG_TYPE_GATE_PROXY_HEART_GP,
 		(const byte*)m_pGateServer,
