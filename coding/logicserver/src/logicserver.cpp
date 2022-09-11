@@ -1,4 +1,5 @@
 #include "logicserver.h"
+#include "msghandler/logicmsghandler.h"
 
 #include <configmodule/configmanager.h>
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
@@ -119,7 +120,6 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 		memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, m_msgHeader.m_nMsgLen);
 
 		if (m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER ||
-			m_msgHeader.m_nSender != MsgHeader::F_PROXYSERVER ||
 			m_msgHeader.m_nReceiver != MsgHeader::F_LOGICSERVER
 			)
 		{
@@ -139,7 +139,20 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
 			LOGIC_SERVER_READ_MSG_CONTINUE;
 		}
+		// 和逻辑服通信的
+		else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
+			m_msgHeader.m_nMsgType < MSG_CODE_MAX)
+		{
+			LogicMsgHandler::callHandler(
+				m_msgHeader.m_nMsgType,
+				this,
+				m_bytesInnerSrvOnceMsg + sizeof(MsgHeader),
+				m_msgHeader.m_nMsgLen - sizeof(MsgHeader)
+			);
+			LOGIC_SERVER_READ_MSG_CONTINUE;
+		}
 
+		
 
 		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
 	}

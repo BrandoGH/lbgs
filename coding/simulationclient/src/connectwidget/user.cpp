@@ -8,7 +8,7 @@
 #include <servercommon/commontool/commontool.h>
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/msgmodule/msgcommondef.h>
-#include <servercommon/msgmodule/innerserverheartmsg.h>
+#include <logicserver/communicationmsg/msgheart.h>
 
 User::User(
 	const QString& ip,

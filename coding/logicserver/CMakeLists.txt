@@ -4,6 +4,9 @@ src/logicserver.h
 src/logicserver.cpp
 src/logicserver_aid.h
 src/logicserver_aid.cpp
+msghandler/logicmsghandler.h
+msghandler/logicmsghandler.cpp
+communicationmsg/msgheart.h
 )
 set(BIN_NAME logicserver)
 

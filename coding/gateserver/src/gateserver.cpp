@@ -384,7 +384,6 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, m_msgHeader.m_nMsgLen);
 
 		if (m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER ||
-			m_msgHeader.m_nSender != MsgHeader::F_PROXYSERVER ||
 			m_msgHeader.m_nReceiver != MsgHeader::F_GATESERVER
 			)
 		{
@@ -406,16 +405,14 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		}
 
 		// TODO 回给客户端信息 sendinfotoclient
-		// test ok
-		/*LOG_GATESERVER.printLog("print info to client");
-		CommonBoost::UniqueLock lock(m_mtxQueueUsers);
+		CommonBoost::UniqueLock lock(m_queueSendProxySrvUser.getMutex());
 		boost::shared_ptr<User> callbackUser = m_queueSendProxySrvUser.front();
 		if (callbackUser)
 		{
 			callbackUser->ayncSend((const byte*)"12345679", 9);
 			m_queueSendProxySrvUser.pop();
 		}
-		lock.unlock()*/
+		lock.unlock();
 		
 
 		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;

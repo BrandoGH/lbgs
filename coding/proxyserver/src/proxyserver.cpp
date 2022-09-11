@@ -133,10 +133,6 @@ void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSi
 	{
 		return;
 	}
-	pMsgHeader->m_nSender = MsgHeader::F_PROXYSERVER;
-	pMsgHeader->m_nProxyer = MsgHeader::F_PROXYSERVER;
-	pMsgHeader->m_nReceiver = listIndex;
-
 	// ÆäËû²Ù×÷ TODO
 	lock.lock();
 	m_linkerList[listIndex]->ayncSend(data, dataSize);
