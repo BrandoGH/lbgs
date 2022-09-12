@@ -38,6 +38,7 @@ private:
 private:
 	CommonBoost::IOServer m_innerServer;
 	CommonBoost::SocketPtr m_pInnerSocket;
+	CommonBoost::StrandPtr m_pInnerStrand;
 	CommonBoost::Endpoint m_innerEndpoint;
 	bool m_bConnectProxySrv;
 	bool m_bInnerRunOnce;

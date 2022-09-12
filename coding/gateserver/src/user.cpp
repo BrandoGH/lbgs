@@ -89,7 +89,8 @@ void User::onAyncRead(
 				m_msgHeader.m_nMsgType, 
 				m_msgHeader.m_nMsgLen, 
 				m_bytesReadBuffer);
-			break;
+			m_nHasReadDataSize++;
+			continue;
 		}
 
 		memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, m_msgHeader.m_nMsgLen);

@@ -153,6 +153,7 @@ void GateServer::initInnerClient()
 	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	
 	m_pInnerSocket = boost::make_shared<CommonBoost::Socket>(m_innerServer);
+	m_pInnerStrand = boost::make_shared<CommonBoost::Strand>(m_innerServer);
 	m_innerEndpoint = CommonBoost::Endpoint(
 		boost::asio::ip::address::from_string(info.ip),info.port
 		);
@@ -220,30 +221,30 @@ void GateServer::sendServerInfo(const boost::shared_ptr<User>& user)
 
 void GateServer::sendToProxySrv(const byte* data, uint size)
 {
-	if(!m_pInnerSocket)
+	if(!m_pInnerSocket || !m_pInnerStrand)
 	{
-		LOG_GATESERVER.printLog("m_pInnerSocket NULL");
+		LOG_GATESERVER.printLog("m_pInnerSocket NULL || m_pInnerStrand NULL");
 		return;
 	}
 
 	m_pInnerSocket->async_write_some(
 		MSG_BUFFER(data, size),
-		BIND(&GateServer::onProxySrvSend, this, boost::placeholders::_1, boost::placeholders::_2)
+		m_pInnerStrand->wrap(BIND(&GateServer::onProxySrvSend, this, boost::placeholders::_1, boost::placeholders::_2))
 	);
 }
 
 void GateServer::readFromProxySrv()
 {
-	if(!m_pInnerSocket)
+	if (!m_pInnerSocket || !m_pInnerStrand)
 	{
-		LOG_GATESERVER.printLog("m_pInnerSocket == NULL");
+		LOG_GATESERVER.printLog("m_pInnerSocket NULL || m_pInnerStrand NULL");
 		return;
 	}
 
 	memset(m_bytesInnerSrvBuffer, 0, sizeof(m_bytesInnerSrvBuffer));
 	m_pInnerSocket->async_read_some(
 		MSG_BUFFER(m_bytesInnerSrvBuffer, sizeof(m_bytesInnerSrvBuffer)),
-		BIND(&GateServer::onProxySrvRead, this, boost::placeholders::_1, boost::placeholders::_2)
+		m_pInnerStrand->wrap(BIND(&GateServer::onProxySrvRead, this, boost::placeholders::_1, boost::placeholders::_2))
 	);
 }
 
@@ -425,7 +426,8 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 				m_msgHeader.m_nMsgType,
 				m_msgHeader.m_nMsgLen,
 				m_bytesInnerSrvBuffer);
-			break;
+			m_nHasReadProxyDataSize++;
+			continue;
 		}
 		memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, m_msgHeader.m_nMsgLen);
 

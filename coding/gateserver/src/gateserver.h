@@ -87,6 +87,7 @@ private:
 	bool m_bInnerRunOnce;
 	bool m_bConnectProxySrv;
 	CommonBoost::IOServer m_innerServer;
+	CommonBoost::StrandPtr m_pInnerStrand;
 	CommonBoost::SocketPtr m_pInnerSocket;
 	CommonBoost::Endpoint m_innerEndpoint;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
