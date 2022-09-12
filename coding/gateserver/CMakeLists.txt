@@ -4,6 +4,8 @@ main.cpp
 ./src/gateserver.cpp
 ./src/gateserver_aid.h
 ./src/gateserver_aid.cpp
+./src/userseqmanager.h
+./src/userseqmanager.cpp
 ./src/user.h
 ./src/user.cpp
 )
