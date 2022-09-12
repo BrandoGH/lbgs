@@ -80,7 +80,7 @@ void User::sendData(const char* data, uint dataSize, int msgType)
 			m_pTcpSoc->write((const char*)m_pSendData, header.m_nMsgLen);
 			//m_pTcpSoc->write((const char*)m_pSendData, header.m_nMsgLen);		// 模拟粘包
 			//m_pTcpSoc->write("\x18\x00\x00\x00\x47\x42", 6);					// 模拟半包
-			emit sigSendData(QByteArray((const char*)m_pSendData, header.m_nMsgLen));
+			emit sigSendData(QByteArray((const char*)m_pSendData, header.m_nMsgLen), getUserId());
 		}
 	};
 
@@ -98,7 +98,7 @@ void User::sendData(const char* data, uint dataSize, int msgType)
 		{
 			memmove(m_pSendData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
 			m_pTcpSoc->write((const char*)m_pSendData, header.m_nMsgLen);
-			emit sigSendData(QByteArray((const char*)m_pSendData, header.m_nMsgLen));
+			emit sigSendData(QByteArray((const char*)m_pSendData, header.m_nMsgLen),getUserId());
 		}
 	};
 

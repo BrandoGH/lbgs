@@ -31,7 +31,7 @@ signals:
 	void sigConnect(uint userId);
 	void sigError(uint userId, int eCode);
 	void sigReadData(uint userId, const QByteArray& data);
-	void sigSendData(const QByteArray& data);
+	void sigSendData(const QByteArray& data, uint sendUserId);
 
 private slots:
 	void onConnected();

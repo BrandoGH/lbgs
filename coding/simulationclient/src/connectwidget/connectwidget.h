@@ -46,7 +46,7 @@ private slots:
 	void onError(uint userId, int eCode);
 	void onReadData(uint userId, const QByteArray& data);
 	void onSendData(bool checked);
-	void onSendData(const QByteArray& data);
+	void onSendData(const QByteArray& data, uint userId);
 	void onSendData();
 	void onCurrentTextChanged(const QString &str);
 

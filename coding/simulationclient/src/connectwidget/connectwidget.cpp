@@ -145,7 +145,7 @@ bool ConnectWidget::connectAll()
 		connect(user, SIGNAL(sigConnect(uint)), this, SLOT(onUserConnect(uint)));
 		connect(user, SIGNAL(sigError(uint, int)), this, SLOT(onError(uint, int)));
 		connect(user, SIGNAL(sigReadData(uint, const QByteArray&)), this, SLOT(onReadData(uint, const QByteArray&)));
-		connect(user, SIGNAL(sigSendData(const QByteArray&)), this, SLOT(onSendData(const QByteArray&)));
+		connect(user, SIGNAL(sigSendData(const QByteArray&, uint)), this, SLOT(onSendData(const QByteArray&, uint)));
 		printf("has create user [%d]\n", i + 1);
 	}
 
@@ -208,6 +208,7 @@ void ConnectWidget::onToggled(bool checked)
 	if(checked)
 	{
 		m_pEditSendInterval->setEnabled(false);
+		m_pSendDataTimer->setInterval(m_pEditSendInterval->text().toInt());
 		m_pSendDataTimer->start();
 		return;
 	}
@@ -222,19 +223,20 @@ void ConnectWidget::onSendData(bool checked)
 	onSendData();
 }
 
-void ConnectWidget::onSendData(const QByteArray& data)
+void ConnectWidget::onSendData(const QByteArray& data, uint userId)
 {
 	if(!m_pLogPlantText)
 	{
 		return;
 	}
 	QString text;
-	for(int i = 0; i < data.size(); ++i)
+	// OUPUT BYTE
+	/*for(int i = 0; i < data.size(); ++i)
 	{
 		QByteArray hex(1,data[i]);
-		text.append(QString("[%1]0x" + hex.toHex().toUpper() + " ").arg(i));
-	}
-	m_pLogPlantText->appendPlainText(text);
+		text.append(QString("[%1]0x" + hex.toHex().toUpper()).arg(i));
+	}*/
+	m_pLogPlantText->appendPlainText(QString("S_%1[%2]: %3").arg(userId).arg(data.size()).arg(QString(data.toHex())));
 }
 
 void ConnectWidget::onClearLog(bool checked)
@@ -289,7 +291,7 @@ void ConnectWidget::onReadData(uint userId, const QByteArray& data)
 		}
 		return;
 	}
-	m_pLogPlantText->appendPlainText(QString("read data: %1").arg(QString(data.toHex())));
+	m_pLogPlantText->appendPlainText(QString("R_%1[%2]: %3").arg(userId).arg(data.size()).arg(QString(data.toHex())));
 }
 
 void ConnectWidget::onConnectBtClicked(bool checked)
