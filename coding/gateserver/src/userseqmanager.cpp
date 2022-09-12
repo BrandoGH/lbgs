@@ -20,7 +20,8 @@ int UserSeqManager::getAvailableSeq()
 	}
 	else
 	{
-		retSeq = m_nSeq++;
+		retSeq = m_nSeq.load();
+		m_nSeq += 1;
 	}
 
 	return retSeq;

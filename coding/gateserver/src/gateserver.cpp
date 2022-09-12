@@ -132,6 +132,10 @@ void GateServer::removeUserRelated(boost::shared_ptr<User> user)
 		LOG_GATESERVER.printLog("user NULL");
 		return;
 	}
+	// 存储这个用户seq，可以分配给下一个连接的客户端
+	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
+	m_userSeqMgr.pushAsideSeq(user->getSeq());
+
 	// 从seq-用户映射表删除
 	MapSeqToUserIter it = m_mapSeqToUser.find(user->getSeq());
 	if (it != m_mapSeqToUser.end())
@@ -288,10 +292,6 @@ void GateServer::onUserError(
 		user->getLinkPort(getPort);
 	}
 
-	// 存储这个用户seq，可以分配给下一个连接的客户端
-	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
-	m_userSeqMgr.pushAsideSeq(user->getSeq());
-	lock.unlock();
 	removeUserRelated(user);
 
 	// 客户端正常关闭
