@@ -7,6 +7,7 @@
 
 User::User(CommonBoost::IOServer& ioserver)
 	: m_nHasReadDataSize(0)
+	, m_nSeq(0)
 {
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
@@ -176,6 +177,16 @@ int User::slotConnect(GateServer* gateServer)
 	return CONNECT_OK;
 }
 
+void User::setSeq(int seq)
+{
+	m_nSeq = seq;
+}
+
+int User::getSeq()
+{
+	return m_nSeq;
+}
+
 void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)
 {
 	if (ec)
@@ -199,7 +210,8 @@ void User::forwardToProxy(const byte* readOnceMsg, uint msgSize)
 	header->m_nSender = MsgHeader::F_GATESERVER;
 	header->m_nReceiver = MsgHeader::F_LOGICSERVER;
 	header->m_nProxyer = MsgHeader::F_PROXYSERVER;
+	header->m_nClientSrcSeq = getSeq();
 
 
-	sigSendDataToProxy(readOnceMsg, msgSize, shared_from_this());
+	sigSendDataToProxy(readOnceMsg, msgSize, getSeq());
 }

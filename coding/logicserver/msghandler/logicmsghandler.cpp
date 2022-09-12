@@ -14,10 +14,10 @@ void onClientHeartCS(LogicServer* pLogicServer, byte* data, uint dataSize)
 		LOG_LOGICSERVER.printLog("Pointer NULL");
 		return;
 	}
-	MsgHeartCS* msg = (MsgHeartCS*)data;
+	MsgHeartCS* msg = (MsgHeartCS*)(data + sizeof(MsgHeader));
 	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart, (const byte*)"\x4C\x42\x47\x53", sizeof(msg->m_bytesHeart)))
 	{
-		LOG_GATESERVER.printLog("msg data error");
+		LOG_LOGICSERVER.printLog("msg data error");
 		return;
 	}
 	
@@ -26,23 +26,28 @@ void onClientHeartCS(LogicServer* pLogicServer, byte* data, uint dataSize)
 
 void onClientHeartSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 {
-	if (!pLogicServer)
+	if (!pLogicServer || !data)
 	{
-		LOG_GATESERVER.printLog("pLogicServer NULL");
+		LOG_LOGICSERVER.printLog("pLogicServer NULL");
 		return;
 	}
 	MsgHeartSC msg;
 	memmove(msg.m_bytesHeart, "\x53\x47\x42\x4C", sizeof(msg.m_bytesHeart));
-	MsgHeader header;
-	header.m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgHeartSC);
-	header.m_nMsgType = MSG_TYPE_HEART_SC;
-	header.m_nSender = MsgHeader::F_LOGICSERVER;
-	header.m_nReceiver = MsgHeader::F_GATESERVER;
-	header.m_nProxyer = MsgHeader::F_PROXYSERVER;
+	MsgHeader* header = (MsgHeader*)data;
+	if (!header)
+	{
+		LOG_LOGICSERVER.printLog("header NULL");
+		return;
+	}
+	header->m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgHeartSC);
+	header->m_nMsgType = MSG_TYPE_HEART_SC;
+	header->m_nSender = MsgHeader::F_LOGICSERVER;
+	header->m_nReceiver = MsgHeader::F_GATESERVER;
+	header->m_nProxyer = MsgHeader::F_PROXYSERVER;
 
 	DEFINE_BYTE_ARRAY(sendDataArr, sizeof(MsgHeader) + sizeof(MsgHeartSC));
 	memset(sendDataArr, 0, sizeof(MsgHeader) + sizeof(MsgHeartSC));
-	memmove(sendDataArr, (const char*)&header, sizeof(MsgHeader));
+	memmove(sendDataArr, (const char*)header, sizeof(MsgHeader));
 	memmove(sendDataArr + sizeof(MsgHeader), (const char*)&msg, sizeof(MsgHeartSC));
 	pLogicServer->sendToProxySrv(sendDataArr, sizeof(MsgHeader) + sizeof(MsgHeartSC));
 }

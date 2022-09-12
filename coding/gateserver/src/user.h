@@ -30,6 +30,8 @@ public:
 	void closeSocket();
 
 	int slotConnect(GateServer* gateServer);
+	void setSeq(int seq);
+	int getSeq();
 
 SIGNALS:
 	DEFINE_SIGNAL(void(
@@ -38,7 +40,7 @@ SIGNALS:
 	DEFINE_SIGNAL(void(
 		const byte* data,
 		uint dataSize, 
-		boost::shared_ptr<User>), sigSendDataToProxy);
+		int userSeq), sigSendDataToProxy);
 
 HANDLER:
 	void onAyncRead(
@@ -62,6 +64,8 @@ private:
 	MsgHeader m_msgHeader;
 	MsgEnder m_msgEnder;
 	ushort m_nHasReadDataSize;
+	// 该用户的序号
+	int m_nSeq;
 };
 
 #endif // !__USER_H__

@@ -146,8 +146,8 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 			LogicMsgHandler::callHandler(
 				m_msgHeader.m_nMsgType,
 				this,
-				m_bytesInnerSrvOnceMsg + sizeof(MsgHeader),
-				m_msgHeader.m_nMsgLen - sizeof(MsgHeader)
+				m_bytesInnerSrvOnceMsg,
+				m_msgHeader.m_nMsgLen
 			);
 			LOGIC_SERVER_READ_MSG_CONTINUE;
 		}

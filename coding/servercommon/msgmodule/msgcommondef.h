@@ -35,7 +35,8 @@ struct MsgHeader
 		m_nSender = F_DEFAULT;
 		m_nReceiver = F_DEFAULT;
 		m_nProxyer = F_DEFAULT;
-		m_nReserve = 0;
+		m_nClientSrcSeq = 0;
+		memset(m_nReserve, 0, sizeof(m_nReserve));
 	}
 
 	ushort m_nMsgLen;
@@ -43,9 +44,10 @@ struct MsgHeader
 	ushort m_nSender;		// 发送方
 	ushort m_nReceiver;		// 接收方
 	byte m_nProxyer;		// 转发方 固定代理服
-	byte m_nReserve;		// 保留
+	byte m_nReserve[3];		// 保留
+	int m_nClientSrcSeq;		// 服务器内部通信用，存储是哪个序号发送信息的，根据这个序号网关决定是发送给谁
 };
-BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 10);
+BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 16);
 
 struct MsgEnder
 {

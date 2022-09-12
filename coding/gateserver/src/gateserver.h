@@ -3,6 +3,7 @@
 
 #include "user.h"
 #include "gateserver_aid.h"
+#include "userseqmanager.h"
 
 #include <boostmodule/basedef.h>
 #include <boost/atomic.hpp>
@@ -36,7 +37,7 @@ SLOTS:
 	void onUserError(
 		boost::shared_ptr<User> user,
 		const CommonBoost::ErrorCode& ec);
-	void OnSendToProxySrvByUser(const byte* data, uint size, boost::shared_ptr<User> sendOriginUser);
+	void OnSendToProxySrvByUser(const byte* data, uint size, int userSeq);
 
 HANDLER:
 	void onAcceptHandler(
@@ -59,6 +60,7 @@ HANDLER:
 private:
 	void accept();
 	void initData();
+	void removeUserRelated(boost::shared_ptr<User> user);		// 客户端断开连接，删除这个用户相关数据，可以写到这里
 
 	// 转发服
 	void initInnerClient();
@@ -69,11 +71,17 @@ private:
 	bool isConnectProxySrvSucc() { return m_bConnectProxySrv; }
 	void readFromProxySrv();
 
+	void sendMsgToClient(const boost::shared_ptr<User> targetUser, byte* proxyData);
+
 private:
 	CommonBoost::IOServer m_server;
 	CommonBoost::Acceptor* m_pAcceptor;
+	UserSeqManager m_userSeqMgr;
 	boost::atomic<int> m_nConnectCount;
 	int m_nPort;
+
+	typedef std::map< int, boost::shared_ptr<User> >::const_iterator MapSeqToUserIter;
+	std::map< int, boost::shared_ptr<User> > m_mapSeqToUser;
 
 	// 内部客户端部分，用于连接内部服务器
 	bool m_bInnerRunOnce;
@@ -85,7 +93,6 @@ private:
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	TimerGateProxySrvHeart m_innerSrvHeart;
 	ushort m_nHasReadProxyDataSize;
-	SafeQueue< boost::shared_ptr<User> > m_queueSendProxySrvUser;
 };
 
 #endif

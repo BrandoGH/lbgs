@@ -9,6 +9,7 @@
 #include <servercommon/basedef.h>
 #include <exception>
 #include <msgmodule/singletoproxymsghandler.h>
+#include <logicserver/communicationmsg/msgheart.h>
 
 #define GATE_SERVER_READ_MSG_CONTINUE \
 	m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen; \
@@ -84,12 +85,8 @@ void GateServer::start()
 	while (1);
 }
 
-void GateServer::OnSendToProxySrvByUser(const byte* data, uint size, boost::shared_ptr<User> sendOriginUser)
+void GateServer::OnSendToProxySrvByUser(const byte* data, uint size, int userSeq)
 {
-	CommonBoost::UniqueLock lock(m_queueSendProxySrvUser.getMutex());
-	m_queueSendProxySrvUser.push(sendOriginUser);
-	lock.unlock();
-
 	sendToProxySrv(data, size);
 }
 
@@ -103,6 +100,7 @@ void GateServer::accept()
 
 	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server);
 	newUser->slotConnect(this);
+	newUser->setSeq(m_userSeqMgr.getAvailableSeq());
 	if (newUser->getSocket().get() == NULL)
 	{
 		LOG_GATESERVER.printLog("newUser->getSocket().get() == NULL");			// 都跑到这里了，服务器是不是有问题
@@ -125,6 +123,21 @@ void GateServer::initData()
 	initInnerClient();
 	m_innerSrvHeart.setGateServer(this);
 	m_innerSrvHeart.setInterval(info.heart_time);
+}
+
+void GateServer::removeUserRelated(boost::shared_ptr<User> user)
+{
+	if (!user.get())
+	{
+		LOG_GATESERVER.printLog("user NULL");
+		return;
+	}
+	// 从seq-用户映射表删除
+	MapSeqToUserIter it = m_mapSeqToUser.find(user->getSeq());
+	if (it != m_mapSeqToUser.end())
+	{
+		m_mapSeqToUser.erase(it);
+	}
 }
 
 void GateServer::initInnerClient()
@@ -230,6 +243,33 @@ void GateServer::readFromProxySrv()
 	);
 }
 
+void GateServer::sendMsgToClient(const boost::shared_ptr<User> targetUser, byte* proxyData)
+{
+	if (!targetUser.get() || !proxyData)
+	{
+		LOG_GATESERVER.printLog("Pointer NULL");
+		return;
+	}
+
+	MsgHeader* header = (MsgHeader*)proxyData;
+	if (!header)
+	{
+		LOG_GATESERVER.printLog("header NULL");
+		return;
+	}
+	header->m_nMsgLen += sizeof(MsgEnder);
+
+	MsgEnder ender;
+	int nHeartBodySize = header->m_nMsgLen - sizeof(MsgEnder);
+	if (!CommonTool::MsgTool::data2Md5(proxyData, nHeartBodySize, ender.m_bytesMD5))
+	{
+		LOG_GATESERVER.printLog("send msg to client---MD5 error!!");
+		return;
+	}
+	memmove(proxyData + nHeartBodySize, (const char*)&ender, sizeof(MsgEnder));
+	targetUser->ayncSend(proxyData, header->m_nMsgLen);
+}
+
 void GateServer::onUserError(
 	boost::shared_ptr<User> user,
 	const CommonBoost::ErrorCode& ec)
@@ -247,6 +287,12 @@ void GateServer::onUserError(
 		user->getLinkIP(getIp);
 		user->getLinkPort(getPort);
 	}
+
+	// 存储这个用户seq，可以分配给下一个连接的客户端
+	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
+	m_userSeqMgr.pushAsideSeq(user->getSeq());
+	lock.unlock();
+	removeUserRelated(user);
 
 	// 客户端正常关闭
 	if (ec.value() == GateServer::LOGOUT)
@@ -404,15 +450,11 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 			GATE_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// TODO 回给客户端信息 sendinfotoclient
-		CommonBoost::UniqueLock lock(m_queueSendProxySrvUser.getMutex());
-		boost::shared_ptr<User> callbackUser = m_queueSendProxySrvUser.front();
+		boost::shared_ptr<User> callbackUser = m_mapSeqToUser[m_msgHeader.m_nClientSrcSeq];
 		if (callbackUser)
 		{
-			callbackUser->ayncSend((const byte*)"12345679", 9);
-			m_queueSendProxySrvUser.pop();
+			sendMsgToClient(callbackUser, m_bytesInnerSrvBuffer);
 		}
-		lock.unlock();
 		
 
 		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
@@ -448,6 +490,8 @@ void GateServer::onAcceptHandler(
 	}
 
 	++m_nConnectCount;
+
+	m_mapSeqToUser[user->getSeq()] = user;
 
 	std::string ip;
 	ushort port = 0;
