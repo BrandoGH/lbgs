@@ -1,6 +1,9 @@
 #!/bin/bash
 
-echo "stoping...."
+echo "proxyserver stoping...."
 pkill proxyserver 
+echo "gateserver stoping...."
 pkill gateserver
-echo "stop server succ!!"
+echo "logicserver stoping...."
+pkill logicserver
+echo "stop all server succ!!"
