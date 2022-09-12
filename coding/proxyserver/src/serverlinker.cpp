@@ -198,7 +198,7 @@ void ServerLinker::onAyncRead(
 			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// TODO 转发到指定服务器
+		// 转发到指定服务器
 		sigSendToDstServer(m_msgHeader.m_nReceiver,
 			m_bytesOnceMsg,
 			m_msgHeader.m_nMsgLen);
