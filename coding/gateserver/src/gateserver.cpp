@@ -100,7 +100,6 @@ void GateServer::accept()
 
 	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server);
 	newUser->slotConnect(this);
-	newUser->setSeq(m_userSeqMgr.getAvailableSeq());
 	if (newUser->getSocket().get() == NULL)
 	{
 		LOG_GATESERVER.printLog("newUser->getSocket().get() == NULL");			// 都跑到这里了，服务器是不是有问题
@@ -493,6 +492,9 @@ void GateServer::onAcceptHandler(
 
 	++m_nConnectCount;
 
+	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
+	user->setSeq(m_userSeqMgr.getAvailableSeq());
+	lock.unlock();
 	m_mapSeqToUser[user->getSeq()] = user;
 
 	std::string ip;

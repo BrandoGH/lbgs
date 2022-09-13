@@ -9,7 +9,7 @@
 		<data>
 			<ip>127.0.0.1</ip>
 			<port>4512</port>
-			<heart_time>3000</heart_time> <!--与代理服的心跳包时间 ms-->
+			<heart_time>40000</heart_time> <!--与代理服的心跳包时间 ms-->
 		</data>
 	</proxyserver>
 </config>
