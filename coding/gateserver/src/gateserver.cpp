@@ -454,7 +454,7 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		boost::shared_ptr<User> callbackUser = m_mapSeqToUser[m_msgHeader.m_nClientSrcSeq];
 		if (callbackUser)
 		{
-			sendMsgToClient(callbackUser, m_bytesInnerSrvBuffer);
+			sendMsgToClient(callbackUser, m_bytesInnerSrvOnceMsg);
 		}
 		
 
