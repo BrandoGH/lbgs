@@ -93,6 +93,14 @@ void User::onAyncRead(
 			continue;
 		}
 
+		if (m_msgHeader.m_nMsgLen <= (sizeof(MsgHeader) + sizeof(MsgEnder)))
+		{
+			// 这里有很大可能是客户端和服务端的协议格式不一致造成的
+			LOG_GATESERVER.printLog("m_msgHeader.m_nMsgLen[%d] <= (sizeof(MsgHeader) + sizeof(MsgEnder)%d)", 
+				m_msgHeader.m_nMsgLen, sizeof(MsgHeader) + sizeof(MsgEnder));
+			break;
+		}
+
 		memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, m_msgHeader.m_nMsgLen);
 		ushort userDataSize = m_msgHeader.m_nMsgLen - sizeof(MsgHeader) - sizeof(MsgEnder);
 		m_msgEnder = *(MsgEnder*)(m_bytesOnceMsg + sizeof(MsgHeader) + userDataSize);
