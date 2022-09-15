@@ -36,8 +36,8 @@
 #define SDS_MAX_PREALLOC (1024*1024)
 #ifdef _MSC_VER
 #define __attribute__(x)
-typedef long long ssize_t;
-#define SSIZE_MAX (LLONG_MAX >> 1)
+typedef intptr_t ssize_t;
+#define SSIZE_MAX INTPTR_MAX
 #endif
 
 #include <sys/types.h>

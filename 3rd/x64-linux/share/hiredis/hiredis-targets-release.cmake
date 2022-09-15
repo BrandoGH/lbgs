@@ -12,8 +12,8 @@ set_target_properties(hiredis::hiredis PROPERTIES
   IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/libhiredis.a"
   )
 
-list(APPEND _IMPORT_CHECK_TARGETS hiredis::hiredis )
-list(APPEND _IMPORT_CHECK_FILES_FOR_hiredis::hiredis "${_IMPORT_PREFIX}/lib/libhiredis.a" )
+list(APPEND _cmake_import_check_targets hiredis::hiredis )
+list(APPEND _cmake_import_check_files_for_hiredis::hiredis "${_IMPORT_PREFIX}/lib/libhiredis.a" )
 
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)

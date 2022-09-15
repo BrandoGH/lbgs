@@ -39,8 +39,7 @@
 #include <sys/time.h> /* for struct timeval */
 #else
 struct timeval; /* forward declaration */
-typedef long long ssize_t;
-#define _SSIZE_T_ /* for compatibility with libuv */
+typedef intptr_t ssize_t;
 #endif
 #include <stdint.h> /* uintXX_t, etc */
 #include "sds.h" /* for sds */
