@@ -53,5 +53,6 @@ elseif(UNIX)
  	libboost_thread.a
  	libboost_chrono.a
 	liblua.a
+	libhiredis.a
 	)
 endif()
