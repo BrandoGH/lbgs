@@ -38,6 +38,7 @@ if (WIN32)
 	gtest
 	gmock
 	lua
+	hiredis
 	)
 
 elseif(UNIX)
