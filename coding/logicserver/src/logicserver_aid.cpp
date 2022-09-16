@@ -27,7 +27,7 @@ void TimerLogicProxySrvHeart::timeoutRun()
 		return;
 	}
 	SingleToProxyMsgHandler::callHandler(
-	MSG_TYPE_GATE_PROXY_HEART_LP,
+	MSG_TYPE_LOGIC_PROXY_HEART_LP,
 	(const byte*)m_pLogicServer,
 	NULL,
 	0);

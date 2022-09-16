@@ -6,6 +6,20 @@
 
 #include <gateserver/src/gateserver.h>
 
+#define MSG_SC_CODE_MODE(log_obj)													\
+	if (!objServer || !data)														\
+	{																				\
+		log_obj.printLog("call handler error");										\
+		return;																		\
+	}																				\
+	MsgInHeartSC* msg = (MsgInHeartSC*)data;										\
+	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart,				\
+		(const byte*)"\x53\x47\x42\x4C", sizeof(msg->m_bytesHeart)))				\
+	{																				\
+		log_obj.printLog("msg data error");											\
+		return;																		\
+	}
+
 namespace
 {
 // 发送心跳包
@@ -33,6 +47,7 @@ namespace SingleToProxyMsgHandler
 {
 byte g_GateSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
 byte g_LogicSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
+byte g_CacheSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
 
 void onHandlerGPHeartCS(const byte* objServer, byte* data, uint dataSize)
 {
@@ -41,37 +56,27 @@ void onHandlerGPHeartCS(const byte* objServer, byte* data, uint dataSize)
 
 void onHandlerPGHeartSC(const byte* objServer, byte* data, uint dataSize)
 {
-	if (!objServer || !data)
-	{
-		LOG_GATESERVER.printLog("call handler error");
-		return;
-	}
-	MsgInHeartSC* msg = (MsgInHeartSC*)data;
-	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart, (const byte*)"\x53\x47\x42\x4C", sizeof(msg->m_bytesHeart)))
-	{
-		LOG_GATESERVER.printLog("msg data error");
-		return;
-	}
+	MSG_SC_CODE_MODE(LOG_GATESERVER)
 }
 
 void onHandlerLPHeartCS(const byte* objServer, byte* data, uint dataSize)
 {
-	sendProxyHeartInfo(g_LogicSendProxy, MSG_TYPE_GATE_PROXY_HEART_LP, MsgHeader::F_LOGICSERVER);
+	sendProxyHeartInfo(g_LogicSendProxy, MSG_TYPE_LOGIC_PROXY_HEART_LP, MsgHeader::F_LOGICSERVER);
 }
 
 void onHandlerPLHeartSC(const byte* objServer, byte* data, uint dataSize)
 {
-	if (!objServer || !data)
-	{
-		LOG_LOGICSERVER.printLog("call handler error");
-		return;
-	}
-	MsgInHeartSC* msg = (MsgInHeartSC*)data;
-	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart, (const byte*)"\x53\x47\x42\x4C", sizeof(msg->m_bytesHeart)))
-	{
-		LOG_LOGICSERVER.printLog("msg data error");
-		return;
-	}
+	MSG_SC_CODE_MODE(LOG_LOGICSERVER)
+}
+
+void onHandlerCPHeartCS(const byte* objServer, byte* data, uint dataSize)
+{
+	sendProxyHeartInfo(g_CacheSendProxy, MSG_TYPE_CACHE_PROXY_HEART_CP, MsgHeader::F_CACHESERVER);
+}
+
+void onHandlerPCHeartSC(const byte* objServer, byte* data, uint dataSize)
+{
+	MSG_SC_CODE_MODE(LOG_CACHESERVER)
 }
 
 // 非handler跳转部分
@@ -81,6 +86,8 @@ HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 	onHandlerPGHeartSC,
 	onHandlerLPHeartCS,
 	onHandlerPLHeartSC,
+	onHandlerCPHeartCS,
+	onHandlerPCHeartSC,
 };
 
 void callHandler(int msgType, const byte* objServer, byte* data, uint dataSize)

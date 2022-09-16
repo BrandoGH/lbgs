@@ -438,9 +438,10 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 			GATE_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// 如果此条协议是只和网关通信的
+		// 如果此条协议是和代理服心跳
 		if (m_msgHeader.m_nMsgType >= MSG_TYPE_GATE_PROXY_HEART_GP && 
-			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX
+			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX &&
+			m_msgHeader.m_nMsgType == MSG_TYPE_GATE_PROXY_HEART_PG
 			)
 		{
 			SingleToProxyMsgHandler::callHandler(

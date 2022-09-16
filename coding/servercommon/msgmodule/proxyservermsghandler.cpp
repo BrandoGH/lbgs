@@ -49,7 +49,7 @@ void onHandlerLogicHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* 
 		LOG_PROXYSERVER.printLog("msg data error");
 		return;
 	}
-	callHandler(MSG_TYPE_GATE_PROXY_HEART_PL, linker, data, dataSize);
+	callHandler(MSG_TYPE_LOGIC_PROXY_HEART_PL, linker, data, dataSize);
 }
 
 void onHandlerLogicHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize)
@@ -59,7 +59,7 @@ void onHandlerLogicHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* 
 
 	MsgHeader header;
 	header.m_nMsgLen = sizeof(MsgHeader) + sizeof(sendMsg.m_bytesHeart);
-	header.m_nMsgType = MSG_TYPE_GATE_PROXY_HEART_PL;
+	header.m_nMsgType = MSG_TYPE_LOGIC_PROXY_HEART_PL;
 	header.m_nSender = MsgHeader::F_PROXYSERVER;
 	header.m_nReceiver = MsgHeader::F_LOGICSERVER;
 	header.m_nProxyer = MsgHeader::F_PROXYSERVER;
