@@ -10,7 +10,9 @@
 #include "queuemodule/safequeue.hpp"
 
 /*
-* 网关服务器
+* gateserver
+*
+* accecpt client
 * 
 */
 
@@ -46,7 +48,7 @@ HANDLER:
 		);
 	void onThreadRunAcceptorIOServer();
 
-	// inner client 
+	// link to proxy server 
 	void onConnectInnerServer(const CommonBoost::ErrorCode& err);
 	void onProxySrvSend(
 		const CommonBoost::ErrorCode& ec,
@@ -60,14 +62,16 @@ HANDLER:
 private:
 	void accept();
 	void initData();
-	void removeUserRelated(boost::shared_ptr<User> user);		// 客户端断开连接，删除这个用户相关数据，可以写到这里
+	// The client disconnects and deletes the user-related data, which can be written here
+	void removeUserRelated(boost::shared_ptr<User> user);		
 
-	// 转发服
+	// proxy server 
 	void initInnerClient();
 	void connectInnerServer();
 	void closeInnerSocket();
 	void runInnnerIOServerOnce();
-	void sendServerInfo(const boost::shared_ptr<User>& user);	// 每个客户端连接后发送一个信息，告诉客户端服务端信息，目前发送字节序存储方式，由客户端组装报文
+	//After each client connects, a message is sent to tell the client server information. Currently, the byte order storage method is sent, and the client assembles the message.
+	void sendServerInfo(const boost::shared_ptr<User>& user);
 	bool isConnectProxySrvSucc() { return m_bConnectProxySrv; }
 	void readFromProxySrv();
 
@@ -83,7 +87,7 @@ private:
 	typedef std::map< int, boost::shared_ptr<User> >::const_iterator MapSeqToUserIter;
 	std::map< int, boost::shared_ptr<User> > m_mapSeqToUser;
 
-	// 内部客户端部分，用于连接内部服务器
+	// Communication with the proxy server
 	bool m_bInnerRunOnce;
 	bool m_bConnectProxySrv;
 	CommonBoost::IOServer m_innerServer;

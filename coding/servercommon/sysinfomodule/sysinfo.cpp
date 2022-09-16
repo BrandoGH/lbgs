@@ -31,15 +31,15 @@ bool SystemInfo::isProcessRuning(const std::string& processName)
 {
 #ifdef WIN_OS
 	bool ret = false;
-	HANDLE info_handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); //拍摄系统中所有进程的快照
+	HANDLE info_handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); // Take a snapshot of all processes in the system
 	if(info_handle == INVALID_HANDLE_VALUE)
 	{
 		return false;
 	}
 
 	PROCESSENTRY32W program_info;
-	program_info.dwSize = sizeof(PROCESSENTRY32W);  //设置结构体大小
-	int bResult = Process32FirstW(info_handle, &program_info); //获取所有进程中第一个进程的信息
+	program_info.dwSize = sizeof(PROCESSENTRY32W);  // set struct size
+	int bResult = Process32FirstW(info_handle, &program_info); // get first process info from all process
 	if(!bResult)
 	{
 		return false;
@@ -53,10 +53,10 @@ bool SystemInfo::isProcessRuning(const std::string& processName)
 			ret = true;
 			break;
 		}
-		//获得下一个进程的进程信息
+		// get next process info
 		bResult = Process32NextW(info_handle,&program_info);
 	}
-	CloseHandle(info_handle);//关闭句柄
+	CloseHandle(info_handle);// close
 	return ret;
 #elif LINUX_OS
 	FILE* fp = NULL;

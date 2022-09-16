@@ -106,7 +106,7 @@ void onHandlerCacheHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* 
 }
 
 
-// 非handler跳转部分
+// Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 {
 	onHandlerGateHeartCS,

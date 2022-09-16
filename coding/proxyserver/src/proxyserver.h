@@ -43,7 +43,7 @@ private:
 	CommonBoost::Acceptor* m_pAcceptor;
 	int m_nPort;
 
-	// 和代理服连接的所有linker列表
+	// List of all linkers connected to the proxy server
 	boost::shared_ptr<ServerLinker> m_linkerList[MsgHeader::F_MAX];
 	CommonBoost::Mutex m_mtxLinkerList;
 

@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 	} while(0);
 
 	assert(pGateServer);
-	// Æô¶¯·şÎñ
+	// start server
 	pGateServer->start();
 	if(pGateServer)
 	{

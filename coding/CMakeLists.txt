@@ -12,36 +12,36 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
 -fPIC \
 "
 )
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)	# 应该等价于fPIC ，生成与位置无关代码
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)	# should be equivalent to fPIC, generating position independent code
 message("-- CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
-#cmake 参数设置的自定义变量
+#cmake : Custom variables for parameter settings
 #{  -- start
-#通用
-#ENABLE_DEBUG_LOG		ON/OFF			是否开启调试日志，如果开启，日志将在屏幕打出
-#ENABLE_UNITEST			ON/OFF			是否导入单元测试工程
+# common
+#ENABLE_DEBUG_LOG		ON/OFF			Whether to enable the debug log, if enabled, the log will be printed on the screen
+#ENABLE_UNITEST			ON/OFF			Whether to import the unit test project
 
 #windows
-#OPEN_SIMULATION_CLIENT		ON/OFF		是否导入模拟客户端工程
+#OPEN_SIMULATION_CLIENT		ON/OFF		Whether to import the simulated client project
 
 #linux
-#ENABLE_DEBUG_MODE			ON/OFF		是否开启可调式模式
+#ENABLE_DEBUG_MODE			ON/OFF		Whether to enable adjustable mode
 #}  -- end
 
 #common cmake
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE) #不加这个CMAKE_BUILD_TYPE不起作用
+set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE) #Without this CMAKE_BUILD_TYPE doesn't work
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(LBGS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
-set(EXECUTABLE_OUTPUT_PATH ${LBGS_ROOT_DIR}/build/exe)		#二进制执行文件生成路径[所有服务器生成的文件都放一起]
-set(LIBRARY_OUTPUT_PATH_BASE_DIR ${LBGS_ROOT_DIR}/build/library) #库生成根路径
+set(EXECUTABLE_OUTPUT_PATH ${LBGS_ROOT_DIR}/build/exe)		#Binary executable file generation path [all server-generated files are put together]
+set(LIBRARY_OUTPUT_PATH_BASE_DIR ${LBGS_ROOT_DIR}/build/library) #library generation root path
 set(CONFIG_BASE_DIR ${LBGS_ROOT_DIR}/config/)
 
 if (WIN32)
 	message("-- MSVC_VERSION : ${MSVC_VERSION}")
 	add_definitions(-DWIN_OS)
-	#visual studio优化选项，release也可调试【本质上复用了debug的值】【win 开发机默认可调试】
-	#如果是 visual studio 2022 添加代码可热更选项
+	#visual studio optimization options，release mode can be debug【Essentially reuses the value of FLAGS_DEBUG】【win development machine is debuggable by default】
+	# visual studio 2022 add hot code
 	if(MSVC_VERSION EQUAL 1930)
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} /ZI /JMC")
 		message("-- visual studio version is 2022, support hot reload !!")
@@ -57,7 +57,7 @@ if (WIN32)
 	set(STATIC_RC_LIB_PATH_3RD ${LBGS_ROOT_DIR}/3rd/x64-windows/lib)
 	set(SHARED_RC_LIB_PATH_3RD ${LBGS_ROOT_DIR}/3rd/x64-windows/bin)
 
-	#拷贝需要的动态库到可执行文件夹下【只适用于windows】
+	#Copy the required dynamic library to the executable folder [only for windows]
 	file(GLOB DLL_PATH ${SHARED_RC_LIB_PATH_3RD}/*)
 	file(COPY ${DLL_PATH} DESTINATION ${EXE_DIR})
 	message("-- 3rd dll has copy to ${EXE_DIR}")
@@ -76,7 +76,7 @@ if (WIN32)
 
 elseif(UNIX)
 	add_definitions(-DLINUX_OS)
-	#服务器按需设置,开启debug可调试，默认最大优化
+	#Set the server as needed, enable debug to debug, and default to maximum optimization
 	if(ENABLE_DEBUG_MODE)
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG}")
 		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
@@ -90,7 +90,7 @@ elseif(UNIX)
 	set(STATIC_RC_LIB_PATH_3RD ${LBGS_ROOT_DIR}/3rd/x64-linux/lib)
 endif()
 
-#宏定义
+#global macro definition
 add_definitions(
 -DCODE_ROOT_PATH=\"${LBGS_ROOT_DIR}\"
 -DLOG_ROOT_PATH=\"${LBGS_ROOT_DIR}/build/log\"
@@ -124,7 +124,7 @@ message("-- CMAKE_CXX_FLAGS_RELEASE : ${CMAKE_CXX_FLAGS_RELEASE}")
 message("-- CMAKE_EXE_LINKER_FLAGS_RELEASE : ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 message("-- CMAKE_SHARED_LINKER_FLAGS_RELEASE : ${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
 
-#顺序比较重要，先编译通用库
+#The order is more important, compile the general library first
 add_subdirectory(./servercommon)
 add_subdirectory(./gateserver)
 add_subdirectory(./logicserver)
@@ -136,7 +136,7 @@ if(ENABLE_UNITEST)
 	message("-- ENABLE_UNITEST_PROJECT : ${ENABLE_UNITEST}")
 endif()
 
-#param传入 导入模拟客户端工程
+#param input:  --SIMULATION_CLIENT project import
 if (WIN32)
 	if(OPEN_SIMULATION_CLIENT)
 		
@@ -146,7 +146,7 @@ if (WIN32)
 		set(CMAKE_AUTOMOC ON)
 		set(CMAKE_AUTOUIC ON)
 		set(3RD_QT5_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/include/qt5)
-		#需要把qt的插件放到exe目录下，不然启动会有问题
+		#You need to put the [qt plug-in] in the exe directory, otherwise there will be problems with startup
 		file(GLOB QT_PLUGIN_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/tools/qt5/bin/plugins/*)
 		file(COPY ${QT_PLUGIN_PATH} DESTINATION ${EXE_DIR})
 

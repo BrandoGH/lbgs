@@ -78,7 +78,7 @@ void CacheServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize
 			readSize,
 			ec.message().data());
 
-		// 异常处理
+		// Do other exceptions
 	}
 }
 
@@ -106,7 +106,7 @@ void CacheServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 		memset(m_bytesInnerSrvOnceMsg, 0, sizeof(m_bytesInnerSrvOnceMsg));
 
 		m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize);
-		// 一条协议最大长度判断
+		// Judgment of the maximum length of a protocol
 		if (m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
 			m_msgHeader.m_nMsgLen <= 0)
 		{
@@ -127,7 +127,7 @@ void CacheServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 			CACHE_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// 如果此条协议是和代理服心跳
+		// if this msg is heart with proxy server
 		if (m_msgHeader.m_nMsgType >= MSG_TYPE_GATE_PROXY_HEART_GP &&
 			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX &&
 			m_msgHeader.m_nMsgType == MSG_TYPE_CACHE_PROXY_HEART_PC
@@ -140,7 +140,7 @@ void CacheServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
 			CACHE_SERVER_READ_MSG_CONTINUE;
 		}
-		// 和缓存通信的
+		// communicate with the cache server 
 		/*else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
 			m_msgHeader.m_nMsgType < MSG_CODE_MAX)
 		{
@@ -241,7 +241,7 @@ void CacheServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 
 	m_innerSrvHeart.start();
 
-	// 发送一个字节，告诉代理服自己的身份
+	// send a byte info,tell proxy server my identity
 	DEFINE_BYTE_ARRAY(firstData, 1);
 	firstData[0] = MsgHeader::F_CACHESERVER;
 	sendToProxySrv(firstData, 1);

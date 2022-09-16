@@ -4,23 +4,23 @@
 
 #pragma pack(push,4)
 
-struct MsgHeartCS	// 150-心跳包请求
+struct MsgHeartCS	// 150-client heart req
 {
 	MsgHeartCS()
 	{
 		memset(m_bytesHeart, 0, sizeof(m_bytesHeart));
 	}
-	byte m_bytesHeart[4];		// 固定 LBGS = 0x4C 0x42 0x47 0x53
+	byte m_bytesHeart[4];		// LBGS = 0x4C 0x42 0x47 0x53
 };
 BOOST_STATIC_ASSERT(sizeof(MsgHeartCS) == 4);
 
-struct MsgHeartSC	// 151-心跳包回应
+struct MsgHeartSC	// 151-client heart rep
 {
 	MsgHeartSC()
 	{
 		memset(m_bytesHeart, 0, sizeof(m_bytesHeart));
 	}
-	byte m_bytesHeart[4];		// 固定 SGBL = 0x53 0x47 0x42 0x4C
+	byte m_bytesHeart[4];		// SGBL = 0x53 0x47 0x42 0x4C
 };
 BOOST_STATIC_ASSERT(sizeof(MsgHeartSC) == 4);
 

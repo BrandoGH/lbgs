@@ -9,7 +9,7 @@ extern "C"
 #include <hiredis/hiredis.h>
 }
 
-// 定时器用法
+// Timer use example
 namespace
 {
 class TimerTest : public Timer

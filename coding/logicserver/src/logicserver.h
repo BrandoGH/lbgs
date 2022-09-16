@@ -29,7 +29,7 @@ HANDLER:
 	);
 
 private:
-	// 连接到代理服操作
+	// link to proxy server
 	void initInnerClient();
 	void connectInnerServer();
 	void closeInnerSocket();
@@ -45,7 +45,7 @@ private:
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	ushort m_nHasReadProxyDataSize;
-	// 和代理服的心跳
+	// heart msg with proxy server
 	TimerLogicProxySrvHeart m_innerSrvHeart;
 };
 

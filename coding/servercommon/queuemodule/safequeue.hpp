@@ -5,12 +5,13 @@
 #include <boostmodule/basedef.h>
 
 /*
-*	对std::queue简单封装
-*	具有线程安全性质的队列
-* 
-* 1.在opStart()和opEnd()之间进行队列操作，这是这种方法要注意，是否会产生死锁
-* 2.外部可调用CommonBoost::UniqueLock(getMutex())方法，推荐使用
-* 3.当然，也可以在操作开始前设置setAutoLock自动锁，后续的操作不用手动去向第2点那样加锁，这个看需求调用，也推荐
+*	Simple encapsulation of std::queue
+*	Queues with thread-safe properties
+*
+* 1. Queue operation between opStart() and opEnd(), this is the method to pay attention to, whether it will cause deadlock
+* 2. CommonBoost::UniqueLock(getMutex()) method can be called externally, it is recommended to use
+* 3. Of course, you can also set the setAutoLock automatic lock before the operation starts, 
+		and the subsequent operations do not need to be manually locked like the second point. This depends on the demand call, and it is also recommended
 *
 */
 template <class InputDataType, class _Container = std::deque<InputDataType>>
@@ -18,7 +19,7 @@ class SafeQueue
 {
 public:
 	typedef std::queue<InputDataType, _Container> QueueType;
-	// typedef typename标明是一个类型而不是变量
+	// typedef typename indicates a type rather than a variable
 	typedef typename _Container::value_type			ValueType;
 	typedef typename _Container::size_type			SizeType;
 	typedef typename _Container::reference			Reference;
@@ -40,7 +41,7 @@ public:
 	}
 
 	/*
-		操作开始自动加锁，应该在所有操作前去调用，比如构造
+		The operation starts to be automatically locked and should be called before all operations, such as constructing
 	*/
 	void setAutoLock(bool bAutoLock)
 	{

@@ -2,12 +2,12 @@
 #define __LOG_H__
 
 /************************************************************************/
-/* 日志模块
-/* 注意：每次调用前，先调用setLogHeader()函数，保证记录到局部信息：文件名，函数名，函数等
+/* log module
+	Note: Before each call, call the setLogHeader() function first to ensure that local information is recorded: file name, function name, function, etc.
 
-定义日志步骤:
-	1.现在log.cpp namespace CommonLog里定义LogModule变量
-	2.在logdef.h 里可以定义宏来简化
+	Define log steps:
+	1. Now define the LogModule variable in the [log.cpp namespace CommonLog]
+	2. Macros can be defined in [logdef.h] to simplify
 
 /************************************************************************/
 
@@ -56,15 +56,15 @@ private:
 	int m_nLastLevel;
 	bool m_bTemporaryEffect;
 
-	// daily 更新时间
+	// daily update time
 	int m_nHours;
 	int m_nMin;
 
-	// rotating 滚动配置
+	// rotating [rolling configuration]
 	int m_nRotatingLogMaxSize;
 	int m_nRotatingLogMaxFiles;
 
-	// header 信息
+	// log header info
 	std::string m_strFileName;
 	int m_nLine;
 	std::string m_strFunctionName;

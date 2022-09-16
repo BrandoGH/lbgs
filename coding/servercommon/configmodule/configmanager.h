@@ -23,7 +23,7 @@ public:
 
 		TYPE_MAX,
 	};
-	BOOST_STATIC_ASSERT(TYPE_MAX == 2);	// 配置文件过多时，提示作用
+	BOOST_STATIC_ASSERT(TYPE_MAX == 2);	// tip current bytes count
 
 public:
 	static ConfigManager* instance();

@@ -32,11 +32,11 @@ TEST(SafeQueue, queue_type)
 	EXPECT_EQ(typeid(q_string.front()), typeid(std::string));
 }
 
-// 案例测试
+// SafeQueue use test
 TEST(SafeQueue, queue_multi_thread_example_opstart_opend)
 {
 	/*
-		1.多线程例子，检测是否线程安全
+		1. multi thread test , is it safe thread?
 	*/
 	/*SafeQueue<int> q;
 	for (int i = 0; i < 20; ++i)
@@ -86,7 +86,7 @@ TEST(SafeQueue, queue_multi_thread_example_opstart_opend)
 TEST(SafeQueue, queue_multi_thread_example_uniquelock)
 {
 	/*
-		2.多线程例子，检测是否线程安全
+		2. multi thread test , is it safe thread?
 	*/
 	/*SafeQueue<int> q;
 	for (int i = 0; i < 20; ++i)

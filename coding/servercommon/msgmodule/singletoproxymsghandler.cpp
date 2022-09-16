@@ -22,7 +22,7 @@
 
 namespace
 {
-// 发送心跳包
+// send heart msg
 template<int len>
 void sendProxyHeartInfo(byte(&targetInfoData)[len], ushort msgType, ushort sender)
 { 
@@ -79,7 +79,7 @@ void onHandlerPCHeartSC(const byte* objServer, byte* data, uint dataSize)
 	MSG_SC_CODE_MODE(LOG_CACHESERVER)
 }
 
-// 非handler跳转部分
+// Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 {
 	onHandlerGPHeartCS,

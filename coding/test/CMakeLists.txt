@@ -8,10 +8,7 @@ set(CODE_FILE
 set(BIN_NAME test)
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CODE_FILE})
 
-#输出路径设置
-set(LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH_BASE_DIR}/${BIN_NAME})
-
-#附加目录 头文件查找
+#Additional directories -- Header file lookup
 include_directories(
 	./
 	../
@@ -20,7 +17,7 @@ include_directories(
 	${3RD_PATH}
 )
 
-#添加库搜索目录
+#Add library search directory
 link_directories(
 	${STATIC_RC_LIB_PATH_3RD}
 	${SHARED_RC_LIB_PATH_3RD}

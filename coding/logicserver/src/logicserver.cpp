@@ -79,7 +79,7 @@ void LogicServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize
 			readSize,
 			ec.message().data());
 
-		// 异常处理
+		// Do other exceptions
 	}
 }
 
@@ -107,7 +107,7 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 		memset(m_bytesInnerSrvOnceMsg, 0, sizeof(m_bytesInnerSrvOnceMsg));
 
 		m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize);
-		// 一条协议最大长度判断
+		// Judgment of the maximum length of a protocol
 		if (m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
 			m_msgHeader.m_nMsgLen <= 0)
 		{
@@ -128,7 +128,7 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 			LOGIC_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// 如果此条协议是和代理服心跳
+		// if this msg is heart with proxy server
 		if (m_msgHeader.m_nMsgType >= MSG_TYPE_GATE_PROXY_HEART_GP &&
 			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX &&
 			m_msgHeader.m_nMsgType == MSG_TYPE_LOGIC_PROXY_HEART_PL
@@ -141,7 +141,7 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
 			LOGIC_SERVER_READ_MSG_CONTINUE;
 		}
-		// 和逻辑服通信的
+		// communicate with the logic server
 		else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
 			m_msgHeader.m_nMsgType < MSG_CODE_MAX)
 		{
@@ -153,8 +153,6 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 			);
 			LOGIC_SERVER_READ_MSG_CONTINUE;
 		}
-
-		
 
 		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
 	}
@@ -242,7 +240,7 @@ void LogicServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 
 	m_innerSrvHeart.start();
 
-	// 发送一个字节，告诉代理服自己的身份
+	// send a byte info,tell proxy server my identity
 	DEFINE_BYTE_ARRAY(firstData, 1);
 	firstData[0] = MsgHeader::F_LOGICSERVER;
 	sendToProxySrv(firstData, 1);

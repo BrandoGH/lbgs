@@ -53,7 +53,7 @@ HANDLER:
 	);
 
 private:
-	// 将消息转发到代理服务器
+	// send info to proxy server
 	void forwardToProxy(const byte* readOnceMsg, uint msgSize);
 
 private:
@@ -64,7 +64,7 @@ private:
 	MsgHeader m_msgHeader;
 	MsgEnder m_msgEnder;
 	ushort m_nHasReadDataSize;
-	// 该用户的序号
+	// this user seq num
 	int m_nSeq;
 };
 

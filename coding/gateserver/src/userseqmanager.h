@@ -6,8 +6,9 @@
 #include <servercommon/boostmodule/basedef.h>
 
 /*
-*	用户的连接序号分配器
-*	非线程安全(提供mutex供外部调用)
+*	
+*	UserSeqManager
+*	Not thread safe (provides mutex for external calls)
 */
 class UserSeqManager
 {
@@ -21,7 +22,7 @@ public:
 
 private:
 	boost::atomic<int> m_nSeq;
-	// 给客户端分配seq后，如果客户端下线了，seq就会放到这个list，给下一个连接的客户端使用
+	// After assigning the seq to the client, if the client goes offline, the seq will be placed in this list and used by the next connected client
 	std::list< int > m_lsAsideSeq;
 	CommonBoost::Mutex m_mtxList;
 };

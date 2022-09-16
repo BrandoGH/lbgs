@@ -7,19 +7,20 @@
 
 namespace MsgBuffer
 {
-	const int g_nReadBufferSize = 1024 * 50;	// 每次读取最大buffer	
-	const int g_nOnceMsgSize = 1024;			// 一条协议最大字节
+	const int g_nReadBufferSize = 1024 * 50;	// Maximum buffer per read
+	const int g_nOnceMsgSize = 1024;			// A protocol maximum byte
 }
 
 struct MsgHeader 
 {
+	// Server Type Flag
 	enum Flag
 	{
 		F_DEFAULT = -1,
-		F_PROXYSERVER,		// 代理服
-		F_GATESERVER,		// 网关服
-		F_LOGICSERVER,		// 逻辑服
-		F_CACHESERVER,		// 缓存服
+		F_PROXYSERVER,		// Proxy
+		F_GATESERVER,		// Gate
+		F_LOGICSERVER,		// Logic
+		F_CACHESERVER,		// Cache
 
 		F_MAX,
 	};
@@ -42,11 +43,15 @@ struct MsgHeader
 
 	ushort m_nMsgLen;
 	ushort m_nMsgType;
-	ushort m_nSender;		// 发送方
-	ushort m_nReceiver;		// 接收方
-	byte m_nProxyer;		// 转发方 固定代理服
-	byte m_nReserve[3];		// 保留
-	int m_nClientSrcSeq;		// 服务器内部通信用，存储是哪个序号发送信息的，根据这个序号网关决定是发送给谁
+	ushort m_nSender;		
+	ushort m_nReceiver;		
+	byte m_nProxyer;		
+	byte m_nReserve[3];		
+	/*
+	The server is used for internal communication. It stores the serial number that sends the information. 
+	According to the serial number, the gateway decides to whom it is sent.
+	*/
+	int m_nClientSrcSeq;
 };
 BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 16);
 
@@ -67,24 +72,24 @@ struct MsgEnder
 BOOST_STATIC_ASSERT(sizeof(MsgEnder) == 16);
 
 /*
-	0-128		内部服务器通信类型
-	150-65535	客户端通信类型
+	0-128		Inner server communication type
+	150-65535	with client communication type
 */
 enum EnMsgType
 {
-	// 网关-转发 心跳
+	// gateserver - proxyserver heart
 	MSG_TYPE_GATE_PROXY_HEART_GP = 0,
 	MSG_TYPE_GATE_PROXY_HEART_PG = 1,
-	// 逻辑-转发 心跳
+	// logicserver - proxyserver heart
 	MSG_TYPE_LOGIC_PROXY_HEART_LP = 2,
 	MSG_TYPE_LOGIC_PROXY_HEART_PL = 3,
-	// 缓存-转发 心跳
+	// cacheserver - proxyserver heart
 	MSG_TYPE_CACHE_PROXY_HEART_CP = 4,
 	MSG_TYPE_CACHE_PROXY_HEART_PC = 5,
 
 	MSG_IN_TYPE_MAX,
 
-	// 客户端心跳包
+	// client heart
 	MSG_TYPE_CLIENT_START	= 150,
 	MSG_TYPE_HEART_CS		= MSG_TYPE_CLIENT_START,
 	MSG_TYPE_HEART_SC		= 151,

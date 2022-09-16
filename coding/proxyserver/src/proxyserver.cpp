@@ -58,14 +58,14 @@ void ProxyServer::accept()
 {
 	if(!m_pAcceptor)
 	{
-		LOG_PROXYSERVER.printLog("m_pAcceptor is NULL");		// 这里都能跑到，还写什么代码，不如去搬砖
+		LOG_PROXYSERVER.printLog("m_pAcceptor is NULL");		// I've come here, it seems that I'm not suitable for writing code
 		return;
 	}
 
 	boost::shared_ptr<ServerLinker> linker = boost::make_shared<ServerLinker>(m_server);
 	if(linker->getSocket().get() == NULL)
 	{
-		LOG_PROXYSERVER.printLog("linker->getSocket().get() == NULL");			// 都跑到这里了，服务器是不是有问题
+		LOG_PROXYSERVER.printLog("linker->getSocket().get() == NULL");			// I've come here, this server like a shi--
 		return;
 	}
 	linker->slotConnect(this);
@@ -78,8 +78,10 @@ void ProxyServer::onThreadRunAcceptorIOServer()
 	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_server));
 
 	/*
-	捕获异常，可能会出现一个错误，这个错误的原因在于客户端建立连接以后一瞬间，服务端调用remote_endpoint前，就断开了链接，导致返回失败
-	错误信息如下：
+	If an exception is caught, an error may occur. The reason for this error is that the connection is disconnected immediately after the client establishes the connection,
+	before the server calls remote_endpoint, resulting in a return failure.
+
+	Error info：
 		terminate called after throwing an instance of 'boost::wrapexcept<boost::system::system_error>'
 		what():  remote_endpoint: Transport endpoint is not connected
 		Aborted
@@ -133,7 +135,9 @@ void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSi
 	{
 		return;
 	}
-	// 其他操作 TODO
+	
+	// Do somthing.....[nothing now]
+
 	lock.lock();
 	m_linkerList[listIndex]->ayncSend(data, dataSize);
 }
@@ -148,7 +152,7 @@ void ProxyServer::onLinkerError(
 		bLinkerValid = true;
 	}
 	
-	// 服务器正常退出
+	// Client shuts down gracefully
 	if(ec.value() == ProxyServer::LOGOUT)
 	{
 		LOG_PROXYSERVER.printLog("once server has logout");
@@ -157,7 +161,7 @@ void ProxyServer::onLinkerError(
 	}
 	else
 	{
-		// 其他错误
+		// Ohter error
 		if(bLinkerValid)
 		{
 			LOG_PROXYSERVER.printLog("other error! ecode[%d],messages[%s]",

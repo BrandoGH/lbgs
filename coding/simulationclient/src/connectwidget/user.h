@@ -22,7 +22,8 @@ public:
 	void setUserId(uint id) { m_nUserId = id; }
 	uint getUserId() { return m_nUserId; }
 
-	void sendData(const char* data, uint dataSize, int msgType);		// 传入data前先把字节序问题转换后才传
+	// Before passing in data, convert the byte order problem before passing it
+	void sendData(const char* data, uint dataSize, int msgType);
 	void sendData(const QByteArray& msg);
 	void setBigEndian(bool b) { m_bServerBigEndian = b; }
 	bool isServerBigEndian() { return m_bServerBigEndian; }
@@ -45,7 +46,7 @@ private:
 	QTcpSocket* m_pTcpSoc;
 	QByteArray m_bytesMsg;
 	uint m_nUserId;
-	bool m_bServerBigEndian;		// 服务器字节序 false-小端 true-大端
+	bool m_bServerBigEndian;		// server byte order, false-little true-big
 	byte* m_pSendData;
 };
 

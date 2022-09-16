@@ -277,7 +277,7 @@ void ConnectWidget::onReadData(uint userId, const QByteArray& data)
 		return;
 	}
 
-	if(data.size() == 1)		// 连接成功后服务端返回
+	if(data.size() == 1)		// first link ,server return
 	{
 		if(data.toUInt() == 1)
 		{

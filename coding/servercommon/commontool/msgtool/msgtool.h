@@ -15,17 +15,17 @@ namespace CommonTool
 namespace MsgTool
 {
 /*
-	大小端的一些工具函数(big endian and little endian)
+	(big endian and little endian) tool function
 */
 
-// 当前计算机是否是低字节存储
+// current machine is little endian storage
 bool isLittleEndian();
 bool isBytesDataEQ(const byte* data1, const byte* data2, uint len);
 
 /*
-	目前只支持低字节存储的服务器环境,高低字节字节存储互相转换 number to bytes
+	Currently only supports low byte storage server environment, high and low byte byte storage is converted to each other
 */
-// 低字节 -> 高字节 【目前只支持 两字节和四字节】【如果是大端系统，则本函数为高字节 ——> 低字节】
+// w byte -> high byte [currently only supports two bytes and four bytes] [if it is a big endian system, this function is high byte -> low byte]
 template<class InputNumType, class ByteArrayType>
 bool byteSeqTransformN2B(InputNumType num, ByteArrayType& outByte)
 {
@@ -56,7 +56,7 @@ bool byteSeqTransformN2B(InputNumType num, ByteArrayType& outByte)
 	return true;
 }
 
-// 高字节 -> 字节 【目前只支持 两字节和四字节】【如果是大端系统，则本函数为低字节 ——> 高字节】
+// High byte -> low byte [currently only supports two bytes and four bytes] [if it is a big endian system, this function is low byte -> high byte]
 template<class ByteArrayType, class OutputNumType>
 bool byteSeqTransformB2N(ByteArrayType& inputBytes, OutputNumType& outNum)
 {
@@ -88,10 +88,10 @@ bool byteSeqTransformB2N(ByteArrayType& inputBytes, OutputNumType& outNum)
 	return true;
 }
 
-// 数据 -> MD5  默认32位
+// data -> md5 [default 32bit]
 template<class OutMd5BytesType>
 bool data2Md5(
-	const byte* data,	// 无需验证是否为NULL,都是二进制
+	const byte* data,	// No need to verify whether it is NULL, it is all binary
 	uint dataSize,
 	OutMd5BytesType& outBytes, 
 	std::string* outMd5String = NULL)
@@ -111,7 +111,7 @@ bool data2Md5(
 
 	memmove(outBytes, md5, MD5_DIGEST_LENGTH);
 
-	// 转成32位字符串
+	// to 32 bit string
 	if(outMd5String != NULL)
 	{
 		outMd5String->clear();
@@ -127,7 +127,7 @@ bool data2Md5(
 	return true;
 }
 
-// 32MD5字符串 -> 16字节数组
+// 32 bit MD5 string-> 16 byte array
 template<class OutMd5BytesType>
 bool Md5Str2Bytes(const std::string& str32, OutMd5BytesType& outBytes)
 {
@@ -195,7 +195,7 @@ bool isBytesMd5EQ(BytesArrayMd51& data1, BytesArrayMd512& data2)
 	return true;
 }
 
-// 获取报文头部的枚举字符串
+// get msg header enum string
 const std::string getMsgHeaderFlagString(int flag);
 
 }}

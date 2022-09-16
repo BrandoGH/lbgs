@@ -127,7 +127,7 @@ void ServerLinker::onAyncRead(
 		return;
 	}
 
-	// 第一次连接发送的一个字节，告诉代理服本次连接的是哪个服务器
+	// first link client send a byte, tell me his identity
 	if (bFirstConnect)
 	{
 		if (readSize != 1)
@@ -150,7 +150,7 @@ void ServerLinker::onAyncRead(
 	{
 		memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
 
-		// 分析协议
+		// Judgment of the maximum length of a protocol
 		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
 
 		// 一条协议最大长度判断
@@ -172,7 +172,7 @@ void ServerLinker::onAyncRead(
 			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// 发送方验证
+		// check sender
 		if (m_msgHeader.m_nSender < MsgHeader::F_DEFAULT ||
 			m_msgHeader.m_nSender >= MsgHeader::F_MAX)
 		{
@@ -180,7 +180,7 @@ void ServerLinker::onAyncRead(
 			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// 接收方验证
+		// check receiver
 		if(m_msgHeader.m_nReceiver < MsgHeader::F_DEFAULT ||
 			m_msgHeader.m_nReceiver >= MsgHeader::F_MAX)
 		{
@@ -188,7 +188,8 @@ void ServerLinker::onAyncRead(
 			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// 和代理服通信的协议
+		// if this msg is heart with proxy server
+
 		if(m_msgHeader.m_nReceiver == MsgHeader::F_PROXYSERVER)
 		{
 			ProxyServerMsgHandler::callHandler(
@@ -199,7 +200,7 @@ void ServerLinker::onAyncRead(
 			PROXY_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// 转发到指定服务器
+		// forward to the target server
 		sigSendToDstServer(m_msgHeader.m_nReceiver,
 			m_bytesOnceMsg,
 			m_msgHeader.m_nMsgLen);

@@ -17,7 +17,7 @@
 
 namespace 
 {
-// 单台服务器最大连接数可用内存的最大连接数
+// Maximum number of connections per server -- Maximum number of connections in available memory
 const int g_nConnectMaxCount = 
 	int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / MsgBuffer::g_nReadBufferSize * 1.0); 
 
@@ -94,7 +94,7 @@ void GateServer::accept()
 {
 	if (!m_pAcceptor)
 	{
-		LOG_GATESERVER.printLog("m_pAcceptor is NULL");		// 这里都能跑到，还写什么代码，不如去搬砖
+		LOG_GATESERVER.printLog("m_pAcceptor is NULL");		// I've come here, it seems that I'm not suitable for writing code
 		return;
 	}
 
@@ -102,7 +102,7 @@ void GateServer::accept()
 	newUser->slotConnect(this);
 	if (newUser->getSocket().get() == NULL)
 	{
-		LOG_GATESERVER.printLog("newUser->getSocket().get() == NULL");			// 都跑到这里了，服务器是不是有问题
+		LOG_GATESERVER.printLog("newUser->getSocket().get() == NULL");			// I've come here, this server like a shi--
 		return;
 	}
 	m_pAcceptor->async_accept(*(newUser->getSocket()), BIND(&GateServer::onAcceptHandler, this, boost::placeholders::_1, newUser));
@@ -131,11 +131,11 @@ void GateServer::removeUserRelated(boost::shared_ptr<User> user)
 		LOG_GATESERVER.printLog("user NULL");
 		return;
 	}
-	// 存储这个用户seq，可以分配给下一个连接的客户端
+	// Store this user seq, which can be assigned to the next connected client
 	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
 	m_userSeqMgr.pushAsideSeq(user->getSeq());
 
-	// 从seq-用户映射表删除
+	// delete user from seq map
 	MapSeqToUserIter it = m_mapSeqToUser.find(user->getSeq());
 	if (it != m_mapSeqToUser.end())
 	{
@@ -294,7 +294,7 @@ void GateServer::onUserError(
 
 	removeUserRelated(user);
 
-	// 客户端正常关闭
+	// Client shuts down gracefully
 	if (ec.value() == GateServer::LOGOUT)
 	{
 		LOG_GATESERVER.printLog("client[%s : %d] closed",
@@ -305,7 +305,7 @@ void GateServer::onUserError(
 	}
 	else
 	{
-		// 其他错误
+		// Ohter error
 		if (bUserValid)
 		{
 			LOG_GATESERVER.printLog("client[%s : %d] error! ecode[%d],messages[%s]",
@@ -330,8 +330,10 @@ void GateServer::onThreadRunAcceptorIOServer()
 	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_server));
  
 	/*
-	捕获异常，可能会出现一个错误，这个错误的原因在于客户端建立连接以后一瞬间，服务端调用remote_endpoint前，就断开了链接，导致返回失败
-	错误信息如下：
+	If an exception is caught, an error may occur. The reason for this error is that the connection is disconnected immediately after the client establishes the connection, 
+	before the server calls remote_endpoint, resulting in a return failure.
+
+	Error info：
 		terminate called after throwing an instance of 'boost::wrapexcept<boost::system::system_error>'
 		what():  remote_endpoint: Transport endpoint is not connected
 		Aborted
@@ -371,7 +373,7 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 
 	m_innerSrvHeart.start();
 
-	// 发送一个字节，告诉代理服自己的身份
+	// send a byte info,tell proxy server my identity
 	DEFINE_BYTE_ARRAY(firstData, 1);
 	firstData[0] = MsgHeader::F_GATESERVER;
 	sendToProxySrv(firstData, 1);
@@ -388,7 +390,7 @@ void GateServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize)
 			readSize,
 			ec.message().data());
 
-		// 异常处理
+		// Do other exceptions
 	}
 }
 
@@ -417,7 +419,7 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 
 		m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize);
 
-		// 一条协议最大长度判断
+		// Judgment of the maximum length of a protocol
 		if (m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
 			m_msgHeader.m_nMsgLen <= 0)
 		{
@@ -438,7 +440,7 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 			GATE_SERVER_READ_MSG_CONTINUE;
 		}
 
-		// 如果此条协议是和代理服心跳
+		// if this msg is heart with proxy server
 		if (m_msgHeader.m_nMsgType >= MSG_TYPE_GATE_PROXY_HEART_GP && 
 			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX &&
 			m_msgHeader.m_nMsgType == MSG_TYPE_GATE_PROXY_HEART_PG
@@ -452,6 +454,7 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 			GATE_SERVER_READ_MSG_CONTINUE;
 		}
 
+		// Reassemble the message and send it to the client
 		boost::shared_ptr<User> callbackUser = m_mapSeqToUser[m_msgHeader.m_nClientSrcSeq];
 		if (callbackUser)
 		{

@@ -15,17 +15,21 @@
 #include <pthread.h>  
 #endif
 
-// 心跳包发送回显字符
+// heart msg content
 #define I_MSG_HEART_CS "\x4C\x42\x47\x53"
 #define I_MSG_HEART_SC "\x53\x47\x42\x4C"
 
-// printf函数输出颜色
-#define PRINTF_COLOR_CLEAR "\033[0m"		//表示清除前面设置的格式
-#define PRINTF_RED "\033[1;31;40m"		//40:背景色为黑色, 1:表示高亮
+// printf function couput color
+#define PRINTF_COLOR_CLEAR "\033[0m"		// clear previously all color
+#define PRINTF_RED "\033[1;31;40m"			//40:background color black, 1:highlight
 #define PRINTF_BLUE "\033[1;34;40m"
 #define PRINTF_GREEN "\033[1;32;40m"
 #define PRINTF_YELLOW "\033[1;33;40m"
-// ##__VA_ARGS__ 宏前面加上##的作用在于，当可变参数的个数为0时，这里的##起到把前面多余的","去掉的作用，否则会编译出错
+/*
+* ##__VA_ARGS__
+*	The function of adding ## in front of the __VA_ARGS__ macro is that when the number of variable parameters is 0, 
+*	the ## here plays the role of removing the redundant "," in front, otherwise it will compile an error
+*/
 #define printf_color(color, str, ...) \
 	printf(color str PRINTF_COLOR_CLEAR, ##__VA_ARGS__ )
 

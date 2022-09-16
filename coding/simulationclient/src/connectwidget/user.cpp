@@ -46,7 +46,7 @@ void User::sendData(const QByteArray& msg)
 		return;
 	}
 
-	if(msg == "heart")	// 心跳包
+	if(msg == "heart")	// heart msg
 	{
 		sendHeartInfo();
 	}
@@ -78,8 +78,8 @@ void User::sendData(const char* data, uint dataSize, int msgType)
 		{
 			memmove(m_pSendData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
 			m_pTcpSoc->write((const char*)m_pSendData, header.m_nMsgLen);
-			//m_pTcpSoc->write((const char*)m_pSendData, header.m_nMsgLen);		// 模拟粘包
-			//m_pTcpSoc->write("\x18\x00\x00\x00\x47\x42", 6);					// 模拟半包
+			//m_pTcpSoc->write((const char*)m_pSendData, header.m_nMsgLen);		// Simulate sticky pack
+			//m_pTcpSoc->write("\x18\x00\x00\x00\x47\x42", 6);					// Simulate half pack
 			emit sigSendData(QByteArray((const char*)m_pSendData, header.m_nMsgLen), getUserId());
 		}
 	};
@@ -102,25 +102,23 @@ void User::sendData(const char* data, uint dataSize, int msgType)
 		}
 	};
 
-	if(!isServerBigEndian())		// 服务器小端传输
+	if(!isServerBigEndian())	
 	{
-		// 本机的存储机制
 		//if(!CommonTool::MsgTool::isLittleEndian()) // debug
-		if(CommonTool::MsgTool::isLittleEndian())	// 本机小端
+		if(CommonTool::MsgTool::isLittleEndian())	// 
 		{
 			lambLocalStoreModeSend();
 		}
-		else // 本机大端
+		else // git endian
 		{
 			lambByteSeqTransformSend();
 
 		}
 		
 	}
-	else // 服务器大端传输
+	else // server is big endian
 	{
-		// 本机的存储机制
-		if(CommonTool::MsgTool::isLittleEndian())	// 本机小端
+		if(CommonTool::MsgTool::isLittleEndian())	
 		{
 			lambByteSeqTransformSend();
 		}

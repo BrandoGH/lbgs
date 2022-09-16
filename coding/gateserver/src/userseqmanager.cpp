@@ -12,7 +12,7 @@ UserSeqManager::~UserSeqManager()
 int UserSeqManager::getAvailableSeq()
 {
 	int retSeq = 0;
-	// 如果list里有id可用
+	// if list have id avalible
 	if (!m_lsAsideSeq.empty())
 	{
 		retSeq = m_lsAsideSeq.front();

@@ -73,15 +73,16 @@ void User::onAyncRead(
 
 
 	/*
-		这里只处理粘包，半包由客户端去控制，比如客户端请求协议后启动定时器，如果一段时间没有回应，则重新请求，
-		然后也可以规定请求最大次数，具体由客户端决定
+		Only sticky packets are processed here, and half packets are controlled by the client. 
+		For example, the client starts the timer after requesting the protocol. If there is no response for a period of time, it will re-request.
+		Then you can also specify the maximum number of requests, which is determined by the client
 	*/
 	while(m_nHasReadDataSize < readSize)
 	{
-		// 分析协议
+		// Analysis Protocol
 		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
 
-		// 一条协议最大长度判断
+		// Judgment of the maximum length of a protocol
 		if(m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
 			m_msgHeader.m_nMsgLen <= 0)		
 		{
@@ -95,7 +96,7 @@ void User::onAyncRead(
 
 		if (m_msgHeader.m_nMsgLen <= (sizeof(MsgHeader) + sizeof(MsgEnder)))
 		{
-			// 这里有很大可能是客户端和服务端的协议格式不一致造成的
+			// There is a high possibility that the protocol format of the client and the server is inconsistent.
 			LOG_GATESERVER.printLog("m_msgHeader.m_nMsgLen[%d] <= (sizeof(MsgHeader) + sizeof(MsgEnder)%d)", 
 				m_msgHeader.m_nMsgLen, sizeof(MsgHeader) + sizeof(MsgEnder));
 			break;
@@ -105,23 +106,21 @@ void User::onAyncRead(
 		ushort userDataSize = m_msgHeader.m_nMsgLen - sizeof(MsgHeader) - sizeof(MsgEnder);
 		m_msgEnder = *(MsgEnder*)(m_bytesOnceMsg + sizeof(MsgHeader) + userDataSize);
 
-		// MD5校验报文
+		// MD5 check protocol
 		DEFINE_BYTE_ARRAY(md5,16);
 		CommonTool::MsgTool::data2Md5(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize, md5);
 		if(!CommonTool::MsgTool::isBytesMd5EQ(md5, m_msgEnder.m_bytesMD5) || 
 			(m_msgHeader.m_nMsgType < MSG_TYPE_HEART_CS || 
 				m_msgHeader.m_nMsgType >= MSG_CODE_MAX))
 		{
-			// 丢弃此条协议
+			// drop this msg
 			LOG_GATESERVER.printLog("msgtype[%d] md5 not eq or msgtype error", m_msgHeader.m_nMsgType);
 			m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
 			continue;
 		}
 
-		// 优化： 协议转发给内部服务器 实现一个mq来发送（这里是否需要）
-		// 
-		// 重新组装报文 转发协议头 + m_bytesOnceMsg
-		// 转发给内部逻辑服务器，不需要MsgEnder的验证长度了
+		// Reassemble the message : MsgHeader + m_bytesOnceMsg
+		// Need not md5 check
 		forwardToProxy(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize);
 
 		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
