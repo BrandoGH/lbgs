@@ -64,11 +64,11 @@ if (WIN32)
 
 	file(GLOB BAT_SCRIPT_START_SERVER ${LBGS_ROOT_DIR}/coding/startserver.bat)
 	file(COPY ${BAT_SCRIPT_START_SERVER} DESTINATION ${LBGS_ROOT_DIR}/build)
-	message("-- ${BAT_SCRIPT_START_SERVER} has copy to ${LBGS_ROOT_DIR}/build")
+	message("-- ${BAT_SCRIPT_START_SERVER} script has copy to ${LBGS_ROOT_DIR}/build")
 
 	file(GLOB BAT_SCRIPT_STOP_SERVER ${LBGS_ROOT_DIR}/coding/stopserver.bat)
 	file(COPY ${BAT_SCRIPT_STOP_SERVER} DESTINATION ${LBGS_ROOT_DIR}/build)
-	message("-- ${BAT_SCRIPT_STOP_SERVER} has copy to ${LBGS_ROOT_DIR}/build")
+	message("-- ${BAT_SCRIPT_STOP_SERVER} script has copy to ${LBGS_ROOT_DIR}/build")
 
 	file(GLOB BAT_SCRIPT_VSGEN ${LBGS_ROOT_DIR}/coding/vsgen.bat)
 	file(COPY ${BAT_SCRIPT_VSGEN} DESTINATION ${LBGS_ROOT_DIR}/build)
@@ -88,6 +88,18 @@ elseif(UNIX)
 	set(3RD_PATH ${LBGS_ROOT_DIR}/3rd/x64-linux/include)
 	set(SERVERCOMMON_LIB ${LBGS_ROOT_DIR}/build/library/servercommon)
 	set(STATIC_RC_LIB_PATH_3RD ${LBGS_ROOT_DIR}/3rd/x64-linux/lib)
+
+	file(GLOB SH_SCRIPT_START_SERVER ${LBGS_ROOT_DIR}/coding/startserver_linux.sh)
+	file(COPY ${SH_SCRIPT_START_SERVER} DESTINATION ${LBGS_ROOT_DIR}/build)
+	message("-- ${SH_SCRIPT_START_SERVER} script has copy to ${LBGS_ROOT_DIR}/build")
+
+	file(GLOB SH_SCRIPT_STOP_SERVER ${LBGS_ROOT_DIR}/coding/stopserver_linux.sh)
+	file(COPY ${SH_SCRIPT_STOP_SERVER} DESTINATION ${LBGS_ROOT_DIR}/build)
+	message("-- ${SH_SCRIPT_STOP_SERVER} script has copy to ${LBGS_ROOT_DIR}/build")
+
+	file(GLOB SH_SCRIPT_REMOVE_ERR_NOHUP_LOG ${LBGS_ROOT_DIR}/coding/removeserver_err_nohup_log.sh)
+	file(COPY ${SH_SCRIPT_REMOVE_ERR_NOHUP_LOG} DESTINATION ${LBGS_ROOT_DIR}/build)
+	message("-- ${SH_SCRIPT_REMOVE_ERR_NOHUP_LOG} script has copy to ${LBGS_ROOT_DIR}/build")
 endif()
 
 #global macro definition
