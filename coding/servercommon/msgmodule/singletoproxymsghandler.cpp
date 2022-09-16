@@ -14,7 +14,7 @@
 	}																				\
 	MsgInHeartSC* msg = (MsgInHeartSC*)data;										\
 	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart,				\
-		(const byte*)"\x53\x47\x42\x4C", sizeof(msg->m_bytesHeart)))				\
+		(const byte*)I_MSG_HEART_SC, sizeof(msg->m_bytesHeart)))					\
 	{																				\
 		log_obj.printLog("msg data error");											\
 		return;																		\
@@ -27,7 +27,7 @@ template<int len>
 void sendProxyHeartInfo(byte(&targetInfoData)[len], ushort msgType, ushort sender)
 { 
 	MsgInHeartCS msg;
-	memmove(msg.m_bytesHeart, "\x4C\x42\x47\x53", sizeof(msg.m_bytesHeart));
+	memmove(msg.m_bytesHeart, I_MSG_HEART_CS, sizeof(msg.m_bytesHeart));
 
 	MsgHeader header;
 	header.m_nMsgLen = sizeof(MsgHeader) + sizeof(msg.m_bytesHeart);
@@ -72,11 +72,16 @@ void onHandlerPLHeartSC(const byte* objServer, byte* data, uint dataSize)
 void onHandlerCPHeartCS(const byte* objServer, byte* data, uint dataSize)
 {
 	sendProxyHeartInfo(g_CacheSendProxy, MSG_TYPE_CACHE_PROXY_HEART_CP, MsgHeader::F_CACHESERVER);
+
+	printf_color(PRINTF_YELLOW, "cache send to proxy\n");
 }
 
 void onHandlerPCHeartSC(const byte* objServer, byte* data, uint dataSize)
 {
 	MSG_SC_CODE_MODE(LOG_CACHESERVER)
+
+	printf_color(PRINTF_YELLOW, "proxy send to cache\n");
+
 }
 
 // 非handler跳转部分

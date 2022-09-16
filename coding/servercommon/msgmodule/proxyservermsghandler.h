@@ -14,6 +14,8 @@ void onHandlerGateHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* d
 void onHandlerGateHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 void onHandlerLogicHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 void onHandlerLogicHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
+void onHandlerCacheHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
+void onHandlerCacheHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 
 void callHandler(int msgType, const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize);
 }

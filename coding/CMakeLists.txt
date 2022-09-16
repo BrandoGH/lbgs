@@ -128,6 +128,7 @@ message("-- CMAKE_SHARED_LINKER_FLAGS_RELEASE : ${CMAKE_SHARED_LINKER_FLAGS_RELE
 add_subdirectory(./servercommon)
 add_subdirectory(./gateserver)
 add_subdirectory(./logicserver)
+add_subdirectory(./cacheserver)
 add_subdirectory(./proxyserver)
 
 if(ENABLE_UNITEST)

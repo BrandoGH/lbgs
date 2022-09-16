@@ -152,6 +152,6 @@ void User::onReadData()
 void User::sendHeartInfo()
 {
 	MsgHeartCS msg;
-	memmove(msg.m_bytesHeart, "\x4C\x42\x47\x53", sizeof(msg.m_bytesHeart));
+	memmove(msg.m_bytesHeart, I_MSG_HEART_CS, sizeof(msg.m_bytesHeart));
 	sendData((const char*)&msg, sizeof(MsgHeartCS), EnMsgType::MSG_TYPE_HEART_CS);
 }

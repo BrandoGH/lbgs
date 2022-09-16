@@ -15,6 +15,10 @@
 #include <pthread.h>  
 #endif
 
+// 心跳包发送回显字符
+#define I_MSG_HEART_CS "\x4C\x42\x47\x53"
+#define I_MSG_HEART_SC "\x53\x47\x42\x4C"
+
 // printf函数输出颜色
 #define PRINTF_COLOR_CLEAR "\033[0m"		//表示清除前面设置的格式
 #define PRINTF_RED "\033[1;31;40m"		//40:背景色为黑色, 1:表示高亮

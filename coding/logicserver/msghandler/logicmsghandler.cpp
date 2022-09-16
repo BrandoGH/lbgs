@@ -15,7 +15,7 @@ void onClientHeartCS(LogicServer* pLogicServer, byte* data, uint dataSize)
 		return;
 	}
 	MsgHeartCS* msg = (MsgHeartCS*)(data + sizeof(MsgHeader));
-	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart, (const byte*)"\x4C\x42\x47\x53", sizeof(msg->m_bytesHeart)))
+	if (!msg || !CommonTool::MsgTool::isBytesDataEQ(msg->m_bytesHeart, (const byte*)I_MSG_HEART_CS, sizeof(msg->m_bytesHeart)))
 	{
 		LOG_LOGICSERVER.printLog("msg data error");
 		return;
@@ -32,7 +32,7 @@ void onClientHeartSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 		return;
 	}
 	MsgHeartSC msg;
-	memmove(msg.m_bytesHeart, "\x53\x47\x42\x4C", sizeof(msg.m_bytesHeart));
+	memmove(msg.m_bytesHeart, I_MSG_HEART_SC, sizeof(msg.m_bytesHeart));
 	MsgHeader* header = (MsgHeader*)data;
 	if (!header)
 	{
