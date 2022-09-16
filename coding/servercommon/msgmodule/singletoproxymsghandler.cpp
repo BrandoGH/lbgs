@@ -72,16 +72,11 @@ void onHandlerPLHeartSC(const byte* objServer, byte* data, uint dataSize)
 void onHandlerCPHeartCS(const byte* objServer, byte* data, uint dataSize)
 {
 	sendProxyHeartInfo(g_CacheSendProxy, MSG_TYPE_CACHE_PROXY_HEART_CP, MsgHeader::F_CACHESERVER);
-
-	printf_color(PRINTF_YELLOW, "cache send to proxy\n");
 }
 
 void onHandlerPCHeartSC(const byte* objServer, byte* data, uint dataSize)
 {
 	MSG_SC_CODE_MODE(LOG_CACHESERVER)
-
-	printf_color(PRINTF_YELLOW, "proxy send to cache\n");
-
 }
 
 // 非handler跳转部分
