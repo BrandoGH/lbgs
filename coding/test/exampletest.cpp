@@ -134,4 +134,79 @@ TEST(Redis_Example_2, test)
 
 }
 
+
+/*
+* redis cluster sample test
+* 
+* redis have 6 server, build a cluster
+* There should be 6 servers in the production environment, this is only for testing
+* 
+* 192.468.43.122:7000
+* 192.468.43.122:7001
+* 192.468.43.122:7002
+* 192.468.43.122:7003
+* 192.468.43.122:7004
+* 192.468.43.122:7005
+* 
+*/
+TEST(Redis_Example_3, test)
+{
+	//timeval tv = { 1,500000 };
+
+	//redisContext* conn = redisConnectWithTimeout("192.168.43.122", 7000, tv);
+	//if (conn != NULL && conn->err)
+	//{
+	//	printf("connection error: %s\n", conn->errstr);
+	//	return;
+	//}
+
+	//redisReply* replya = NULL;
+	//replya = (redisReply*)redisCommand(conn, "AUTH default %s", "123456");
+	//if (replya->type != REDIS_REPLY_ERROR)
+	//{
+	//	printf("Redis password ok\n");
+	//} else
+	//{
+	//	printf("Redis password error\n");
+	//}
+	//freeReplyObject(replya);
+
+	//redisReply* reply = NULL;
+
+	//// redis set a key k1 first
+	//reply = (redisReply*)redisCommand(conn, "GET %s", "k1");
+	//std::string strRep = reply->str;
+	//int port = 0;
+	//if (strRep.substr(0,5) == "MOVED")
+	//{
+	//	int pos = strRep.find(':');
+	//	port =  CAST_TO(int,strRep.substr(pos + 1));
+	//	redisFree(conn);
+
+	//	// connect
+	//	conn = redisConnectWithTimeout("192.168.43.122", port, tv);
+	//	if (conn != NULL && conn->err)
+	//	{
+	//		printf("connection error: %s\n", conn->errstr);
+	//		return;
+	//	}
+
+	//	// auth
+	//	replya = (redisReply*)redisCommand(conn, "AUTH default %s", "123456");
+	//	if (replya->type != REDIS_REPLY_ERROR)
+	//	{
+	//		printf("Redis password ok\n");
+	//	} else
+	//	{
+	//		printf("Redis password error\n");
+	//	}
+	//	freeReplyObject(replya);
+
+	//	reply = (redisReply*)redisCommand(conn, "GET %s", "k1");
+	//}
+	//printf("%s\n", reply->str);			// should ouput k1 value [success]
+	//freeReplyObject(reply);
+
+	//redisFree(conn);
+}
 }
