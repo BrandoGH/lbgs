@@ -4,6 +4,8 @@ main.cpp
 ./src/cacheserver.cpp
 ./src/cacheserver_aid.h
 ./src/cacheserver_aid.cpp
+./redis/baseredis.h
+./redis/baseredis.cpp
 )
 set(BIN_NAME cacheserver)
 
@@ -37,6 +39,7 @@ if (WIN32)
 	boost_thread-vc140-mt
 	boost_regex-vc140-mt
 	boost_program_options-vc140-mt
+	hiredis
 	)
 
 elseif(UNIX)
@@ -52,6 +55,7 @@ elseif(UNIX)
  	libcrypto.a
  	libboost_filesystem.a
 	libboost_chrono.a
+	libhiredis.a
 	dl
 	)
 endif()

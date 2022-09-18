@@ -13,6 +13,8 @@
 ./configmodule/gateserverconfig/gateserverconfig.cpp
 ./configmodule/proxyserverconfig/proxyserverconfig.h
 ./configmodule/proxyserverconfig/proxyserverconfig.cpp
+./configmodule/cacheserverconfig/cacheserverconfig.h
+./configmodule/cacheserverconfig/cacheserverconfig.cpp
 ./sysinfomodule/sysinfo.h
 ./sysinfomodule/sysinfo.cpp
 ./sysinfomodule/minidump/minidump.h

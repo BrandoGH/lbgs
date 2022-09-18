@@ -29,16 +29,19 @@
 			<data>
 				<ip>192.168.43.122</ip>
 				<port>6379</port>
+				<auth_password>123456</auth_password>
 				<role>1</role>
 			</data>
 			<data>
 				<ip>192.168.43.122</ip>
 				<port>6380</port>
+				<auth_password>123456</auth_password>
 				<role>0</role>
 			</data>
 			<data>
 				<ip>192.168.43.122</ip>
 				<port>6381</port>
+				<auth_password>123456</auth_password>
 				<role>0</role>
 			</data>
 		</replicat_server_list>
