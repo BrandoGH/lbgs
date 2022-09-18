@@ -9,7 +9,39 @@
 		<data>
 			<ip>127.0.0.1</ip>
 			<port>4512</port>
-			<heart_time>40000</heart_time> <!--The heartbeat interval between the proxy server and the proxy server (ms)-->
+			<heart_time>40000</heart_time> <!--The heartbeat interval between the inner server and the proxy server (ms)-->
 		</data>
 	</proxyserver>
+	
+	<!--Redis-->
+	<cacheserver>
+		<baseconfig>
+			<data>
+				<connect_timeout_sec>1</connect_timeout_sec>
+				<connect_timeout_microsec>500000</connect_timeout_microsec>
+			</data>
+		</baseconfig>
+		
+		<!--Replication of master and slave-->
+		<!--Master: 1-->
+		<!--Slave: 0-->
+		<replicat_server_list>
+			<data>
+				<ip>192.168.43.122</ip>
+				<port>6379</port>
+				<role>1</role>
+			</data>
+			<data>
+				<ip>192.168.43.122</ip>
+				<port>6380</port>
+				<role>0</role>
+			</data>
+			<data>
+				<ip>192.168.43.122</ip>
+				<port>6381</port>
+				<role>0</role>
+			</data>
+		</replicat_server_list>
+		
+	</cacheserver>
 </config>
