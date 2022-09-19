@@ -2,9 +2,11 @@
 #define __CACHE_SERVER_H
 
 #include "cacheserver_aid.h"
+#include "redis/baseredis.h"
 
 #include <boostmodule/basedef.h>
 #include <msgmodule/msgcommondef.h>
+#include <servercommon/cacheserverconfig.h>
 
 class CacheServer
 {
@@ -28,12 +30,17 @@ HANDLER:
 		uint readSize
 	);
 
+	void onRedisInitResult(bool ok);
+
 private:
 	// link proxy server
 	void initInnerClient();
 	void connectInnerServer();
 	void closeInnerSocket();
 	void readFromProxySrv();
+
+	// redis
+	void initRedisServer();
 
 private:
 	CommonBoost::IOServer m_innerServer;
@@ -47,6 +54,11 @@ private:
 	ushort m_nHasReadProxyDataSize;
 	// heart msg with proxy server
 	TimerCacheProxySrvHeart m_innerSrvHeart;
+	
+	// redis
+	BaseRedis m_redis;
+	const CacheReplicatConfigInfo* m_redisCfgReplicat;
+	const CacheServerConnectBaseCfgInfo* m_redisCfgBase;
 };
 
 #endif  //__CACHE_SERVER_H

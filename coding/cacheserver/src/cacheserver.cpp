@@ -14,13 +14,20 @@ CacheServer::CacheServer()
 	: m_bConnectProxySrv(false)
 	, m_bInnerRunOnce(false)
 	, m_nHasReadProxyDataSize(0)
+	, m_redisCfgReplicat(CONFIG_MGR->GetCacheServerConfig()->getSingleMasterReidsCfg())
+	, m_redisCfgBase(CONFIG_MGR->GetCacheServerConfig()->getBaseCacheCfg())
 {
+	if (!m_redisCfgReplicat || !m_redisCfgBase)
+	{
+		assert(0);
+	}
 	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	m_innerSrvHeart.setCacheServer(this);
 	m_innerSrvHeart.setInterval(info.heart_time);
 	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
 
 	initInnerClient();
+	initRedisServer();
 }
 
 CacheServer::~CacheServer()
@@ -162,6 +169,19 @@ void CacheServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 	readFromProxySrv();
 }
 
+void CacheServer::onRedisInitResult(bool ok)
+{
+	if (ok)
+	{
+		LOG_CACHESERVER.printLog("Connect redis ok");
+		printf_color(PRINTF_YELLOW, "%s: Connect redis ok\n", __FUNCTION__);
+	} else
+	{
+		LOG_CACHESERVER.printLog("Connect redis error");
+		printf_color(PRINTF_RED, "%s: Connect redis error\n", __FUNCTION__);
+	}
+}
+
 void CacheServer::initInnerClient()
 {
 	if (!CONFIG_MGR->GetProxyServerConfig())
@@ -218,6 +238,15 @@ void CacheServer::readFromProxySrv()
 		MSG_BUFFER(m_bytesInnerSrvBuffer, sizeof(m_bytesInnerSrvBuffer)),
 		m_pInnerStrand->wrap(BIND(&CacheServer::onProxySrvRead, this, boost::placeholders::_1, boost::placeholders::_2))
 	);
+}
+
+void CacheServer::initRedisServer()
+{
+	m_redis.start(
+		m_redisCfgReplicat->m_strIp,
+		m_redisCfgReplicat->m_nPort, 
+		m_redisCfgBase, m_redisCfgReplicat->m_strPassword);
+	m_redis.setStartCallback(BIND(&CacheServer::onRedisInitResult, this, boost::placeholders::_1));
 }
 
 void CacheServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)

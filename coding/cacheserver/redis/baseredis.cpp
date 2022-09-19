@@ -11,26 +11,65 @@ BaseRedis::BaseRedis()
 
 BaseRedis::~BaseRedis()
 {
+	CloseRedisContext();
+}
+
+void BaseRedis::start(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo, const std::string password)
+{
+	boost::thread tStart(
+		BIND(&BaseRedis::onThreadStart, this, ip, port, timeoutInfo, password));
+	tStart.detach();
+}
+
+void BaseRedis::end()
+{
+	CloseRedisContext();
+}
+
+const std::string BaseRedis::getRedisServerIp()
+{
+	return m_strConnectIp;
+}
+
+ushort BaseRedis::getRedisServerPort()
+{
+	return m_nConnectPort;
+}
+
+void BaseRedis::setStartCallback(CallbackStart callback)
+{
+	m_calllbackStart = callback;
+}
+
+void BaseRedis::onThreadStart(
+	const std::string& ip,
+	ushort port,
+	const CacheServerConnectBaseCfgInfo* timeoutInfo = NULL,
+	const std::string password = std::string())
+{
+	m_strConnectIp = ip;
+	m_nConnectPort = port;
+
+	bool ok = connect(ip, port, timeoutInfo) && auth(password);
+	m_calllbackStart(ok);
 }
 
 bool BaseRedis::connect(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo)
 {
 	if (!timeoutInfo)
 	{
-		LOG_CACHESERVER.printLog("Param timeoutInfo NULL");
-		return false;
+		m_redisCont = redisConnect(ip.data(), port);
 	}
-
-	m_strConnectIp = ip;
-	m_nConnectPort = port;
-
-	timeval tv = 
-	{ 
-		timeoutInfo->m_nConnectTimeoutSec,
-		timeoutInfo->m_nConnectTimeoutMicrosec 
-	};
-
-	m_redisCont = redisConnectWithTimeout(ip.data(), port , tv);
+	else
+	{
+		timeval tv =
+		{
+			timeoutInfo->m_nConnectTimeoutSec,
+			timeoutInfo->m_nConnectTimeoutMicrosec
+		};
+		m_redisCont = redisConnectWithTimeout(ip.data(), port, tv);
+	}
+	
 	if (!m_redisCont)
 	{
 		LOG_CACHESERVER.printLog("m_redisCont NULL");
@@ -65,10 +104,14 @@ bool BaseRedis::auth(const std::string password)
 		return false;
 	} 
 
-	LOG_CACHESERVER.printLog("%s", m_redisRep->str);
 	freeReplyObject(m_redisRep);
 
 	return true;
+}
+
+void BaseRedis::CloseRedisContext()
+{
+	redisFree(m_redisCont);
 }
 
 
