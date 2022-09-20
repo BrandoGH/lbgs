@@ -14,6 +14,9 @@ bool getNumByHexSymbol(char hexSymbol, int& retNum);
 
 bool isIpFormat(const std::string& ip);
 
+// [left ,right]
+int getRandom(int left,int right);
+
 }
 
 #endif // !__COMMON_TOOL_H__

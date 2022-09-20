@@ -3,15 +3,43 @@
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/cacheserverconfig.h>
 
+#define REDIS_OP_CALLBACK(opType, opKeyName, opSetKeyValue,opKeySize,opValSize)		\
+if (m_redisRep)																		\
+{																					\
+	switch (m_redisRep->type)														\
+	{																				\
+	case REDIS_REPLY_INTEGER:														\
+		m_callbackOp(opType, opKeyName, opSetKeyValue,								\
+			opKeySize,opValSize, m_redisRep->integer, m_redisRep->str);				\
+		break;																		\
+	case REDIS_REPLY_ERROR:															\
+	case REDIS_REPLY_NIL:															\
+		m_callbackOp(opType, opKeyName, opSetKeyValue, opKeySize, opValSize,		\
+			false, m_redisRep->str);												\
+		break;																		\
+	default:																		\
+		m_callbackOp(opType, opKeyName,  opSetKeyValue,								\
+			opKeySize, opValSize,true, m_redisRep->str);							\
+		break;																		\
+	}																				\
+}																					\
+else																				\
+{																					\
+	m_callbackOp(opType, opKeyName,  opSetKeyValue, opKeySize, opValSize,			\
+		false,"reply handle NULL");													\
+}
+
+
 BaseRedis::BaseRedis()
 	: m_redisCont(NULL)
 	, m_redisRep(NULL)
+	, m_nSeq(0)
 {
 }
 
 BaseRedis::~BaseRedis()
 {
-	CloseRedisContext();
+	end();
 }
 
 void BaseRedis::start(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo, const std::string password)
@@ -23,7 +51,7 @@ void BaseRedis::start(const std::string& ip, ushort port, const CacheServerConne
 
 void BaseRedis::end()
 {
-	CloseRedisContext();
+	CloseAllHandle();
 }
 
 const std::string BaseRedis::getRedisServerIp()
@@ -38,7 +66,43 @@ ushort BaseRedis::getRedisServerPort()
 
 void BaseRedis::setStartCallback(CallbackStart callback)
 {
-	m_calllbackStart = callback;
+	m_callbackStart = callback;
+}
+
+void BaseRedis::setOpCallback(CallbackOp callback)
+{
+	m_callbackOp = callback;
+}
+
+void BaseRedis::setCurServiceSeq(int seq)
+{
+	m_nSeq = seq;
+}
+
+int BaseRedis::getCurServiceSeq()
+{
+	return m_nSeq;
+}
+
+void BaseRedis::set(const std::string& key, const char* val, uint keySize, uint valSize )
+{
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SET %b %b", key.data(), (size_t)keySize, val, (size_t)valSize);
+	REDIS_OP_CALLBACK(OP_SET, key.data(), val, keySize, valSize);
+	freeReplyObject(m_redisRep);
+}
+
+BaseRedis::GetValueST BaseRedis::get(const std::string& key)
+{
+	GetValueST retSt;
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "GET %s", key.data());
+	if (m_redisRep && m_redisRep->str)
+	{
+		retSt.m_getData = m_redisRep->str;
+		retSt.m_len = m_redisRep->len;
+	}
+	REDIS_OP_CALLBACK(OP_GET, key.data(), "", key.length(), retSt.m_len);
+	freeReplyObject(m_redisRep);
+	return retSt;
 }
 
 void BaseRedis::onThreadStart(
@@ -51,7 +115,10 @@ void BaseRedis::onThreadStart(
 	m_nConnectPort = port;
 
 	bool ok = connect(ip, port, timeoutInfo) && auth(password);
-	m_calllbackStart(ok);
+	if (!m_callbackStart.empty())
+	{
+		m_callbackStart(ok, getCurServiceSeq());
+	}
 }
 
 bool BaseRedis::connect(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo)
@@ -109,9 +176,17 @@ bool BaseRedis::auth(const std::string password)
 	return true;
 }
 
-void BaseRedis::CloseRedisContext()
+void BaseRedis::CloseAllHandle()
 {
-	redisFree(m_redisCont);
+	if (!m_redisRep)
+	{
+		freeReplyObject(m_redisRep);
+	}
+
+	if (!m_redisCont)
+	{
+		redisFree(m_redisCont);
+	}
 }
 
 

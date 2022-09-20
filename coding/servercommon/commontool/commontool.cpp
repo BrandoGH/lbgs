@@ -51,4 +51,10 @@ bool isIpFormat(const std::string& ip)
 	return true;
 }
 
+int getRandom(int left, int right)
+{
+	srand(time(NULL));
+	return (left +(rand() % (right - left + 1)));
+}
+
 }

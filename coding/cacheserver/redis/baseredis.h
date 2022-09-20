@@ -8,13 +8,48 @@ extern "C"
 
 #include <servercommon/basedef.h>
 #include <boost/function.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 
+/*
+*	Redis base operator
+*	initialization must be call setxxxCallback,currently only the callback method is supported,otherwise an error will be reported
+*/
 
 struct CacheServerConnectBaseCfgInfo;
-class BaseRedis
+class BaseRedis : public boost::enable_shared_from_this<BaseRedis>
 {
 	// callback
-	typedef boost::function< void(bool) > CallbackStart;
+	typedef boost::function< void(bool /*ok*/, int /*my seq*/) > CallbackStart;
+	typedef boost::function< void(
+		int	,				/*opType*/
+		const char*,		/*key name*/
+		const char*,		/*value of key*/
+		uint,				/*key size*/
+		uint,				/*value size*/
+		bool,				/*ok*/
+		const char* 		/*redis return string or value, If NULL, usually fail*/
+		) > CallbackOp;
+
+public:
+	enum EnOpType
+	{
+		OP_SET,
+		OP_SETNX,
+		OP_SETXX,
+
+		OP_GET,
+	};
+
+	struct GetValueST
+	{
+		GetValueST()
+		{
+			m_getData = NULL;
+			m_len = 0;
+		}
+		const char* m_getData;
+		uint m_len;
+	};
 
 public:
 	BaseRedis();
@@ -31,6 +66,14 @@ public:
 	ushort getRedisServerPort();
 
 	void setStartCallback(CallbackStart callback);
+	void setOpCallback(CallbackOp callback);
+
+	void setCurServiceSeq(int seq);
+	int getCurServiceSeq();
+
+	// redis cmd
+	void set(const std::string& key, const char* val, uint keySize, uint valSize = 0);
+	BaseRedis::GetValueST get(const std::string& key);	// if get key invalid ,handler str return NULL
 
 HANDLER:
 	void onThreadStart(
@@ -42,14 +85,16 @@ HANDLER:
 private:
 	bool connect(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo);
 	bool auth(const std::string password);
-	void CloseRedisContext();
+	void CloseAllHandle();
 
 private:
 	redisContext* m_redisCont;
 	redisReply* m_redisRep;
 
-	CallbackStart m_calllbackStart;
+	CallbackStart m_callbackStart;
+	CallbackOp m_callbackOp;
 
+	int m_nSeq;
 	// connect info
 	std::string m_strConnectIp;
 	ushort m_nConnectPort;

@@ -6,6 +6,8 @@ main.cpp
 ./src/cacheserver_aid.cpp
 ./redis/baseredis.h
 ./redis/baseredis.cpp
+./redis/rediscluster.h
+./redis/rediscluster.cpp
 )
 set(BIN_NAME cacheserver)
 
