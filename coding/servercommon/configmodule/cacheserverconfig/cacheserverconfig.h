@@ -3,6 +3,13 @@
 
 #include <configmodule/configinterface.h>
 
+namespace
+{
+// Redis cluster support max slot value(max nodes size) are 16384
+// Here a cache server setting can connect up to 100 redis
+const int g_nRedisClusterMaxNode = 100;
+}
+
 struct CacheServerConnectBaseCfgInfo
 {
 	CacheServerConnectBaseCfgInfo()
@@ -14,33 +21,25 @@ struct CacheServerConnectBaseCfgInfo
 	long long m_nConnectTimeoutMicrosec;
 };
 
-// m_nRole: 1-Master 0-Slave
-struct CacheReplicatConfigInfo
+struct CacheClusterConfigInfo
 {
-	enum EnRoleFlag
-	{
-		ROLE_ERROR		= -1,
-		ROLE_SLAVE		= 0,
-		ROLE_MASTER		= 1,
-	};
-
-	CacheReplicatConfigInfo()
+	CacheClusterConfigInfo()
 	{
 		reset();
 	}
 
 	void reset()
 	{
+		m_nSeq = 0;
 		m_strIp = "";
 		m_strPassword = "";
 		m_nPort = 0;
-		m_nRole = ROLE_ERROR;
 	}
 
+	int m_nSeq;
 	std::string m_strIp;
 	std::string m_strPassword;
 	ushort m_nPort;
-	ushort m_nRole;
 };
 
 class CacheServerConfig : public ConfigInterface
@@ -57,20 +56,19 @@ public:
 
 	virtual int init(const std::string& path) override;
 
-	// Get a master server configuration, if any (default first configuration)
-	const CacheReplicatConfigInfo* getSingleMasterReidsCfg();
+	int getCurClusterCount();
 	const CacheServerConnectBaseCfgInfo* getBaseCacheCfg();
+	const CacheClusterConfigInfo* getClusterConfigByIndex(int idx);
 
 private:
 	int initBaseInfoCfg(CommonBoost::PTree& rootNode);
-	int initReplicatInfoCfg(CommonBoost::PTree& rootNode);
+	int initClusterInfoCfg(CommonBoost::PTree& rootNode);
 
 private:
-	std::vector<CacheReplicatConfigInfo> m_vecMasterRedis;
-	std::vector<CacheReplicatConfigInfo> m_vecSlaveRedis;
-
+	CacheClusterConfigInfo m_arrRedisClusterCfgInfo[g_nRedisClusterMaxNode];
 	CacheServerConnectBaseCfgInfo m_cfgBase;
 
+	int m_nCurMaxClusterCount;
 };
 
 #endif // !__CACHE_SERVER_CONFIG_H__

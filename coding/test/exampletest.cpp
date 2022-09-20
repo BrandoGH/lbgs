@@ -174,7 +174,11 @@ TEST(Redis_Example_3, test)
 	//redisReply* reply = NULL;
 
 	//// redis set a key k1 first
-	//reply = (redisReply*)redisCommand(conn, "GET %s", "k1");
+	//const size_t binDataLen = 20;
+	//char binData[binDataLen];
+	//memset(binData, 0, binDataLen);
+	//binData[10] = 'c';
+	//reply = (redisReply*)redisCommand(conn, "SET %b %b", "kb",(size_t)2, binData, binDataLen);
 	//std::string strRep = reply->str;
 	//int port = 0;
 	//if (strRep.substr(0,5) == "MOVED")
@@ -202,7 +206,7 @@ TEST(Redis_Example_3, test)
 	//	}
 	//	freeReplyObject(replya);
 
-	//	reply = (redisReply*)redisCommand(conn, "GET %s", "k1");
+	//	reply = (redisReply*)redisCommand(conn, "SET %b %b", "kb", (size_t)2, binData, binDataLen);
 	//}
 	//printf("%s\n", reply->str);			// should ouput k1 value [success]
 	//freeReplyObject(reply);

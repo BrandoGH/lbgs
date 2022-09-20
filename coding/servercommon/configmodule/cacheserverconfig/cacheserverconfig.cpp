@@ -2,7 +2,9 @@
 #include "commontool/commontool.h"
 #include "logmodule/logdef.h"
 
+
 CacheServerConfig::CacheServerConfig()
+	: m_nCurMaxClusterCount(0)
 {
 }
 
@@ -13,23 +15,27 @@ CacheServerConfig::~CacheServerConfig()
 int CacheServerConfig::init(const std::string & path)
 {
 	LOAD_NODE("config.cacheserver.baseconfig", initBaseInfoCfg);
-	LOAD_NODE("config.cacheserver.replicat_server_list", initReplicatInfoCfg);
+	LOAD_NODE("config.cacheserver.cluster_server_list", initClusterInfoCfg);
 	return INIT_OK;
 }
 
-const CacheReplicatConfigInfo* CacheServerConfig::getSingleMasterReidsCfg()
+int CacheServerConfig::getCurClusterCount()
 {
-	if (m_vecMasterRedis.size() <= 0)
-	{
-		LOG_CACHESERVER.printLog("get error: m_vecMasterRedis.size = [%d]", m_vecMasterRedis.size());
-		return NULL;
-	}
-	return &m_vecMasterRedis[0];
+	return m_nCurMaxClusterCount;
 }
 
 const CacheServerConnectBaseCfgInfo* CacheServerConfig::getBaseCacheCfg()
 {
 	return &m_cfgBase;
+}
+
+const CacheClusterConfigInfo* CacheServerConfig::getClusterConfigByIndex(int idx)
+{
+	if (idx < 0 || idx >= g_nRedisClusterMaxNode)
+	{
+		return NULL;
+	}
+	return &m_arrRedisClusterCfgInfo[idx];
 }
 
 int CacheServerConfig::initBaseInfoCfg(CommonBoost::PTree& rootNode)
@@ -54,47 +60,31 @@ int CacheServerConfig::initBaseInfoCfg(CommonBoost::PTree& rootNode)
 	return INIT_OK;
 }
 
-int CacheServerConfig::initReplicatInfoCfg(CommonBoost::PTree& rootNode)
+int CacheServerConfig::initClusterInfoCfg(CommonBoost::PTree& rootNode)
 {
 	CommonBoost::PTree::iterator it = rootNode.begin();
 
-	CacheReplicatConfigInfo info;
+	CacheClusterConfigInfo info;
 	for (; it != rootNode.end(); ++it)
 	{
 		info.reset();
 		CommonBoost::PTree dataNode = it->second;
 
+		info.m_nSeq = CAST_TO(int, dataNode.get_child("seq").data());
 		info.m_strIp = dataNode.get_child("ip").data();
-		info.m_strPassword = dataNode.get_child("auth_password").data();
 		info.m_nPort = CAST_TO(ushort, dataNode.get_child("port").data());
-		info.m_nRole = CAST_TO(ushort, dataNode.get_child("role").data());
+		info.m_strPassword = dataNode.get_child("auth_password").data();
 
-		if (!CommonTool::isIpFormat(info.m_strIp))
+		if (!CommonTool::isIpFormat(info.m_strIp) ||
+			(info.m_nPort <= 0 || info.m_nPort > 65535) ||
+			(info.m_nSeq < 0 || info.m_nSeq >= g_nRedisClusterMaxNode))
 		{
-			LOG_CACHESERVER.printLog("ip format error!");
+			LOG_CACHESERVER.printLog("read xml error!");
 			return INIT_ERROR;
 		}
-		if (info.m_nPort <= 0 || info.m_nPort > 65535)
-		{
-			LOG_PROXYSERVER.printLog("port read error");
-			return INIT_ERROR;
-		}
-
-		if (info.m_nRole == CacheReplicatConfigInfo::ROLE_MASTER)
-		{
-			m_vecMasterRedis.push_back(info);
-		}
-		else if (info.m_nRole == CacheReplicatConfigInfo::ROLE_SLAVE)
-		{
-			m_vecSlaveRedis.push_back(info);
-		}
-		else
-		{
-			LOG_PROXYSERVER.printLog("info.m_nRole read error, cur info.m_nRole[%d]", info.m_nRole);
-			return INIT_ERROR;
-		}
+		m_nCurMaxClusterCount = info.m_nSeq + 1;
+		m_arrRedisClusterCfgInfo[info.m_nSeq] = info;
 	}
-
 
 	return INIT_OK;
 }

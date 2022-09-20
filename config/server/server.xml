@@ -13,7 +13,7 @@
 		</data>
 	</proxyserver>
 	
-	<!--Redis-->
+	<!--Redis (defult cluster config)-->
 	<cacheserver>
 		<baseconfig>
 			<data>
@@ -22,29 +22,45 @@
 			</data>
 		</baseconfig>
 		
-		<!--Replication of master and slave-->
-		<!--Master: 1-->
-		<!--Slave: 0-->
-		<replicat_server_list>
+		<!--Redis Cluster-->
+		<cluster_server_list>
 			<data>
+				<seq>0</seq>
 				<ip>192.168.43.122</ip>
-				<port>6379</port>
+				<port>7000</port>
 				<auth_password>123456</auth_password>
-				<role>1</role>
 			</data>
 			<data>
+				<seq>1</seq>
 				<ip>192.168.43.122</ip>
-				<port>6380</port>
+				<port>7001</port>
 				<auth_password>123456</auth_password>
-				<role>0</role>
 			</data>
 			<data>
+				<seq>2</seq>
 				<ip>192.168.43.122</ip>
-				<port>6381</port>
+				<port>7002</port>
 				<auth_password>123456</auth_password>
-				<role>0</role>
 			</data>
-		</replicat_server_list>
+			<data>
+				<seq>3</seq>
+				<ip>192.168.43.122</ip>
+				<port>7003</port>
+				<auth_password>123456</auth_password>
+			</data>
+			<data>
+				<seq>4</seq>
+				<ip>192.168.43.122</ip>
+				<port>7004</port>
+				<auth_password>123456</auth_password>
+			</data>
+			<data>
+				<seq>5</seq>
+				<ip>192.168.43.122</ip>
+				<port>7005</port>
+				<auth_password>123456</auth_password>
+			</data>
+		</cluster_server_list>
 		
 	</cacheserver>
 </config>
