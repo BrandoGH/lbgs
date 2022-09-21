@@ -31,6 +31,7 @@ public:
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	BaseRedis::GetValueST get(const std::string& key);
+	bool existsKey(const std::string& key);
 
 HANDLER:
 	void OnStartConnectResult(bool ok, int curRedisSeq);

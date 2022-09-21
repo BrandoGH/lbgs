@@ -123,6 +123,12 @@ BaseRedis::GetValueST RedisCluster::get(const std::string& key)
 	return clusterDataCheck_Get(key, retSt);
 }
 
+bool RedisCluster::existsKey(const std::string& key)
+{
+	BaseRedis::GetValueST st = get(key);
+	return ((st.m_len > 0) && (strlen(st.m_getData) > 0));
+}
+
 void RedisCluster::OnOpResult(
 	int opType,
 	const char* opKey,
