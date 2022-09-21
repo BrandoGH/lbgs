@@ -180,7 +180,7 @@ void CacheServer::onRedisClusterConnected(bool ok)
 	data[4] = 'p';
 	const char* data2 = "liubin love dtfeegesgesg";
 	m_redisCluster.set("k1", data, 2, 20);
-	//m_redisCluster.set("k1", data2, 2, strlen(data2));
+	m_redisCluster.set("k3", data2, 2, strlen(data2));
 	BaseRedis::GetValueST val = m_redisCluster.get("k2");
 	for (int i = 0; i < val.m_len; i++)
 	{
