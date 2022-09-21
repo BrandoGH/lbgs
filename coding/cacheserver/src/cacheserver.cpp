@@ -173,24 +173,8 @@ void CacheServer::onRedisClusterConnected(bool ok)
 	LOG_CACHESERVER.printLog("Redis cluster connected ok---------!!");
 
 	// test code
-	char data[20];
-	memset(data, 0, 20);
-	data[10] = 122;
-	data[3] = 'a';
-	data[4] = 'p';
-	const char* data2 = "liubin love dtfeegesgesg";
-	m_redisCluster.set("k1", data, 2, 20);
-	m_redisCluster.set("k3", data2, 2, strlen(data2));
-	BaseRedis::GetValueST val = m_redisCluster.get("k2");
-	for (int i = 0; i < val.m_len; i++)
-	{
-		if (*(val.m_getData + i) == 0)
-			printf("\\x00");
-		else
-			printf("%c", *(val.m_getData + i));
-	}
-	const char* setnxdata = "5757676";
-	m_redisCluster.setnx("k5", setnxdata, 2, strlen(setnxdata));
+	const char* setnxdata = "fe78g0es54f5";
+	m_redisCluster.setxx("k5", setnxdata, 2, strlen(setnxdata));
 	return;
 }
 

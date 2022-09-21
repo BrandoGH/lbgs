@@ -38,9 +38,11 @@ class BaseRedis : public boost::enable_shared_from_this<BaseRedis>
 public:
 	enum EnOpType
 	{
+		OP_SET_START,
 		OP_SET,
 		OP_SETNX,
 		OP_SETXX,
+		OP_SET_END,
 
 		OP_GET,
 	};
@@ -79,6 +81,7 @@ public:
 	// redis cmd
 	void set(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
+	void setxx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	BaseRedis::GetValueST get(const std::string& key);	// if get key invalid ,handler str return NULL
 
 HANDLER:

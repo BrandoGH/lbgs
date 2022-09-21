@@ -98,6 +98,13 @@ void BaseRedis::setnx(const std::string& key, const char* val, uint keySize, uin
 	freeReplyObject(m_redisRep);
 }
 
+void BaseRedis::setxx(const std::string& key, const char* val, uint keySize, uint valSize)
+{
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SET %b %b XX", key.data(), (size_t)keySize, val, (size_t)valSize);
+	REDIS_OP_CALLBACK(OP_SETXX, key.data(), val, keySize, valSize);
+	freeReplyObject(m_redisRep);
+}
+
 BaseRedis::GetValueST BaseRedis::get(const std::string& key)
 {
 	GetValueST retSt;
