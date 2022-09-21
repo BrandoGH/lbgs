@@ -106,10 +106,10 @@ void RedisCluster::setxx(const std::string& key, const char* val, uint keySize, 
 	opRedis->setxx(key, val, keySize, valSize);
 }
 
-BaseRedis::GetValueST RedisCluster::get(const std::string& key)
+BaseRedis::RedisReturnST RedisCluster::get(const std::string& key)
 {
 	CommonBoost::UniqueLock lock(m_mtxRedisOp);
-	BaseRedis::GetValueST retSt;
+	BaseRedis::RedisReturnST retSt;
 	int randIdx = CommonTool::getRandom(0, m_CfgCache->getCurClusterCount() - 1);
 	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[randIdx];
 	if (weakRedis.expired())
@@ -120,13 +120,29 @@ BaseRedis::GetValueST RedisCluster::get(const std::string& key)
 	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
 
 	retSt = opRedis->get(key);
-	return clusterDataCheck_Get(key, retSt);
+	return clusterDataCheck_MOVED(key, retSt, BaseRedis::OP_GET);
 }
 
 bool RedisCluster::existsKey(const std::string& key)
 {
-	BaseRedis::GetValueST st = get(key);
+	BaseRedis::RedisReturnST st = get(key);
 	return ((st.m_len > 0) && (strlen(st.m_getData) > 0));
+}
+
+BaseRedis::RedisReturnST RedisCluster::delkey(const std::string& key)
+{
+	CommonBoost::UniqueLock lock(m_mtxRedisOp);
+	BaseRedis::RedisReturnST retSt;
+	int randIdx = CommonTool::getRandom(0, m_CfgCache->getCurClusterCount() - 1);
+	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[randIdx];
+	if (weakRedis.expired())
+	{
+		LOG_CACHESERVER.printLog("m_vecRedisCluster[%d] expired", randIdx);
+		return retSt;
+	}
+	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
+	retSt = opRedis->delKey(key);
+	return clusterDataCheck_MOVED(key, retSt, BaseRedis::OP_DEL);
 }
 
 void RedisCluster::OnOpResult(
@@ -145,9 +161,9 @@ void RedisCluster::OnOpResult(
 	clusterDataCheck_Set(opType, opKey, opKeySetVal, ok, str, keySize, valSize);
 }
 
-BaseRedis::GetValueST RedisCluster::clusterDataCheck_Get(const std::string& checkKey, const BaseRedis::GetValueST& checkRetValue)
+BaseRedis::RedisReturnST RedisCluster::clusterDataCheck_MOVED(const std::string& checkKey, const BaseRedis::RedisReturnST& checkRetValue, int opRedisFlag)
 {
-	BaseRedis::GetValueST inputSt = checkRetValue;
+	BaseRedis::RedisReturnST inputSt = checkRetValue;
 	std::string checkStr = checkRetValue.m_getData ? checkRetValue.m_getData : "";
 	if (checkStr.substr(0, 5) != "MOVED")
 	{
@@ -165,7 +181,19 @@ BaseRedis::GetValueST RedisCluster::clusterDataCheck_Get(const std::string& chec
 		return inputSt;
 	}
 	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
-	return opRedis->get(checkKey);
+
+	BaseRedis::RedisReturnST retSt;
+	switch (opRedisFlag)
+	{
+	case BaseRedis::OP_GET:
+		retSt = opRedis->get(checkKey);
+		break;
+	case BaseRedis::OP_DEL:
+		retSt = opRedis->delKey(checkKey);
+		break;
+	}
+
+	return retSt;
 }
 
 void RedisCluster::clusterDataCheck_Set(

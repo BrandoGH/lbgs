@@ -105,9 +105,9 @@ void BaseRedis::setxx(const std::string& key, const char* val, uint keySize, uin
 	freeReplyObject(m_redisRep);
 }
 
-BaseRedis::GetValueST BaseRedis::get(const std::string& key)
+BaseRedis::RedisReturnST BaseRedis::get(const std::string& key)
 {
-	GetValueST retSt;
+	RedisReturnST retSt;
 	m_redisRep = (redisReply*)redisCommand(m_redisCont, "GET %s", key.data());
 	if (m_redisRep && m_redisRep->str)
 	{
@@ -120,6 +120,30 @@ BaseRedis::GetValueST BaseRedis::get(const std::string& key)
 		retSt.m_len = m_redisRep->len;
 	}
 	REDIS_OP_CALLBACK(OP_GET, key.data(), "", key.length(), retSt.m_len);
+	freeReplyObject(m_redisRep);
+	return retSt;
+}
+
+BaseRedis::RedisReturnST BaseRedis::delKey(const std::string& key)
+{
+	RedisReturnST retSt;
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "DEL %s", key.data());
+	if (m_redisRep)
+	{
+		if (m_redisRep->len >= g_nGetValueMaxSize - 1)
+		{
+			LOG_CACHESERVER.printLog("redis get data size large!!");
+			return retSt;
+		}
+		if (m_redisRep->str)
+		{
+			memmove(retSt.m_getData, m_redisRep->str, m_redisRep->len);
+			retSt.m_len = m_redisRep->len;
+		}
+		retSt.m_bDelKeySucc = m_redisRep->integer;
+	}
+
+	REDIS_OP_CALLBACK(OP_DEL, key.data(), "", key.length(), 0);
 	freeReplyObject(m_redisRep);
 	return retSt;
 }

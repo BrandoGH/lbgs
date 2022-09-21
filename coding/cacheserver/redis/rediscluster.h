@@ -30,8 +30,9 @@ public:
 	void set(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
-	BaseRedis::GetValueST get(const std::string& key);
+	BaseRedis::RedisReturnST get(const std::string& key);
 	bool existsKey(const std::string& key);
+	BaseRedis::RedisReturnST delkey(const std::string& key);
 
 HANDLER:
 	void OnStartConnectResult(bool ok, int curRedisSeq);
@@ -47,7 +48,7 @@ HANDLER:
 
 private:
 	// deal with cluster "get xxx"or "set xxx" problem , example : (error) MOVED 12706 172.17.0.1:7002
-	BaseRedis::GetValueST clusterDataCheck_Get(const std::string& checkKey, const BaseRedis::GetValueST& checkRetValue);
+	BaseRedis::RedisReturnST clusterDataCheck_MOVED(const std::string& checkKey, const BaseRedis::RedisReturnST& checkRetValue, int opRedisFlag);
 	void clusterDataCheck_Set(
 		int opType,
 		const char* opKey,
