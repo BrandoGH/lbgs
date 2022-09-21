@@ -97,7 +97,12 @@ BaseRedis::GetValueST BaseRedis::get(const std::string& key)
 	m_redisRep = (redisReply*)redisCommand(m_redisCont, "GET %s", key.data());
 	if (m_redisRep && m_redisRep->str)
 	{
-		retSt.m_getData = m_redisRep->str;
+		if (m_redisRep->len >= g_nGetValueMaxSize - 1)
+		{
+			LOG_CACHESERVER.printLog("redis get data size large!!");
+			return retSt;
+		}
+		memmove(retSt.m_getData, m_redisRep->str, m_redisRep->len);
 		retSt.m_len = m_redisRep->len;
 	}
 	REDIS_OP_CALLBACK(OP_GET, key.data(), "", key.length(), retSt.m_len);

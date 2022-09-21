@@ -10,6 +10,11 @@ extern "C"
 #include <boost/function.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 
+namespace
+{
+const int g_nGetValueMaxSize = 128;
+}
+
 /*
 *	Redis base operator
 *	initialization must be call setxxxCallback,currently only the callback method is supported,otherwise an error will be reported
@@ -44,10 +49,10 @@ public:
 	{
 		GetValueST()
 		{
-			m_getData = NULL;
+			memset(m_getData, 0, g_nGetValueMaxSize);
 			m_len = 0;
 		}
-		const char* m_getData;
+		char m_getData[g_nGetValueMaxSize];
 		uint m_len;
 	};
 
