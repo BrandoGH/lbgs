@@ -189,6 +189,8 @@ void CacheServer::onRedisClusterConnected(bool ok)
 		else
 			printf("%c", *(val.m_getData + i));
 	}
+	const char* setnxdata = "5757676";
+	m_redisCluster.setnx("k5", setnxdata, 2, strlen(setnxdata));
 	return;
 }
 

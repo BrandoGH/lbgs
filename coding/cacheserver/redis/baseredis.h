@@ -78,6 +78,7 @@ public:
 
 	// redis cmd
 	void set(const std::string& key, const char* val, uint keySize, uint valSize = 0);
+	void setnx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	BaseRedis::GetValueST get(const std::string& key);	// if get key invalid ,handler str return NULL
 
 HANDLER:

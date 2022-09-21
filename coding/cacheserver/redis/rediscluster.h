@@ -28,6 +28,7 @@ public:
 
 	// redis cluster cmd
 	void set(const std::string& key, const char* val, uint keySize, uint valSize = 0);
+	void setnx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	BaseRedis::GetValueST get(const std::string& key);
 
 HANDLER:

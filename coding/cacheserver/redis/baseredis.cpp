@@ -84,10 +84,17 @@ int BaseRedis::getCurServiceSeq()
 	return m_nSeq;
 }
 
-void BaseRedis::set(const std::string& key, const char* val, uint keySize, uint valSize )
+void BaseRedis::set(const std::string& key, const char* val, uint keySize, uint valSize)
 {
 	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SET %b %b", key.data(), (size_t)keySize, val, (size_t)valSize);
 	REDIS_OP_CALLBACK(OP_SET, key.data(), val, keySize, valSize);
+	freeReplyObject(m_redisRep);
+}
+
+void BaseRedis::setnx(const std::string& key, const char* val, uint keySize, uint valSize)
+{
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SETNX %b %b", key.data(), (size_t)keySize, val, (size_t)valSize);
+	REDIS_OP_CALLBACK(OP_SETNX, key.data(), val, keySize, valSize);
 	freeReplyObject(m_redisRep);
 }
 
