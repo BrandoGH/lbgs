@@ -124,10 +124,17 @@ BaseRedis::RedisReturnST BaseRedis::get(const std::string& key)
 	return retSt;
 }
 
-BaseRedis::RedisReturnST BaseRedis::delKey(const std::string& key)
+BaseRedis::RedisReturnST BaseRedis::delKey(const std::string& key, bool delByAync)
 {
 	RedisReturnST retSt;
-	m_redisRep = (redisReply*)redisCommand(m_redisCont, "DEL %s", key.data());
+	if (delByAync)
+	{
+		m_redisRep = (redisReply*)redisCommand(m_redisCont, "UNLINK %s", key.data());
+	}
+	else
+	{
+		m_redisRep = (redisReply*)redisCommand(m_redisCont, "DEL %s", key.data());
+	}
 	if (m_redisRep)
 	{
 		if (m_redisRep->len >= g_nGetValueMaxSize - 1)

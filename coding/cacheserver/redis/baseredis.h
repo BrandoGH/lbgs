@@ -56,8 +56,11 @@ public:
 			m_len = 0;
 			m_bDelKeySucc = false;
 		}
+		// get [key]
 		char m_getData[g_nGetValueMaxSize];
 		uint m_len;
+
+		// del/unlink [key] 
 		bool m_bDelKeySucc;
 	};
 
@@ -86,7 +89,7 @@ public:
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	BaseRedis::RedisReturnST get(const std::string& key);	// if get key invalid ,handler str return NULL
-	BaseRedis::RedisReturnST delKey(const std::string& key);
+	BaseRedis::RedisReturnST delKey(const std::string& key, bool delByAync = false);
 
 HANDLER:
 	void onThreadStart(

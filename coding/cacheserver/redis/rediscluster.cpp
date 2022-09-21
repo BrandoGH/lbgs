@@ -129,7 +129,7 @@ bool RedisCluster::existsKey(const std::string& key)
 	return ((st.m_len > 0) && (strlen(st.m_getData) > 0));
 }
 
-BaseRedis::RedisReturnST RedisCluster::delkey(const std::string& key)
+BaseRedis::RedisReturnST RedisCluster::delkey(const std::string& key, bool delByAync)
 {
 	CommonBoost::UniqueLock lock(m_mtxRedisOp);
 	BaseRedis::RedisReturnST retSt;
@@ -141,7 +141,7 @@ BaseRedis::RedisReturnST RedisCluster::delkey(const std::string& key)
 		return retSt;
 	}
 	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
-	retSt = opRedis->delKey(key);
+	retSt = opRedis->delKey(key, delByAync);
 	return clusterDataCheck_MOVED(key, retSt, BaseRedis::OP_DEL);
 }
 

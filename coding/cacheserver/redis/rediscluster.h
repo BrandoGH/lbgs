@@ -32,7 +32,7 @@ public:
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	BaseRedis::RedisReturnST get(const std::string& key);
 	bool existsKey(const std::string& key);
-	BaseRedis::RedisReturnST delkey(const std::string& key);
+	BaseRedis::RedisReturnST delkey(const std::string& key, bool delByAync = false);
 
 HANDLER:
 	void OnStartConnectResult(bool ok, int curRedisSeq);
