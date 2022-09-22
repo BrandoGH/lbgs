@@ -44,6 +44,7 @@ public:
 		OP_SETNX,
 		OP_SETXX,
 		OP_SETEX,
+		OP_EXPIRE,
 		OP_SET_END,
 
 		OP_GET,
@@ -103,6 +104,7 @@ public:
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setex(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec);
+	void expireKey(const std::string& key, int expireSec);
 	BaseRedis::RedisReturnST get(const std::string& key);
 	BaseRedis::RedisReturnST delKey(const std::string& key, bool delByAync = false);
 	BaseRedis::RedisReturnST ttl(const std::string& key);

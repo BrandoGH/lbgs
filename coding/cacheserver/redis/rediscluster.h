@@ -35,6 +35,8 @@ public:
 	bool existsKey(const std::string& key);
 	BaseRedis::RedisReturnST delkey(const std::string& key, bool delByAync = false);
 	BaseRedis::RedisReturnST ttl(const std::string& key);
+	void expireKey(const std::string& key, int expireSec);
+
 
 HANDLER:
 	void OnStartConnectResult(bool ok, int curRedisSeq);

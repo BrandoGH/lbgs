@@ -113,6 +113,13 @@ void BaseRedis::setex(const std::string& key, const char* val, uint keySize, uin
 	freeReplyObject(m_redisRep);
 }
 
+void BaseRedis::expireKey(const std::string& key, int expireSec)
+{
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "EXPIRE %s %d", key.data(), expireSec);
+	REDIS_OP_CALLBACK(OP_EXPIRE, key.data(), "", key.length(), 0, expireSec);
+	freeReplyObject(m_redisRep);
+}
+
 BaseRedis::RedisReturnST BaseRedis::get(const std::string& key)
 {
 	RedisReturnST retSt;
