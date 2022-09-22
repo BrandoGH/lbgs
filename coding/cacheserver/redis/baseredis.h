@@ -89,9 +89,9 @@ public:
 	int getCurServiceSeq();
 
 	// redis cmd
-	void set(const std::string& key, const char* val, uint keySize, uint valSize = 0);
-	void setnx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
-	void setxx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
+	void set(const std::string& key, const char* val, uint keySize, uint valSize);
+	void setnx(const std::string& key, const char* val, uint keySize, uint valSize);
+	void setxx(const std::string& key, const char* val, uint keySize, uint valSize);
 	BaseRedis::RedisReturnST get(const std::string& key);
 	BaseRedis::RedisReturnST delKey(const std::string& key, bool delByAync = false);
 	BaseRedis::RedisReturnST ttl(const std::string& key);
