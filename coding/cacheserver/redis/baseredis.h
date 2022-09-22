@@ -54,14 +54,17 @@ public:
 		{
 			memset(m_getData, 0, g_nGetValueMaxSize);
 			m_len = 0;
-			m_bDelKeySucc = false;
+			m_nInteger = 0;
 		}
 		// get [key]
 		char m_getData[g_nGetValueMaxSize];
 		uint m_len;
 
-		// del/unlink [key] 
-		bool m_bDelKeySucc;
+		/*
+		*	1.del/unlink [key] 
+		*	
+		*/
+		long long m_nInteger;
 	};
 
 public:

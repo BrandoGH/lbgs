@@ -147,7 +147,7 @@ BaseRedis::RedisReturnST BaseRedis::delKey(const std::string& key, bool delByAyn
 			memmove(retSt.m_getData, m_redisRep->str, m_redisRep->len);
 			retSt.m_len = m_redisRep->len;
 		}
-		retSt.m_bDelKeySucc = m_redisRep->integer;
+		retSt.m_nInteger = m_redisRep->integer;
 	}
 
 	REDIS_OP_CALLBACK(OP_DEL, key.data(), "", key.length(), 0);
