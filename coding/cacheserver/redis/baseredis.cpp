@@ -155,6 +155,30 @@ BaseRedis::RedisReturnST BaseRedis::delKey(const std::string& key, bool delByAyn
 	return retSt;
 }
 
+BaseRedis::RedisReturnST BaseRedis::ttl(const std::string& key)
+{
+	RedisReturnST retSt;
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "TTL %s", key.data());
+	if (m_redisRep)
+	{
+		if (m_redisRep->len >= g_nGetValueMaxSize - 1)
+		{
+			LOG_CACHESERVER.printLog("redis get data size large!!");
+			return retSt;
+		}
+		if (m_redisRep->str)
+		{
+			memmove(retSt.m_getData, m_redisRep->str, m_redisRep->len);
+			retSt.m_len = m_redisRep->len;
+		}
+		retSt.m_nInteger = m_redisRep->integer;
+	}
+
+	REDIS_OP_CALLBACK(OP_TTL, key.data(), "", key.length(), 0);
+	freeReplyObject(m_redisRep);
+	return retSt;
+}
+
 void BaseRedis::onThreadStart(
 	const std::string& ip,
 	ushort port,

@@ -33,6 +33,7 @@ public:
 	BaseRedis::RedisReturnST get(const std::string& key);
 	bool existsKey(const std::string& key);
 	BaseRedis::RedisReturnST delkey(const std::string& key, bool delByAync = false);
+	BaseRedis::RedisReturnST ttl(const std::string& key);
 
 HANDLER:
 	void OnStartConnectResult(bool ok, int curRedisSeq);
@@ -67,6 +68,10 @@ private:
 	CallbackClusterConnected m_cbClusterConnected;
 
 	CommonBoost::Mutex m_mtxRedisOp;
+
+	// call ttl function first set index,reduce the path search caused by random number randIndex
+	int m_nTTLIndex;
+	bool m_bCallbackStartResultOnce;
 };
 
 #endif // !__REDIS_CLUSTER_H__

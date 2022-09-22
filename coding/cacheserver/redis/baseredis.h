@@ -46,6 +46,7 @@ public:
 
 		OP_GET,
 		OP_DEL,
+		OP_TTL,
 	};
 
 	struct RedisReturnST
@@ -54,7 +55,7 @@ public:
 		{
 			memset(m_getData, 0, g_nGetValueMaxSize);
 			m_len = 0;
-			m_nInteger = 0;
+			m_nInteger = 0LL;
 		}
 		// get [key]
 		char m_getData[g_nGetValueMaxSize];
@@ -62,7 +63,7 @@ public:
 
 		/*
 		*	1.del/unlink [key] 
-		*	
+		*	2.ttl [key]
 		*/
 		long long m_nInteger;
 	};
@@ -91,8 +92,9 @@ public:
 	void set(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize = 0);
-	BaseRedis::RedisReturnST get(const std::string& key);	// if get key invalid ,handler str return NULL
+	BaseRedis::RedisReturnST get(const std::string& key);
 	BaseRedis::RedisReturnST delKey(const std::string& key, bool delByAync = false);
+	BaseRedis::RedisReturnST ttl(const std::string& key);
 
 HANDLER:
 	void onThreadStart(

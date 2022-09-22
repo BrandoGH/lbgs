@@ -14,6 +14,8 @@
 RedisCluster::RedisCluster()
 	: m_CfgCache(CONFIG_MGR->GetCacheServerConfig())
 	, m_nRedisConnectCount(0)
+	, m_nTTLIndex(-1)
+	, m_bCallbackStartResultOnce(false)
 {
 	if (!m_CfgCache)
 	{
@@ -145,6 +147,24 @@ BaseRedis::RedisReturnST RedisCluster::delkey(const std::string& key, bool delBy
 	return clusterDataCheck_MOVED(key, retSt, BaseRedis::OP_DEL);
 }
 
+BaseRedis::RedisReturnST RedisCluster::ttl(const std::string& key)
+{
+	CommonBoost::UniqueLock lock(m_mtxRedisOp);
+	BaseRedis::RedisReturnST retSt;
+	int randIdx = (m_nTTLIndex > -1 ? 
+		m_nTTLIndex : 
+		CommonTool::getRandom(0, m_CfgCache->getCurClusterCount() - 1));
+	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[randIdx];
+	if (weakRedis.expired())
+	{
+		LOG_CACHESERVER.printLog("m_vecRedisCluster[%d] expired", randIdx);
+		return retSt;
+	}
+	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
+	retSt = opRedis->ttl(key);
+	return clusterDataCheck_MOVED(key, retSt, BaseRedis::OP_TTL);
+}
+
 void RedisCluster::OnOpResult(
 	int opType,
 	const char* opKey,
@@ -173,11 +193,11 @@ BaseRedis::RedisReturnST RedisCluster::clusterDataCheck_MOVED(const std::string&
 	std::vector<std::string> vecSplit;
 	boost::split(vecSplit, checkStr, boost::is_any_of(" "), boost::token_compress_on);
 
-	int index = m_mapClusterInfoIndex[vecSplit[vecSplit.size() - 1]];
-	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[index];
+	m_nTTLIndex = m_mapClusterInfoIndex[vecSplit[vecSplit.size() - 1]];
+	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[m_nTTLIndex];
 	if (weakRedis.expired())
 	{
-		LOG_CACHESERVER.printLog("m_vecRedisCluster[%d] expired", index);
+		LOG_CACHESERVER.printLog("m_vecRedisCluster[%d] expired", m_nTTLIndex);
 		return inputSt;
 	}
 	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
@@ -190,6 +210,9 @@ BaseRedis::RedisReturnST RedisCluster::clusterDataCheck_MOVED(const std::string&
 		break;
 	case BaseRedis::OP_DEL:
 		retSt = opRedis->delKey(checkKey);
+		break;
+	case BaseRedis::OP_TTL:
+		retSt = opRedis->ttl(checkKey);
 		break;
 	}
 
@@ -259,10 +282,11 @@ void RedisCluster::OnStartConnectResult(bool ok, int curRedisSeq)
 	++m_nRedisConnectCount;
 	if (m_nRedisConnectCount.load() == m_CfgCache->getCurClusterCount())
 	{
-		if (!m_cbClusterConnected.empty())
+		if (!m_cbClusterConnected.empty() && !m_bCallbackStartResultOnce)
 		{
+			m_bCallbackStartResultOnce = true;
+			LOG_CACHESERVER.printLog("m_nRedisConnectCount[%d]", m_nRedisConnectCount.load());
 			m_cbClusterConnected(true);
 		}
-		LOG_CACHESERVER.printLog("m_nRedisConnectCount[%d]", m_nRedisConnectCount.load());
 	}
 }
