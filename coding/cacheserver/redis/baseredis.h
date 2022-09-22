@@ -31,6 +31,7 @@ class BaseRedis : public boost::enable_shared_from_this<BaseRedis>
 		const char*,		/*value of key*/
 		uint,				/*key size*/
 		uint,				/*value size*/
+		uint,				/*key expire time(sec)*/
 		bool,				/*ok*/
 		const char* 		/*redis return string or value, If NULL, usually fail*/
 		) > CallbackOp;
@@ -42,11 +43,20 @@ public:
 		OP_SET,
 		OP_SETNX,
 		OP_SETXX,
+		OP_SETEX,
 		OP_SET_END,
 
 		OP_GET,
 		OP_DEL,
 		OP_TTL,
+	};
+
+	enum EnKeyExpire
+	{
+		// Default parameter, no effect
+		EN_EXPIRE_NULL = -1,
+		// Has expired (used to judge)
+		EN_EXPIRED = -2,
 	};
 
 	struct RedisReturnST
@@ -92,6 +102,7 @@ public:
 	void set(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize);
+	void setex(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec);
 	BaseRedis::RedisReturnST get(const std::string& key);
 	BaseRedis::RedisReturnST delKey(const std::string& key, bool delByAync = false);
 	BaseRedis::RedisReturnST ttl(const std::string& key);

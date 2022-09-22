@@ -3,30 +3,30 @@
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/cacheserverconfig.h>
 
-#define REDIS_OP_CALLBACK(opType, opKeyName, opSetKeyValue,opKeySize,opValSize)		\
-if (m_redisRep)																		\
-{																					\
-	switch (m_redisRep->type)														\
-	{																				\
-	case REDIS_REPLY_INTEGER:														\
-		m_callbackOp(opType, opKeyName, opSetKeyValue,								\
-			opKeySize,opValSize, m_redisRep->integer, m_redisRep->str);				\
-		break;																		\
-	case REDIS_REPLY_ERROR:															\
-	case REDIS_REPLY_NIL:															\
-		m_callbackOp(opType, opKeyName, opSetKeyValue, opKeySize, opValSize,		\
-			false, m_redisRep->str);												\
-		break;																		\
-	default:																		\
-		m_callbackOp(opType, opKeyName,  opSetKeyValue,								\
-			opKeySize, opValSize,true, m_redisRep->str);							\
-		break;																		\
-	}																				\
-}																					\
-else																				\
-{																					\
-	m_callbackOp(opType, opKeyName,  opSetKeyValue, opKeySize, opValSize,			\
-		false,"reply handle NULL");													\
+#define REDIS_OP_CALLBACK(opType, opKeyName, opSetKeyValue, opKeySize, opValSize, keyExpireTime)		\
+if (m_redisRep)																							\
+{																										\
+	switch (m_redisRep->type)																			\
+	{																									\
+	case REDIS_REPLY_INTEGER:																			\
+		m_callbackOp(opType, opKeyName, opSetKeyValue,													\
+			opKeySize,opValSize, keyExpireTime, m_redisRep->integer, m_redisRep->str);					\
+		break;																							\
+	case REDIS_REPLY_ERROR:																				\
+	case REDIS_REPLY_NIL:																				\
+		m_callbackOp(opType, opKeyName, opSetKeyValue, opKeySize, opValSize,							\
+			keyExpireTime, false, m_redisRep->str);														\
+		break;																							\
+	default:																							\
+		m_callbackOp(opType, opKeyName,  opSetKeyValue,													\
+			opKeySize, opValSize,keyExpireTime,true, m_redisRep->str);									\
+		break;																							\
+	}																									\
+}																										\
+else																									\
+{																										\
+	m_callbackOp(opType, opKeyName, opSetKeyValue, opKeySize, opValSize,								\
+		keyExpireTime, false,"reply handle NULL");														\
 }
 
 
@@ -87,21 +87,29 @@ int BaseRedis::getCurServiceSeq()
 void BaseRedis::set(const std::string& key, const char* val, uint keySize, uint valSize)
 {
 	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SET %b %b", key.data(), (size_t)keySize, val, (size_t)valSize);
-	REDIS_OP_CALLBACK(OP_SET, key.data(), val, keySize, valSize);
+	REDIS_OP_CALLBACK(OP_SET, key.data(), val, keySize, valSize, EN_EXPIRE_NULL);
 	freeReplyObject(m_redisRep);
 }
 
 void BaseRedis::setnx(const std::string& key, const char* val, uint keySize, uint valSize)
 {
 	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SETNX %b %b", key.data(), (size_t)keySize, val, (size_t)valSize);
-	REDIS_OP_CALLBACK(OP_SETNX, key.data(), val, keySize, valSize);
+	REDIS_OP_CALLBACK(OP_SETNX, key.data(), val, keySize, valSize, EN_EXPIRE_NULL);
 	freeReplyObject(m_redisRep);
 }
 
 void BaseRedis::setxx(const std::string& key, const char* val, uint keySize, uint valSize)
 {
 	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SET %b %b XX", key.data(), (size_t)keySize, val, (size_t)valSize);
-	REDIS_OP_CALLBACK(OP_SETXX, key.data(), val, keySize, valSize);
+	REDIS_OP_CALLBACK(OP_SETXX, key.data(), val, keySize, valSize, EN_EXPIRE_NULL);
+	freeReplyObject(m_redisRep);
+}
+
+void BaseRedis::setex(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec)
+{
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SET %b %b EX %d",
+		key.data(), (size_t)keySize, val, (size_t)valSize, expireSec);
+	REDIS_OP_CALLBACK(OP_SETEX, key.data(), val, keySize, valSize, expireSec);
 	freeReplyObject(m_redisRep);
 }
 
@@ -119,7 +127,7 @@ BaseRedis::RedisReturnST BaseRedis::get(const std::string& key)
 		memmove(retSt.m_getData, m_redisRep->str, m_redisRep->len);
 		retSt.m_len = m_redisRep->len;
 	}
-	REDIS_OP_CALLBACK(OP_GET, key.data(), "", key.length(), retSt.m_len);
+	REDIS_OP_CALLBACK(OP_GET, key.data(), "", key.length(), retSt.m_len, EN_EXPIRE_NULL);
 	freeReplyObject(m_redisRep);
 	return retSt;
 }
@@ -150,7 +158,7 @@ BaseRedis::RedisReturnST BaseRedis::delKey(const std::string& key, bool delByAyn
 		retSt.m_nInteger = m_redisRep->integer;
 	}
 
-	REDIS_OP_CALLBACK(OP_DEL, key.data(), "", key.length(), 0);
+	REDIS_OP_CALLBACK(OP_DEL, key.data(), "", key.length(), 0, EN_EXPIRE_NULL);
 	freeReplyObject(m_redisRep);
 	return retSt;
 }
@@ -174,7 +182,7 @@ BaseRedis::RedisReturnST BaseRedis::ttl(const std::string& key)
 		retSt.m_nInteger = m_redisRep->integer;
 	}
 
-	REDIS_OP_CALLBACK(OP_TTL, key.data(), "", key.length(), 0);
+	REDIS_OP_CALLBACK(OP_TTL, key.data(), "", key.length(), 0, EN_EXPIRE_NULL);
 	freeReplyObject(m_redisRep);
 	return retSt;
 }

@@ -42,7 +42,7 @@ void RedisCluster::startConnectCluster()
 		boost::shared_ptr<BaseRedis> onceRedis = boost::make_shared<BaseRedis>();
 		onceRedis->setStartCallback(BIND(&RedisCluster::OnStartConnectResult, this, boost::placeholders::_1, boost::placeholders::_2));
 		onceRedis->setOpCallback(BIND(&RedisCluster::OnOpResult, this, boost::placeholders::_1, boost::placeholders::_2,
-			boost::placeholders::_3, boost::placeholders::_4, boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7));
+			boost::placeholders::_3, boost::placeholders::_4, boost::placeholders::_5, boost::placeholders::_6, boost::placeholders::_7, boost::placeholders::_8));
 		onceRedis->setCurServiceSeq(i);
 		onceRedis->start(
 			clusterCfg->m_strIp, 
@@ -108,6 +108,20 @@ void RedisCluster::setxx(const std::string& key, const char* val, uint keySize, 
 	opRedis->setxx(key, val, keySize, valSize);
 }
 
+void RedisCluster::setex(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec)
+{
+	CommonBoost::UniqueLock lock(m_mtxRedisOp);
+	int randIdx = CommonTool::getRandom(0, m_CfgCache->getCurClusterCount() - 1);
+	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[randIdx];
+	if (weakRedis.expired())
+	{
+		LOG_CACHESERVER.printLog("m_vecRedisCluster[%d] expired", randIdx);
+		return;
+	}
+	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
+	opRedis->setex(key, val, keySize, valSize, expireSec);
+}
+
 BaseRedis::RedisReturnST RedisCluster::get(const std::string& key)
 {
 	CommonBoost::UniqueLock lock(m_mtxRedisOp);
@@ -171,6 +185,7 @@ void RedisCluster::OnOpResult(
 	const char* opKeySetVal,
 	uint keySize,
 	uint valSize,
+	uint expireSecSet,
 	bool ok,
 	const char* str
 )
@@ -178,7 +193,7 @@ void RedisCluster::OnOpResult(
 	LOG_CACHESERVER.printLog("opType[%d] opKey[%s] opKeySetVal[%s] keySize[%d] valSize[%d] ok[%d] str[%s]", 
 		opType, opKey, opKeySetVal, keySize, valSize ,ok, str);
 
-	clusterDataCheck_Set(opType, opKey, opKeySetVal, ok, str, keySize, valSize);
+	clusterDataCheck_Set(opType, opKey, opKeySetVal, keySize, valSize, expireSecSet, ok, str);
 }
 
 BaseRedis::RedisReturnST RedisCluster::clusterDataCheck_MOVED(const std::string& checkKey, const BaseRedis::RedisReturnST& checkRetValue, int opRedisFlag)
@@ -223,10 +238,12 @@ void RedisCluster::clusterDataCheck_Set(
 	int opType,
 	const char* opKey,
 	const char* opKeySetVal,
-	bool ok,
-	const char* str,
 	uint keySize,
-	uint valSize)
+	uint valSize,
+	uint expireSecSet,
+	bool ok,
+	const char* str
+)
 {
 	if (opType <= BaseRedis::OP_SET_START || opType >= BaseRedis::OP_SET_END)
 	{
@@ -264,6 +281,9 @@ void RedisCluster::clusterDataCheck_Set(
 		break;
 	case BaseRedis::OP_SETXX:
 		opRedis->setxx(opKey, opKeySetVal, keySize, valSize);
+		break;
+	case BaseRedis::OP_SETEX:
+		opRedis->setex(opKey, opKeySetVal, keySize, valSize, expireSecSet);
 		break;
 	}
 }

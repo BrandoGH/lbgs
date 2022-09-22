@@ -30,6 +30,7 @@ public:
 	void set(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize);
+	void setex(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec);
 	BaseRedis::RedisReturnST get(const std::string& key);
 	bool existsKey(const std::string& key);
 	BaseRedis::RedisReturnST delkey(const std::string& key, bool delByAync = false);
@@ -43,6 +44,7 @@ HANDLER:
 		const char* opKeySetVal,
 		uint keySize,
 		uint valSize,
+		uint expireSecSet,
 		bool ok,
 		const char* str
 		);
@@ -54,10 +56,12 @@ private:
 		int opType,
 		const char* opKey,
 		const char* opKeySetVal,
-		bool ok,
-		const char* str,
 		uint keySize,
-		uint valSize);
+		uint valSize,
+		uint expireSecSet,
+		bool ok,
+		const char* str
+	);
 
 private:
 	std::vector< boost::shared_ptr<BaseRedis> > m_vecRedisCluster;
