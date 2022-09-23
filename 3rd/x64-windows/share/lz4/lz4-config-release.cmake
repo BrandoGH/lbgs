@@ -12,8 +12,8 @@ set_target_properties(lz4::lz4 PROPERTIES
   IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/bin/lz4.dll"
   )
 
-list(APPEND _IMPORT_CHECK_TARGETS lz4::lz4 )
-list(APPEND _IMPORT_CHECK_FILES_FOR_lz4::lz4 "${_IMPORT_PREFIX}/lib/lz4.lib" "${_IMPORT_PREFIX}/bin/lz4.dll" )
+list(APPEND _cmake_import_check_targets lz4::lz4 )
+list(APPEND _cmake_import_check_files_for_lz4::lz4 "${_IMPORT_PREFIX}/lib/lz4.lib" "${_IMPORT_PREFIX}/bin/lz4.dll" )
 
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)
