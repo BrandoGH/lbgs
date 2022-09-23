@@ -1,6 +1,8 @@
 set(CODE_FILE 
 ./main.cpp
-./exampletest.cpp
+./example_timer.cpp
+./example_redis.cpp
+./example_psql.cpp
 ./servercommon/commontooltest.cpp
 ./servercommon/safequeuetest.cpp
 )
@@ -36,6 +38,7 @@ if (WIN32)
 	gmock
 	lua
 	hiredis
+	libpq
 	)
 
 elseif(UNIX)
