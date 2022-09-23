@@ -36,6 +36,7 @@ public:
 	BaseRedis::RedisReturnST delkey(const std::string& key, bool delByAync = false);
 	BaseRedis::RedisReturnST ttl(const std::string& key);
 	BaseRedis::RedisReturnST incr(const std::string& key);		// if error, RedisReturnST.getData have something string
+	BaseRedis::RedisReturnST decr(const std::string& key);		// if error, RedisReturnST.getData have something string
 	void expireKey(const std::string& key, int expireSec);
 
 

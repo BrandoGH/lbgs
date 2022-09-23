@@ -168,14 +168,12 @@ void CacheServer::onRedisClusterConnected(bool ok)
 	if (!ok)
 	{
 		LOG_CACHESERVER.printLog("Redis cluster connected error!!");
+		assert(0);
 		return;
 	}
 	LOG_CACHESERVER.printLog("Redis cluster connected ok---------!!");
 
-	// test code
-	const char* setnxdata = "fe78g0es54f5";
-	m_redisCluster.setxx("k5", setnxdata, 2, strlen(setnxdata));
-	return;
+	
 }
 
 void CacheServer::initInnerClient()
@@ -186,7 +184,7 @@ void CacheServer::initInnerClient()
 	}
 	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 
-	m_pInnerSocket = boost::make_shared<CommonBoost::Socket>(m_innerServer);
+	m_pInnerSocket = boost::make_shared<CommonBoost::Socket>(m_innerServer);	
 	m_pInnerStrand = boost::make_shared<CommonBoost::Strand>(m_innerServer);
 	m_innerEndpoint = CommonBoost::Endpoint(
 		boost::asio::ip::address::from_string(info.ip), info.port
