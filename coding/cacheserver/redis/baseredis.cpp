@@ -113,6 +113,14 @@ void BaseRedis::setex(const std::string& key, const char* val, uint keySize, uin
 	freeReplyObject(m_redisRep);
 }
 
+void BaseRedis::setex_nx(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec)
+{
+	m_redisRep = (redisReply*)redisCommand(m_redisCont, "SET %b %b NX EX %d",
+		key.data(), (size_t)keySize, val, (size_t)valSize, expireSec);
+	REDIS_OP_CALLBACK(OP_SETEX_NX, key.data(), val, keySize, valSize, expireSec);
+	freeReplyObject(m_redisRep);
+}
+
 void BaseRedis::expireKey(const std::string& key, int expireSec)
 {
 	m_redisRep = (redisReply*)redisCommand(m_redisCont, "EXPIRE %s %d", key.data(), expireSec);

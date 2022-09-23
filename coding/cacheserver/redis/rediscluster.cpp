@@ -122,6 +122,20 @@ void RedisCluster::setex(const std::string& key, const char* val, uint keySize, 
 	opRedis->setex(key, val, keySize, valSize, expireSec);
 }
 
+void RedisCluster::setex_nx(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec)
+{
+	CommonBoost::UniqueLock lock(m_mtxRedisOp);
+	int randIdx = CommonTool::getRandom(0, m_CfgCache->getCurClusterCount() - 1);
+	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[randIdx];
+	if (weakRedis.expired())
+	{
+		LOG_CACHESERVER.printLog("m_vecRedisCluster[%d] expired", randIdx);
+		return;
+	}
+	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
+	opRedis->setex_nx(key, val, keySize, valSize, expireSec);
+}
+
 BaseRedis::RedisReturnST RedisCluster::get(const std::string& key)
 {
 	CommonBoost::UniqueLock lock(m_mtxRedisOp);
@@ -336,6 +350,9 @@ void RedisCluster::clusterDataCheck_Set(
 		break;
 	case BaseRedis::OP_SETEX:
 		opRedis->setex(opKey, opKeySetVal, keySize, valSize, expireSecSet);
+		break;
+	case BaseRedis::OP_SETEX_NX:
+		opRedis->setex_nx(opKey, opKeySetVal, keySize, valSize, expireSecSet);
 		break;
 	case BaseRedis::OP_EXPIRE:
 		opRedis->expireKey(opKey,expireSecSet);

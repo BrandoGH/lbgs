@@ -31,6 +31,7 @@ public:
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setex(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec);
+	void setex_nx(const std::string& key, const char* val, uint keySize, uint valSize, int expireSec);
 	BaseRedis::RedisReturnST get(const std::string& key);
 	bool existsKey(const std::string& key);
 	BaseRedis::RedisReturnST delkey(const std::string& key, bool delByAync = false);

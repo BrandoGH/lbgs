@@ -172,8 +172,6 @@ void CacheServer::onRedisClusterConnected(bool ok)
 		return;
 	}
 	LOG_CACHESERVER.printLog("Redis cluster connected ok---------!!");
-
-	
 }
 
 void CacheServer::initInnerClient()
