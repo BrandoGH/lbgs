@@ -50,6 +50,7 @@ public:
 		OP_GET,
 		OP_DEL,
 		OP_TTL,
+		OP_INCR,
 	};
 
 	enum EnKeyExpire
@@ -108,6 +109,7 @@ public:
 	BaseRedis::RedisReturnST get(const std::string& key);
 	BaseRedis::RedisReturnST delKey(const std::string& key, bool delByAync = false);
 	BaseRedis::RedisReturnST ttl(const std::string& key);
+	BaseRedis::RedisReturnST incr(const std::string& key);
 
 HANDLER:
 	void onThreadStart(

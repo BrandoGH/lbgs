@@ -179,6 +179,24 @@ BaseRedis::RedisReturnST RedisCluster::ttl(const std::string& key)
 	return clusterDataCheck_MOVED(key, retSt, BaseRedis::OP_TTL);
 }
 
+BaseRedis::RedisReturnST RedisCluster::incr(const std::string& key)
+{
+	CommonBoost::UniqueLock lock(m_mtxRedisOp);
+	BaseRedis::RedisReturnST retSt;
+	int randIdx = (m_nTTLIndex > -1 ?
+		m_nTTLIndex :
+		CommonTool::getRandom(0, m_CfgCache->getCurClusterCount() - 1));
+	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[randIdx];
+	if (weakRedis.expired())
+	{
+		LOG_CACHESERVER.printLog("m_vecRedisCluster[%d] expired", randIdx);
+		return retSt;
+	}
+	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
+	retSt = opRedis->incr(key);
+	return clusterDataCheck_MOVED(key, retSt, BaseRedis::OP_INCR);
+}
+
 void RedisCluster::expireKey(const std::string& key, int expireSec)
 {
 	CommonBoost::UniqueLock lock(m_mtxRedisOp);
@@ -242,6 +260,9 @@ BaseRedis::RedisReturnST RedisCluster::clusterDataCheck_MOVED(const std::string&
 		break;
 	case BaseRedis::OP_TTL:
 		retSt = opRedis->ttl(checkKey);
+		break;
+	case BaseRedis::OP_INCR:
+		retSt = opRedis->incr(checkKey);
 		break;
 	}
 
