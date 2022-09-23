@@ -54,5 +54,6 @@ elseif(UNIX)
  	libboost_chrono.a
 	liblua.a
 	libhiredis.a
+	libpq.a
 	)
 endif()
