@@ -1,4 +1,5 @@
-prefix=/home/opt/vcpkg/packages/hiredis_x64-linux
+prefix=${pcfiledir}/../..
+
 install_libdir=lib
 exec_prefix=${prefix}
 libdir=${exec_prefix}/${install_libdir}
@@ -8,5 +9,5 @@ pkgincludedir=${includedir}/hiredis
 Name: hiredis
 Description: Minimalistic C client library for Redis.
 Version: 1.0.2
-Libs: -L${libdir} -lhiredis
-Cflags: -I${pkgincludedir} -D_FILE_OFFSET_BITS=64
+Libs: -L"${libdir}" -lhiredis
+Cflags: -I"${pkgincludedir}" -D_FILE_OFFSET_BITS=64
