@@ -55,9 +55,9 @@ elseif(UNIX)
 	liblua.a
 	libhiredis.a
 	libpq.a
-  libpgcommon.a
-  libpgport.a
-  libssl.a
-  dl
+	libpgcommon.a
+	libpgport.a
+	libssl.a
+	dl
 	)
 endif()
