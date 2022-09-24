@@ -1,11 +1,17 @@
 set(CODE_FILE 
 main.cpp
-./src/mainwidget.h
-./src/mainwidget.cpp
-./src/connectwidget/connectwidget.h
-./src/connectwidget/connectwidget.cpp
-./src/connectwidget/user.h
-./src/connectwidget/user.cpp
+# this code has deprecated
+./src_deprecated/mainwidget.h
+./src_deprecated/mainwidget.cpp
+./src_deprecated/connectwidget/connectwidget.h
+./src_deprecated/connectwidget/connectwidget.cpp
+./src_deprecated/connectwidget/user.h
+./src_deprecated/connectwidget/user.cpp
+# this code has deprecated
+
+./src/mainwindow.h
+./src/mainwindow.cpp
+
 
 )
 

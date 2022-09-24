@@ -1,4 +1,4 @@
-#include "src/mainwidget.h"
+#include "src/mainwindow.h"
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/basedef.h>
 #include <servercommon/sysinfomodule/minidump/minidump.h>
@@ -14,8 +14,8 @@ int main(int argc, char* argv[])
 	assert(LbgsMinisDump::autoDump() != NULL);
 	QApplication app(argc, argv);
 
-	MainWidget mw;
-	mw.show();
+	/*MainWidget mw;
+	mw.show();*/
 
 	/*QUiLoader loader;
 	QFile file("F:\\code\\lbgs\\coding\\simulationclient\\test.ui");
