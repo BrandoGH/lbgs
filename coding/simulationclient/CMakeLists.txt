@@ -9,11 +9,14 @@ main.cpp
 ./src_deprecated/connectwidget/user.cpp
 # this code has deprecated
 
-./src/mainwindow.h
-./src/mainwindow.cpp
-
-
+./src/mainwindowobj.h
+./src/mainwindowobj.cpp
 )
+
+add_definitions(
+-DUI_FILE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/src/ui/\"
+)
+
 
 set(BIN_NAME simulationclient)
 
