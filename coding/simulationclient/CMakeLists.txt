@@ -48,6 +48,7 @@ target_link_libraries(${BIN_NAME}
 	Qt5Widgets
 	Qt5gui
 	Qt5NetWork
+	Qt5UiTools
 )
 
 
