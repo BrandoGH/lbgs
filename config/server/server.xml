@@ -61,6 +61,16 @@
 				<auth_password>123456</auth_password>
 			</data>
 		</cluster_server_list>
-		
 	</cacheserver>
+	
+	<dbserver>
+		<data>
+			<ip>192.168.43.122</ip>
+			<port>5432</port>
+			<username>postgres</username>
+			<dbname>postgres</dbname>
+			<password>123456</password>
+		</data>
+	</dbserver>
+	
 </config>
