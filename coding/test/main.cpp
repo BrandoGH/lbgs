@@ -7,7 +7,7 @@ TEST(main_test, test)
 {
 	// example code 
 	printf_color(PRINTF_YELLOW, "-----------------------------------------------  main_test_start ----------------------------------------------\n");
-	printf_color(PRINTF_YELLOW, "// You can write your test code here , such as \"hello world !!\" \n");
+	printf_color(PRINTF_YELLOW, "// You can write your test code here(local temp) , such as \"hello world !!\" \n");
 
 
 	printf_color(PRINTF_YELLOW, "-----------------------------------------------  main_test_end   ----------------------------------------------\n");
