@@ -9,6 +9,8 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QPlainTextEdit>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QStackedWidget>
 #include "QtCore/QTimer"
 #include "msgmodule/msgcommondef.h"
 #include "logicserver/communicationmsg/msgheart.h"
@@ -53,6 +55,9 @@ MainWindowObj::MainWindowObj(QObject* parent)
 	, m_pSendDataTimer(NULL)
 	, m_bServerLittleStoreMode(false)
 	, m_pSendData(NULL)
+	, m_acCommunication(NULL)
+	, m_acPending(NULL)
+	, m_stackWidget(NULL)
 {
 	loadMainWindow();
 	initTimer();
@@ -68,6 +73,8 @@ MainWindowObj::MainWindowObj(QObject* parent)
 	connect(m_combMsgType, SIGNAL(currentIndexChanged(int)),
 		this, SLOT(onCurrentIndexChanged(int)));
 	connect(m_cbLoopSend, SIGNAL(stateChanged(int)), this, SLOT(onStateChanged(int)));
+	connect(m_acCommunication, SIGNAL(triggered(bool)), this, SLOT(onTriggeredCommunication(bool)));
+	connect(m_acPending, SIGNAL(triggered(bool)), this, SLOT(onTriggeredPending(bool)));
 }
 
 MainWindowObj::~MainWindowObj()
@@ -227,6 +234,22 @@ void MainWindowObj::onStateChanged(int status)
 	}
 }
 
+void MainWindowObj::onTriggeredCommunication(bool checked)
+{
+	if (m_stackWidget)
+	{
+		m_stackWidget->setCurrentIndex(SW_Communication);
+	}
+}
+
+void MainWindowObj::onTriggeredPending(bool checked)
+{
+	if (m_stackWidget)
+	{
+		m_stackWidget->setCurrentIndex(SW_Pending);
+	}
+}
+
 void MainWindowObj::onOnceClientConnected(uint clientId)
 {
 	SIM_CLIENT_LOG(QString("client[%1] has connected").arg(clientId));
@@ -278,18 +301,30 @@ void MainWindowObj::loadMainWindow()
 	m_mw = (QMainWindow*)uiLoader.load(&uiFile);
 	uiFile.close();
 
-	m_lineIp = m_mw->findChild<QLineEdit*>("lineEdit_ip");
-	m_linePort = m_mw->findChild<QLineEdit*>("lineEdit_port");
-	m_lineLinkCount = m_mw->findChild<QLineEdit*>("lineEdit_linkCount");
-	m_btConnect = m_mw->findChild<QPushButton*>("pushButton_connect");
-	m_btDisconnect = m_mw->findChild<QPushButton*>("pushButton_disconnect");
-	m_cbLoopSend = m_mw->findChild<QCheckBox*>("checkBox_loopSendData");
-	m_lineSendInterval = m_mw->findChild<QLineEdit*>("lineEdit_sendDataInterval");
-	m_combMsgType = m_mw->findChild<QComboBox*>("comboBox_msgType");
-	m_btSend = m_mw->findChild<QPushButton*>("pushButton_sendData");
-	m_ptDataText = m_mw->findChild<QPlainTextEdit*>("plainTextEdit_msgData");
-	m_btClearLog = m_mw->findChild<QPushButton*>("pushButton_clearLog");
-	m_ptLog = m_mw->findChild<QPlainTextEdit*>("plainTextEdit_log");
+	if (m_mw)
+	{
+		m_lineIp = m_mw->findChild<QLineEdit*>("lineEdit_ip");
+		m_linePort = m_mw->findChild<QLineEdit*>("lineEdit_port");
+		m_lineLinkCount = m_mw->findChild<QLineEdit*>("lineEdit_linkCount");
+		m_btConnect = m_mw->findChild<QPushButton*>("pushButton_connect");
+		m_btDisconnect = m_mw->findChild<QPushButton*>("pushButton_disconnect");
+		m_cbLoopSend = m_mw->findChild<QCheckBox*>("checkBox_loopSendData");
+		m_lineSendInterval = m_mw->findChild<QLineEdit*>("lineEdit_sendDataInterval");
+		m_combMsgType = m_mw->findChild<QComboBox*>("comboBox_msgType");
+		m_btSend = m_mw->findChild<QPushButton*>("pushButton_sendData");
+		m_ptDataText = m_mw->findChild<QPlainTextEdit*>("plainTextEdit_msgData");
+		m_btClearLog = m_mw->findChild<QPushButton*>("pushButton_clearLog");
+		m_ptLog = m_mw->findChild<QPlainTextEdit*>("plainTextEdit_log");
+		m_stackWidget = m_mw->findChild<QStackedWidget*>("stackedWidget");
+		m_acCommunication = m_mw->findChild<QAction*>("actionCommunication");
+		m_acPending = m_mw->findChild<QAction*>("actionPending");
+	}
+
+	if (m_stackWidget)
+	{
+		m_stackWidget->setCurrentIndex(SW_Communication);
+	}
+	
 }
 
 void MainWindowObj::initTimer()

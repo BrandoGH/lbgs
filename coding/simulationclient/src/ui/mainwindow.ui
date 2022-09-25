@@ -328,7 +328,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_2"/>
+      <widget class="QWidget" name="page_Pending"/>
      </widget>
     </item>
    </layout>
@@ -347,6 +347,7 @@
      <string>Test Type</string>
     </property>
     <addaction name="actionCommunication"/>
+    <addaction name="actionPending"/>
    </widget>
    <addaction name="menuCommunication"/>
   </widget>
@@ -354,6 +355,11 @@
   <action name="actionCommunication">
    <property name="text">
     <string>Communication</string>
+   </property>
+  </action>
+  <action name="actionPending">
+   <property name="text">
+    <string>Pending......</string>
    </property>
   </action>
  </widget>

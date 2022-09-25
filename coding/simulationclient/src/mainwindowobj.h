@@ -11,6 +11,8 @@ class QCheckBox;
 class QComboBox;
 class QPlainTextEdit;
 class QTimer;
+class QAction;
+class QStackedWidget;
 
 class MainWindowObj : public QObject
 {
@@ -21,6 +23,12 @@ public:
 	{
 		TYPE_TEXT,
 		TYPE_HEART,
+	};
+
+	enum EnStackWidgetIndex
+	{
+		SW_Communication,
+		SW_Pending,
 	};
 
 public:
@@ -40,7 +48,8 @@ private slots:
 	void onSendClicked(bool checked);
 	void onCurrentIndexChanged(int index);
 	void onStateChanged(int status);
-
+	void onTriggeredCommunication(bool checked);
+	void onTriggeredPending(bool checked);
 	// client
 	void onOnceClientConnected(uint clientId);
 	void onError(uint clientId, int eCode);
@@ -73,6 +82,10 @@ private:
 
 	QPushButton* m_btClearLog;
 	QPlainTextEdit* m_ptLog;
+
+	QStackedWidget* m_stackWidget;
+	QAction* m_acCommunication;
+	QAction* m_acPending;
 
 	QVector<QSharedPointer<Client>> m_vecClient;
 	uint m_nClientId;
