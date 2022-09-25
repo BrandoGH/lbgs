@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1180</width>
+    <width>1311</width>
     <height>841</height>
    </rect>
   </property>
@@ -17,6 +17,9 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="page_communication">
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
@@ -225,7 +228,7 @@
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>934</width>
+                <width>1065</width>
                 <height>20</height>
                </size>
               </property>
@@ -242,6 +245,15 @@
                </font>
               </property>
               <property name="plainText">
+               <string>Send text,if send type is not Text,will be show msg structure here</string>
+              </property>
+              <property name="backgroundVisible">
+               <bool>false</bool>
+              </property>
+              <property name="centerOnScroll">
+               <bool>false</bool>
+              </property>
+              <property name="placeholderText">
                <string/>
               </property>
              </widget>
@@ -283,7 +295,7 @@
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>1040</width>
+                <width>1171</width>
                 <height>20</height>
                </size>
               </property>
@@ -305,6 +317,9 @@
               <property name="plainText">
                <string/>
               </property>
+              <property name="placeholderText">
+               <string/>
+              </property>
              </widget>
             </item>
            </layout>
@@ -323,7 +338,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1180</width>
+     <width>1311</width>
      <height>23</height>
     </rect>
    </property>

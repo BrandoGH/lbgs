@@ -1,16 +1,9 @@
 set(CODE_FILE 
 main.cpp
-# this code has deprecated
-./src_deprecated/mainwidget.h
-./src_deprecated/mainwidget.cpp
-./src_deprecated/connectwidget/connectwidget.h
-./src_deprecated/connectwidget/connectwidget.cpp
-./src_deprecated/connectwidget/user.h
-./src_deprecated/connectwidget/user.cpp
-# this code has deprecated
-
 ./src/mainwindowobj.h
 ./src/mainwindowobj.cpp
+./src/client.h
+./src/client.cpp
 )
 
 add_definitions(

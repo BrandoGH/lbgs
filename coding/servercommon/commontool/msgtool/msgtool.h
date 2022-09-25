@@ -25,7 +25,7 @@ bool isBytesDataEQ(const byte* data1, const byte* data2, uint len);
 /*
 	Currently only supports low byte storage server environment, high and low byte byte storage is converted to each other
 */
-// w byte -> high byte [currently only supports two bytes and four bytes] [if it is a big endian system, this function is high byte -> low byte]
+// low byte -> high byte [currently only supports two bytes and four bytes] [if it is a big endian system, this function is high byte -> low byte]
 template<class InputNumType, class ByteArrayType>
 bool byteSeqTransformN2B(InputNumType num, ByteArrayType& outByte)
 {
