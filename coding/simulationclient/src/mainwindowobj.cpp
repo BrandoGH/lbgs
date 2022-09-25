@@ -56,7 +56,10 @@ MainWindowObj::MainWindowObj(QObject* parent)
 {
 	loadMainWindow();
 	initTimer();
+
 	m_msgSendData.setRawData(g_strDefaultSendText, strlen(g_strDefaultSendText));
+	m_btConnect->setEnabled(true);
+	m_btDisconnect->setEnabled(false);
 
 	connect(m_btConnect, SIGNAL(clicked(bool)), this, SLOT(onConnectBtClicked(bool)));
 	connect(m_btDisconnect, SIGNAL(clicked(bool)), this, SLOT(onDisconnectBtClicked(bool)));
@@ -118,6 +121,9 @@ void MainWindowObj::onConnectBtClicked(bool checked)
 		return;
 	}
 
+	m_btConnect->setEnabled(false);
+	m_btDisconnect->setEnabled(true);
+
 	for (int i = 0; i < getLinkCount(); ++i)
 	{
 		QSharedPointer<Client> client(new Client(getIpAddress(), getPort(), this));
@@ -137,6 +143,8 @@ void MainWindowObj::onDisconnectBtClicked(bool checked)
 {
 	m_nClientId = 0;
 	m_vecClient.clear();
+	m_btConnect->setEnabled(true);
+	m_btDisconnect->setEnabled(false);
 	SIM_CLIENT_LOG("all client has disconnect");
 }
 
