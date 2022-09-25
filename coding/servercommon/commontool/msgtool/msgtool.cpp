@@ -58,6 +58,9 @@ const std::string getMsgHeaderFlagString(int flag)
 	case MsgHeader::F_CACHESERVER:
 		retString = "CacheServer";
 		break;
+	case MsgHeader::F_DBSERVER:
+		retString = "DBServer";
+		break;
 	default:
 		retString = "NULL";
 		break;

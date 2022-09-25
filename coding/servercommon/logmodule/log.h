@@ -92,6 +92,7 @@ extern LogModule g_logServerCommonConfig;
 extern LogModule g_logProxyServer;
 extern LogModule g_logLogicServer;
 extern LogModule g_logCacheServer;
+extern LogModule g_logDBServer;
 }
 
 #endif // !__LOG_H__

@@ -11,6 +11,7 @@ namespace SingleToProxyMsgHandler
 extern byte g_GateSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
 extern byte g_LogicSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
 extern byte g_CacheSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
+extern byte g_DBSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
 
 typedef void(*HandlerFunc)(const byte* objServer, byte* data, uint dataSize);
 

@@ -48,6 +48,7 @@ namespace SingleToProxyMsgHandler
 byte g_GateSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
 byte g_LogicSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
 byte g_CacheSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
+byte g_DBSendProxy[sizeof(MsgHeader) + sizeof(MsgInHeartCS)];
 
 void onHandlerGPHeartCS(const byte* objServer, byte* data, uint dataSize)
 {

@@ -21,6 +21,7 @@ struct MsgHeader
 		F_GATESERVER,		// Gate
 		F_LOGICSERVER,		// Logic
 		F_CACHESERVER,		// Cache
+		F_DBSERVER,			// database
 
 		F_MAX,
 	};
@@ -78,14 +79,17 @@ BOOST_STATIC_ASSERT(sizeof(MsgEnder) == 16);
 enum EnMsgType
 {
 	// gateserver - proxyserver heart
-	MSG_TYPE_GATE_PROXY_HEART_GP = 0,
-	MSG_TYPE_GATE_PROXY_HEART_PG = 1,
+	MSG_TYPE_GATE_PROXY_HEART_GP			= 0,
+	MSG_TYPE_GATE_PROXY_HEART_PG			= 1,
 	// logicserver - proxyserver heart
-	MSG_TYPE_LOGIC_PROXY_HEART_LP = 2,
-	MSG_TYPE_LOGIC_PROXY_HEART_PL = 3,
+	MSG_TYPE_LOGIC_PROXY_HEART_LP			= 2,
+	MSG_TYPE_LOGIC_PROXY_HEART_PL			= 3,
 	// cacheserver - proxyserver heart
-	MSG_TYPE_CACHE_PROXY_HEART_CP = 4,
-	MSG_TYPE_CACHE_PROXY_HEART_PC = 5,
+	MSG_TYPE_CACHE_PROXY_HEART_CP			= 4,
+	MSG_TYPE_CACHE_PROXY_HEART_PC			= 5,
+	// dbserver - proxyserver heart
+	MSG_TYPE_DB_PROXY_HEART_CP				= 6,
+	MSG_TYPE_DB_PROXY_HEART_PC				= 7,
 
 	MSG_IN_TYPE_MAX,
 
