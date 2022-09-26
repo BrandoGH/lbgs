@@ -56,25 +56,14 @@ MainWindowObj::MainWindowObj(QObject* parent)
 	, m_bServerLittleStoreMode(false)
 	, m_pSendData(NULL)
 	, m_acCommunication(NULL)
-	, m_acPending(NULL)
+	, m_acGameLogin(NULL)
 	, m_stackWidget(NULL)
+	, m_acUIHotReload(NULL)
 {
 	loadMainWindow();
 	initTimer();
 
 	m_msgSendData.setRawData(g_strDefaultSendText, strlen(g_strDefaultSendText));
-	m_btConnect->setEnabled(true);
-	m_btDisconnect->setEnabled(false);
-
-	connect(m_btConnect, SIGNAL(clicked(bool)), this, SLOT(onConnectBtClicked(bool)));
-	connect(m_btDisconnect, SIGNAL(clicked(bool)), this, SLOT(onDisconnectBtClicked(bool)));
-	connect(m_btClearLog, SIGNAL(clicked(bool)), this, SLOT(onClearLog(bool)));
-	connect(m_btSend, SIGNAL(clicked(bool)), this, SLOT(onSendClicked(bool)));
-	connect(m_combMsgType, SIGNAL(currentIndexChanged(int)),
-		this, SLOT(onCurrentIndexChanged(int)));
-	connect(m_cbLoopSend, SIGNAL(stateChanged(int)), this, SLOT(onStateChanged(int)));
-	connect(m_acCommunication, SIGNAL(triggered(bool)), this, SLOT(onTriggeredCommunication(bool)));
-	connect(m_acPending, SIGNAL(triggered(bool)), this, SLOT(onTriggeredPending(bool)));
 }
 
 MainWindowObj::~MainWindowObj()
@@ -86,6 +75,14 @@ void MainWindowObj::show()
 	if (m_mw)
 	{
 		m_mw->show();
+	}
+}
+
+void MainWindowObj::hide()
+{
+	if (m_mw)
+	{
+		m_mw->hide();
 	}
 }
 
@@ -238,16 +235,24 @@ void MainWindowObj::onTriggeredCommunication(bool checked)
 {
 	if (m_stackWidget)
 	{
-		m_stackWidget->setCurrentIndex(SW_Communication);
+		m_stackWidget->setCurrentIndex(SW_COMMUNICATION);
 	}
 }
 
-void MainWindowObj::onTriggeredPending(bool checked)
+void MainWindowObj::onTriggeredGameLogin(bool checked)
 {
 	if (m_stackWidget)
 	{
-		m_stackWidget->setCurrentIndex(SW_Pending);
+		m_stackWidget->setCurrentIndex(SW_GAME_LOGIN);
 	}
+}
+
+void MainWindowObj::onTriggeredUIHotReload(bool checked)
+{
+	hide();
+	loadMainWindow();
+	show();
+	qDebug() << "UI Hot Reload Success!!";
 }
 
 void MainWindowObj::onOnceClientConnected(uint clientId)
@@ -317,12 +322,29 @@ void MainWindowObj::loadMainWindow()
 		m_ptLog = m_mw->findChild<QPlainTextEdit*>("plainTextEdit_log");
 		m_stackWidget = m_mw->findChild<QStackedWidget*>("stackedWidget");
 		m_acCommunication = m_mw->findChild<QAction*>("actionCommunication");
-		m_acPending = m_mw->findChild<QAction*>("actionPending");
+		m_acGameLogin = m_mw->findChild<QAction*>("actionGameLogin");
+		m_acUIHotReload = m_mw->findChild<QAction*>("actionUIHotReload");
+
+		if (m_btConnect && m_btDisconnect)
+		{
+			m_btConnect->setEnabled(true);
+			m_btDisconnect->setEnabled(false);
+		}
+		connect(m_btConnect, SIGNAL(clicked(bool)), this, SLOT(onConnectBtClicked(bool)));
+		connect(m_btDisconnect, SIGNAL(clicked(bool)), this, SLOT(onDisconnectBtClicked(bool)));
+		connect(m_btClearLog, SIGNAL(clicked(bool)), this, SLOT(onClearLog(bool)));
+		connect(m_btSend, SIGNAL(clicked(bool)), this, SLOT(onSendClicked(bool)));
+		connect(m_combMsgType, SIGNAL(currentIndexChanged(int)),
+			this, SLOT(onCurrentIndexChanged(int)));
+		connect(m_cbLoopSend, SIGNAL(stateChanged(int)), this, SLOT(onStateChanged(int)));
+		connect(m_acCommunication, SIGNAL(triggered(bool)), this, SLOT(onTriggeredCommunication(bool)));
+		connect(m_acGameLogin, SIGNAL(triggered(bool)), this, SLOT(onTriggeredGameLogin(bool)));
+		connect(m_acUIHotReload, SIGNAL(triggered(bool)), this, SLOT(onTriggeredUIHotReload(bool)));
 	}
 
 	if (m_stackWidget)
 	{
-		m_stackWidget->setCurrentIndex(SW_Communication);
+		m_stackWidget->setCurrentIndex(SW_COMMUNICATION);
 	}
 	
 }

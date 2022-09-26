@@ -6,22 +6,88 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1311</width>
-    <height>841</height>
+    <width>1305</width>
+    <height>881</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>simulation client v1.0</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="1" column="0">
+     <widget class="QGroupBox" name="groupBox_6">
+      <property name="font">
+       <font>
+        <family>微软雅黑</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>log</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="1">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>1171</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton_clearLog">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Clear</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QPlainTextEdit" name="plainTextEdit_log">
+         <property name="font">
+          <font>
+           <family>微软雅黑</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="plainText">
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_communication">
-       <layout class="QGridLayout" name="gridLayout">
+       <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
          <widget class="QGroupBox" name="groupBox">
           <property name="font">
@@ -170,165 +236,216 @@
          </widget>
         </item>
         <item row="1" column="0" colspan="2">
-         <widget class="QSplitter" name="splitter">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="title">
+           <string/>
           </property>
-          <widget class="QGroupBox" name="groupBox_5">
-           <property name="title">
-            <string/>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <widget class="QComboBox" name="comboBox_msgType">
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>微软雅黑</family>
-                <pointsize>10</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <item>
-               <property name="text">
-                <string>Text</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Heart</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="pushButton_sendData">
-              <property name="font">
-               <font>
-                <family>微软雅黑</family>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QComboBox" name="comboBox_msgType">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>微软雅黑</family>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <item>
               <property name="text">
-               <string>Send</string>
+               <string>Text</string>
               </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>1065</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="0" colspan="3">
-             <widget class="QPlainTextEdit" name="plainTextEdit_msgData">
-              <property name="font">
-               <font>
-                <family>微软雅黑</family>
-                <pointsize>10</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="plainText">
-               <string>Send text,if send type is not Text,will be show msg structure here</string>
-              </property>
-              <property name="backgroundVisible">
-               <bool>false</bool>
-              </property>
-              <property name="centerOnScroll">
-               <bool>false</bool>
-              </property>
-              <property name="placeholderText">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QGroupBox" name="groupBox_6">
-           <property name="font">
-            <font>
-             <family>微软雅黑</family>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="title">
-            <string>log</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <item row="0" column="0">
-             <widget class="QPushButton" name="pushButton_clearLog">
-              <property name="font">
-               <font>
-                <family>微软雅黑</family>
-                <pointsize>10</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
+             </item>
+             <item>
               <property name="text">
-               <string>Clear</string>
+               <string>Heart</string>
               </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>1171</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="QPlainTextEdit" name="plainTextEdit_log">
-              <property name="font">
-               <font>
-                <family>微软雅黑</family>
-                <pointsize>10</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-              <property name="plainText">
-               <string/>
-              </property>
-              <property name="placeholderText">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="pushButton_sendData">
+             <property name="font">
+              <font>
+               <family>微软雅黑</family>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Send</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>1065</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="0" colspan="3">
+            <widget class="QPlainTextEdit" name="plainTextEdit_msgData">
+             <property name="font">
+              <font>
+               <family>微软雅黑</family>
+               <pointsize>10</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="plainText">
+              <string>Send text,if send type is not Text,will be show msg structure here</string>
+             </property>
+             <property name="backgroundVisible">
+              <bool>false</bool>
+             </property>
+             <property name="centerOnScroll">
+              <bool>false</bool>
+             </property>
+             <property name="placeholderText">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_Pending"/>
+      <widget class="QWidget" name="page_gameLogin">
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>20</y>
+          <width>351</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>14</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="text">
+         <string>Login with LBGC</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_loginName">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>110</y>
+          <width>331</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+          <underline>false</underline>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>User Name</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_loginPassword">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>180</y>
+          <width>331</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+          <underline>false</underline>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>Password</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_login">
+        <property name="geometry">
+         <rect>
+          <x>140</x>
+          <y>280</y>
+          <width>161</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Login Now</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_register">
+        <property name="geometry">
+         <rect>
+          <x>320</x>
+          <y>230</y>
+          <width>81</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>register</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -338,7 +455,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1311</width>
+     <width>1305</width>
      <height>23</height>
     </rect>
    </property>
@@ -347,9 +464,16 @@
      <string>Test Type</string>
     </property>
     <addaction name="actionCommunication"/>
-    <addaction name="actionPending"/>
+    <addaction name="actionGameLogin"/>
+   </widget>
+   <widget class="QMenu" name="menuMore">
+    <property name="title">
+     <string>More</string>
+    </property>
+    <addaction name="actionUIHotReload"/>
    </widget>
    <addaction name="menuCommunication"/>
+   <addaction name="menuMore"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionCommunication">
@@ -357,9 +481,14 @@
     <string>Communication</string>
    </property>
   </action>
-  <action name="actionPending">
+  <action name="actionGameLogin">
    <property name="text">
-    <string>Pending......</string>
+    <string>Game login simulation</string>
+   </property>
+  </action>
+  <action name="actionUIHotReload">
+   <property name="text">
+    <string>UI Hot Reload</string>
    </property>
   </action>
  </widget>

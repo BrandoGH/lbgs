@@ -27,8 +27,8 @@ public:
 
 	enum EnStackWidgetIndex
 	{
-		SW_Communication,
-		SW_Pending,
+		SW_COMMUNICATION,
+		SW_GAME_LOGIN,
 	};
 
 public:
@@ -36,6 +36,7 @@ public:
 	~MainWindowObj();
 
 	void show();
+	void hide();
 
 	QString getIpAddress();
 	uint getPort();
@@ -49,7 +50,9 @@ private slots:
 	void onCurrentIndexChanged(int index);
 	void onStateChanged(int status);
 	void onTriggeredCommunication(bool checked);
-	void onTriggeredPending(bool checked);
+	void onTriggeredGameLogin(bool checked);
+	void onTriggeredUIHotReload(bool checked);
+
 	// client
 	void onOnceClientConnected(uint clientId);
 	void onError(uint clientId, int eCode);
@@ -85,7 +88,8 @@ private:
 
 	QStackedWidget* m_stackWidget;
 	QAction* m_acCommunication;
-	QAction* m_acPending;
+	QAction* m_acGameLogin;
+	QAction* m_acUIHotReload;
 
 	QVector<QSharedPointer<Client>> m_vecClient;
 	uint m_nClientId;
