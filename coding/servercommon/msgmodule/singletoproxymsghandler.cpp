@@ -80,6 +80,16 @@ void onHandlerPCHeartSC(const byte* objServer, byte* data, uint dataSize)
 	MSG_SC_CODE_MODE(LOG_CACHESERVER)
 }
 
+void onHandlerDPHeartCS(const byte* objServer, byte* data, uint dataSize)
+{
+	sendProxyHeartInfo(g_DBSendProxy, MSG_TYPE_DB_PROXY_HEART_DP, MsgHeader::F_DBSERVER);
+}
+
+void onHandlerPDHeartSC(const byte* objServer, byte* data, uint dataSize)
+{
+	MSG_SC_CODE_MODE(LOG_DBSERVER)
+}
+
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 {
@@ -89,6 +99,8 @@ HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 	onHandlerPLHeartSC,
 	onHandlerCPHeartCS,
 	onHandlerPCHeartSC,
+	onHandlerDPHeartCS,
+	onHandlerPDHeartSC,
 };
 
 void callHandler(int msgType, const byte* objServer, byte* data, uint dataSize)

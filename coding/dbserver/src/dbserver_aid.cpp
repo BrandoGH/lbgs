@@ -27,7 +27,7 @@ void TimerDBProxySrvHeart::timeoutRun()
 		return;
 	}
 	SingleToProxyMsgHandler::callHandler(
-		MSG_TYPE_DB_PROXY_HEART_CP,
+		MSG_TYPE_DB_PROXY_HEART_DP,
 	(const byte*)m_pDBServer,
 	NULL,
 	0);

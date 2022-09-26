@@ -21,6 +21,8 @@ void onHandlerLPHeartCS(const byte* objServer, byte* data, uint dataSize);
 void onHandlerPLHeartSC(const byte* objServer, byte* data, uint dataSize);
 void onHandlerCPHeartCS(const byte* objServer, byte* data, uint dataSize);
 void onHandlerPCHeartSC(const byte* objServer, byte* data, uint dataSize);
+void onHandlerDPHeartCS(const byte* objServer, byte* data, uint dataSize);
+void onHandlerPDHeartSC(const byte* objServer, byte* data, uint dataSize);
 
 void callHandler(int msgType, const byte* objServer, byte* data, uint dataSize);
 }
