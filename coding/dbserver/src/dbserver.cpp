@@ -1,4 +1,4 @@
-#include "DBServer.h"
+#include "dbserver.h"
 
 #include <configmodule/configmanager.h>
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
