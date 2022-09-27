@@ -12,4 +12,7 @@ pkill logicserver
 echo "cacheserver stoping...."
 pkill cacheserver
 
+echo "dbserver stoping...."
+pkill dbserver
+
 echo "stop all server succ!!"

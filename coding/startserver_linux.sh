@@ -19,6 +19,10 @@ echo "start cacheserver......"
 nohup ./exe/cacheserver > ../build/exe/err_cacheserver.log 2>&1 &
 echo "cacheserver started!!!"
 
+echo "start dbserver......"
+nohup ./exe/dbserver > ../build/exe/err_dbserver.log 2>&1 &
+echo "dbserver started!!!"
+
 
 echo "all server start succ!!!!!"
 
