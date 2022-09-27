@@ -2,11 +2,16 @@ set(CODE_FILE
 main.cpp
 src/logicserver.h
 src/logicserver.cpp
+src/globallogicserver.h
+src/globallogicserver.cpp
 src/logicserver_aid.h
 src/logicserver_aid.cpp
 msghandler/logicmsghandler.h
 msghandler/logicmsghandler.cpp
 communicationmsg/msgheart.h
+communicationmsg/msglogin.h
+rolemanager/rolemanager.h
+rolemanager/rolemanager.cpp
 )
 set(BIN_NAME logicserver)
 
@@ -40,6 +45,7 @@ if (WIN32)
 	boost_thread-vc140-mt
 	boost_regex-vc140-mt
 	boost_program_options-vc140-mt
+	boost_serialization-vc140-mt
 	)
 
 elseif(UNIX)
@@ -55,6 +61,7 @@ elseif(UNIX)
  	libcrypto.a
  	libboost_filesystem.a
 	libboost_chrono.a
+	libboost_serialization.a
 	dl
 	)
 endif()

@@ -12,6 +12,8 @@ typedef void(*HandlerFunc)(LogicServer* pLogicServer, byte* data, uint dataSize)
 
 void onClientHeartCS(LogicServer* pLogicServer, byte* data, uint dataSize);
 void onClientHeartSC(LogicServer* pLogicServer, byte* data, uint dataSize);
+void onClientLoginCS(LogicServer* pLogicServer, byte* data, uint dataSize);
+void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize);
 
 void callHandler(int msgType, LogicServer* pLogicServer, byte* data, uint dataSize);
 }

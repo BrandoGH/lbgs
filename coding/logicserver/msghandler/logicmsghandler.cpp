@@ -1,6 +1,8 @@
 #include "logicmsghandler.h"
 #include "src/logicserver.h"
 #include "communicationmsg/msgheart.h"
+#include "communicationmsg/msglogin.h"
+#include "src/globallogicserver.h"
 
 #include <logmodule/logdef.h>
 #include <commontool/msgtool/msgtool.h>
@@ -52,12 +54,45 @@ void onClientHeartSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 	pLogicServer->sendToProxySrv(sendDataArr, sizeof(MsgHeader) + sizeof(MsgHeartSC));
 }
 
+void onClientLoginCS(LogicServer* pLogicServer, byte* data, uint dataSize)
+{
+	if (!pLogicServer || !data)
+	{
+		LOG_LOGICSERVER.printLog("Pointer NULL");
+		return;
+	}
+	MsgLoginCS* msg = (MsgLoginCS*)(data + sizeof(MsgHeader));
+	if (!msg || msg->m_cLoginFlag != MsgLoginCS::LF_LOGIN)
+	{
+		LOG_LOGICSERVER.printLog("msg NULL");
+		return;
+	}
+	
+	// try get redis value
+
+
+
+	// callHandler(MSG_TYPE_LOGIN_SC, pLogicServer, data, dataSize);
+}
+
+void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
+{
+	if (!pLogicServer || !data)
+	{
+		LOG_LOGICSERVER.printLog("pLogicServer NULL");
+		return;
+	}
+	
+}
+
 
 // 非handler跳转部分
 HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 {
 	onClientHeartCS,
 	onClientHeartSC,
+	onClientLoginCS,
+	onClientLoginSC,
 };
 
 void callHandler(int msgType, LogicServer* pLogicServer, byte* data, uint dataSize)

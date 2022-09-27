@@ -1,5 +1,6 @@
 #include "logicserver.h"
 #include "msghandler/logicmsghandler.h"
+#include "globallogicserver.h"
 
 #include <configmodule/configmanager.h>
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
@@ -16,6 +17,8 @@ LogicServer::LogicServer()
 	, m_bInnerRunOnce(false)
 	, m_nHasReadProxyDataSize(0)
 {
+	GLOBAL_LOGIC->registerGlobal(this);
+
 	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	m_innerSrvHeart.setLogicServer(this);
 	m_innerSrvHeart.setInterval(info.heart_time);
