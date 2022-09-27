@@ -372,7 +372,7 @@
          </font>
         </property>
         <property name="text">
-         <string/>
+         <string>brando</string>
         </property>
         <property name="placeholderText">
          <string>User Name</string>
@@ -397,7 +397,7 @@
          </font>
         </property>
         <property name="text">
-         <string/>
+         <string>123456</string>
         </property>
         <property name="placeholderText">
          <string>Password</string>

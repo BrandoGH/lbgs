@@ -68,6 +68,7 @@ private:
 	// protocol
 	void assembleProtocal(const char* bodyData, uint dataSize, int msgType);
 	void assembleHeart();
+	void assembleLogin();
 
 private:
 	QMainWindow* m_mw;

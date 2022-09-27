@@ -15,6 +15,7 @@
 #include "QtCore/QTimer"
 #include "msgmodule/msgcommondef.h"
 #include "logicserver/communicationmsg/msgheart.h"
+#include "logicserver/communicationmsg/msglogin.h"
 #include "commontool/msgtool/msgtool.h"
 
 namespace
@@ -270,6 +271,8 @@ void MainWindowObj::onLoginClicked(bool checked)
 		QMessageBox::information(m_mw, "error", "please input info", QMessageBox::Ok);
 		return;
 	}
+	assembleLogin();
+
 }
 
 void MainWindowObj::onOnceClientConnected(uint clientId)
@@ -432,4 +435,18 @@ void MainWindowObj::assembleHeart()
 	memmove(msg.m_bytesHeart, I_MSG_HEART_CS, sizeof(msg.m_bytesHeart));
 	assembleProtocal((const char*)&msg, sizeof(MsgHeartCS), EnMsgType::MSG_TYPE_HEART_CS);
 
+}
+
+void MainWindowObj::assembleLogin()
+{
+	if (!m_lineUserName || !m_linePassword)
+	{
+		return;
+	}
+	MsgLoginCS msg;
+	memmove(msg.m_strUserName, m_lineUserName->text().toStdString().data(), sizeof(msg.m_strUserName));
+	memmove(msg.m_strPassword, m_linePassword->text().toStdString().data(), sizeof(msg.m_strPassword));
+	msg.m_cLoginFlag = MsgLoginCS::LF_LOGIN;
+	assembleProtocal((const char*)&msg, sizeof(MsgLoginCS), EnMsgType::MSG_TYPE_LOGIN_CS);
+	onSendClicked(true);
 }
