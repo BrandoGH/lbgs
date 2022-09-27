@@ -52,6 +52,7 @@ private slots:
 	void onTriggeredCommunication(bool checked);
 	void onTriggeredGameLogin(bool checked);
 	void onTriggeredUIHotReload(bool checked);
+	void onLoginClicked(bool checked);
 
 	// client
 	void onOnceClientConnected(uint clientId);
@@ -70,6 +71,8 @@ private:
 
 private:
 	QMainWindow* m_mw;
+
+	// Communication
 	QLineEdit* m_lineIp;
 	QLineEdit* m_linePort;
 	QLineEdit* m_lineLinkCount;
@@ -90,6 +93,13 @@ private:
 	QAction* m_acCommunication;
 	QAction* m_acGameLogin;
 	QAction* m_acUIHotReload;
+
+	// Game login simulation
+	QLineEdit* m_lineUserName;
+	QLineEdit* m_linePassword;
+	QPushButton* m_btLogin;
+
+
 
 	QVector<QSharedPointer<Client>> m_vecClient;
 	uint m_nClientId;

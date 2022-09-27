@@ -11,6 +11,7 @@
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QStackedWidget>
+#include <QtWidgets/QMessageBox>
 #include "QtCore/QTimer"
 #include "msgmodule/msgcommondef.h"
 #include "logicserver/communicationmsg/msgheart.h"
@@ -59,6 +60,9 @@ MainWindowObj::MainWindowObj(QObject* parent)
 	, m_acGameLogin(NULL)
 	, m_stackWidget(NULL)
 	, m_acUIHotReload(NULL)
+	, m_lineUserName(NULL)
+	, m_linePassword(NULL)
+	, m_btLogin(NULL)
 {
 	loadMainWindow();
 	initTimer();
@@ -255,6 +259,19 @@ void MainWindowObj::onTriggeredUIHotReload(bool checked)
 	qDebug() << "UI Hot Reload Success!!";
 }
 
+void MainWindowObj::onLoginClicked(bool checked)
+{
+	if (!m_lineUserName || !m_linePassword)
+	{
+		return;
+	}
+	if (m_lineUserName->text().isEmpty() || m_linePassword->text().isEmpty())
+	{
+		QMessageBox::information(m_mw, "error", "please input info", QMessageBox::Ok);
+		return;
+	}
+}
+
 void MainWindowObj::onOnceClientConnected(uint clientId)
 {
 	SIM_CLIENT_LOG(QString("client[%1] has connected").arg(clientId));
@@ -308,6 +325,7 @@ void MainWindowObj::loadMainWindow()
 
 	if (m_mw)
 	{
+		// Communication
 		m_lineIp = m_mw->findChild<QLineEdit*>("lineEdit_ip");
 		m_linePort = m_mw->findChild<QLineEdit*>("lineEdit_port");
 		m_lineLinkCount = m_mw->findChild<QLineEdit*>("lineEdit_linkCount");
@@ -325,11 +343,19 @@ void MainWindowObj::loadMainWindow()
 		m_acGameLogin = m_mw->findChild<QAction*>("actionGameLogin");
 		m_acUIHotReload = m_mw->findChild<QAction*>("actionUIHotReload");
 
+		// Game login simulation
+		m_lineUserName = m_mw->findChild<QLineEdit*>("lineEdit_loginName");
+		m_linePassword = m_mw->findChild<QLineEdit*>("lineEdit_loginPassword");
+		m_btLogin = m_mw->findChild<QPushButton*>("pushButton_login");
+
+
+
 		if (m_btConnect && m_btDisconnect)
 		{
 			m_btConnect->setEnabled(true);
 			m_btDisconnect->setEnabled(false);
 		}
+		// Communication
 		connect(m_btConnect, SIGNAL(clicked(bool)), this, SLOT(onConnectBtClicked(bool)));
 		connect(m_btDisconnect, SIGNAL(clicked(bool)), this, SLOT(onDisconnectBtClicked(bool)));
 		connect(m_btClearLog, SIGNAL(clicked(bool)), this, SLOT(onClearLog(bool)));
@@ -340,6 +366,10 @@ void MainWindowObj::loadMainWindow()
 		connect(m_acCommunication, SIGNAL(triggered(bool)), this, SLOT(onTriggeredCommunication(bool)));
 		connect(m_acGameLogin, SIGNAL(triggered(bool)), this, SLOT(onTriggeredGameLogin(bool)));
 		connect(m_acUIHotReload, SIGNAL(triggered(bool)), this, SLOT(onTriggeredUIHotReload(bool)));
+
+		// Game login simulation
+		connect(m_btLogin, SIGNAL(clicked(bool)), this, SLOT(onLoginClicked(bool)));
+
 	}
 
 	if (m_stackWidget)
