@@ -3,6 +3,7 @@ set(CODE_FILE
 ./example_timer.cpp
 ./example_redis.cpp
 ./example_psql.cpp
+./example_boost_serialization.cpp
 ./servercommon/commontooltest.cpp
 ./servercommon/safequeuetest.cpp
 )
@@ -39,6 +40,7 @@ if (WIN32)
 	lua
 	hiredis
 	libpq
+	boost_serialization-vc140-mt
 	)
 
 elseif(UNIX)
@@ -59,5 +61,6 @@ elseif(UNIX)
 	libpgport.a
 	libssl.a
 	dl
+	libboost_serialization.a
 	)
 endif()
