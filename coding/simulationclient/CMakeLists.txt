@@ -7,7 +7,7 @@ main.cpp
 )
 
 add_definitions(
--DUI_FILE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/src/ui/\"
+-DUI_FILE_DIR=\"./ui/\"
 )
 
 

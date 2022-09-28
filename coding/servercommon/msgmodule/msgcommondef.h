@@ -16,12 +16,12 @@ struct MsgHeader
 	// Server Type Flag
 	enum Flag
 	{
-		F_DEFAULT = -1,
-		F_PROXYSERVER,		// Proxy
-		F_GATESERVER,		// Gate
-		F_LOGICSERVER,		// Logic
-		F_CACHESERVER,		// Cache
-		F_DBSERVER,			// database
+		F_DEFAULT				= -1,
+		F_PROXYSERVER			= 0,		// Proxy
+		F_GATESERVER			= 1,		// Gate
+		F_LOGICSERVER			= 2,		// Logic
+		F_CACHESERVER			= 3,		// Cache
+		F_DBSERVER				= 4,		// database
 
 		F_MAX,
 	};

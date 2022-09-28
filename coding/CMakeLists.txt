@@ -163,6 +163,9 @@ if (WIN32)
 		file(GLOB QT_PLUGIN_PATH ${LBGS_ROOT_DIR}/3rd/x64-windows/tools/qt5/bin/plugins/*)
 		file(COPY ${QT_PLUGIN_PATH} DESTINATION ${EXE_DIR})
 
+		file(GLOB QT_UI_FILE ${LBGS_ROOT_DIR}/coding/simulationclient/src/ui/*)
+		file(COPY ${QT_UI_FILE} DESTINATION ${EXE_DIR}/ui/)
+
 		add_subdirectory(./simulationclient)
 		message("-- OPEN_SIMULATION_CLIENT : ${OPEN_SIMULATION_CLIENT}")
 	endif()
