@@ -105,6 +105,36 @@ void onHandlerCacheHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* 
 	}
 }
 
+void onHandlerDBHeartCS(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize)
+{
+	PROXY_CHECK_SUB_SERVER_HEART
+
+	callHandler(MSG_TYPE_DB_PROXY_HEART_PD, linker, data, dataSize);
+
+}
+
+void onHandlerDBHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize)
+{
+	MsgInHeartSC sendMsg;
+	memmove(sendMsg.m_bytesHeart, I_MSG_HEART_SC, sizeof(sendMsg.m_bytesHeart));
+
+	MsgHeader header;
+	header.m_nMsgLen = sizeof(MsgHeader) + sizeof(sendMsg.m_bytesHeart);
+	header.m_nMsgType = MSG_TYPE_DB_PROXY_HEART_PD;
+	header.m_nSender = MsgHeader::F_PROXYSERVER;
+	header.m_nReceiver = MsgHeader::F_DBSERVER;
+	header.m_nProxyer = MsgHeader::F_PROXYSERVER;
+
+	DEFINE_BYTE_ARRAY(sendInfo, sizeof(MsgHeader) + sizeof(sendMsg.m_bytesHeart));
+	memmove(sendInfo, (const char*)&header, sizeof(MsgHeader));
+	memmove(sendInfo + sizeof(MsgHeader), (const char*)&sendMsg, sizeof(MsgInHeartCS));
+
+	if (linker.get())
+	{
+		linker->ayncSend(sendInfo, sizeof(sendInfo));
+	}
+}
+
 
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
@@ -115,6 +145,8 @@ HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 	onHandlerLogicHeartSC,
 	onHandlerCacheHeartCS,
 	onHandlerCacheHeartSC,
+	onHandlerDBHeartCS,
+	onHandlerDBHeartSC,
 };
 
 void callHandler(int msgType, const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize)

@@ -10,4 +10,6 @@
 #define LOG_CACHESERVER					CommonLog::g_logCacheServer.setLogHeader(__FUNCTION__, __FILE__, __LINE__)
 #define LOG_DBSERVER					CommonLog::g_logDBServer.setLogHeader(__FUNCTION__, __FILE__, __LINE__)
 
+#define LOG_ROLE						CommonLog::g_logRole.setLogHeader(__FUNCTION__, __FILE__, __LINE__)
+
 #endif // !__LOG_DEF_H__
