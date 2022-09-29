@@ -1,6 +1,8 @@
 #ifndef __ROLE_MANAGER_H__
 #define __ROLE_MANAGER_H__
 
+#include <servercommon/basedef.h>
+
 class RoleManager
 {
 public:
@@ -8,6 +10,8 @@ public:
 	~RoleManager();
 
 	static RoleManager* instance();
+
+	void loginCheck(byte* msgData, uint dataSize);
 
 private:
 	void deleteInstance();

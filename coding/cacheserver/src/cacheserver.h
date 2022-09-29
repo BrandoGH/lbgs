@@ -18,6 +18,9 @@ public:
 
 	void start();
 	void sendToProxySrv(const byte* data, uint size);
+	void sendToDBServer(const byte* data, uint size);
+
+	RedisCluster* getRedisCluster();
 
 HANDLER:
 	void onConnectInnerServer(const CommonBoost::ErrorCode& err);

@@ -1,8 +1,9 @@
 #include "logicmsghandler.h"
 #include "src/logicserver.h"
+#include "src/globallogicserver.h"
 #include "communicationmsg/msgheart.h"
 #include "communicationmsg/msglogin.h"
-#include "src/globallogicserver.h"
+#include "rolemanager/rolemanager.h"
 
 #include <logmodule/logdef.h>
 #include <commontool/msgtool/msgtool.h>
@@ -69,10 +70,7 @@ void onClientLoginCS(LogicServer* pLogicServer, byte* data, uint dataSize)
 	}
 	
 	// try get redis value
-
-
-
-	// callHandler(MSG_TYPE_LOGIN_SC, pLogicServer, data, dataSize);
+	ROLE_MGR->loginCheck(data, dataSize);
 }
 
 void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
@@ -82,11 +80,14 @@ void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 		LOG_LOGICSERVER.printLog("pLogicServer NULL");
 		return;
 	}
-	
+	MsgHeader* header = (MsgHeader*)data;
+	MsgLoginSC* msg = (MsgLoginSC*)(data + sizeof(MsgHeader));
+
+	return;
 }
 
 
-// 非handler跳转部分
+// Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 {
 	onClientHeartCS,

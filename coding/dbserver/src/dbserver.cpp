@@ -1,4 +1,5 @@
 #include "dbserver.h"
+#include "msghandler/dbmsghandler.h"
 
 #include <configmodule/configmanager.h>
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
@@ -141,17 +142,17 @@ void DBServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 			DB_SERVER_READ_MSG_CONTINUE;
 		}
 		// communicate with the database server 
-		/*else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
+		else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
 			m_msgHeader.m_nMsgType < MSG_CODE_MAX)
 		{
-			LogicMsgHandler::callHandler(
+			DBMsgHandler::callHandler(
 				m_msgHeader.m_nMsgType,
 				this,
 				m_bytesInnerSrvOnceMsg,
 				m_msgHeader.m_nMsgLen
 			);
 			DB_SERVER_READ_MSG_CONTINUE;
-		}*/
+		}
 
 		
 

@@ -1,4 +1,5 @@
 #include "cacheserver.h"
+#include "msghandler/cachemsghandler.h"
 
 #include <configmodule/configmanager.h>
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
@@ -48,6 +49,25 @@ void CacheServer::sendToProxySrv(const byte* data, uint size)
 		MSG_BUFFER(data, size),
 		m_pInnerStrand->wrap(BIND(&CacheServer::onProxySrvSend, this, boost::placeholders::_1, boost::placeholders::_2))
 	);
+}
+
+void CacheServer::sendToDBServer(const byte* data, uint size)
+{
+	MsgHeader* h = (MsgHeader*)data;
+	if (!h)
+	{
+		return;
+	}
+	
+	h->m_nSender = MsgHeader::F_CACHESERVER;
+	h->m_nReceiver = MsgHeader::F_DBSERVER;
+
+	sendToProxySrv(data, size);
+}
+
+RedisCluster* CacheServer::getRedisCluster()
+{
+	return &m_redisCluster;
 }
 
 void CacheServer::onRunInnnerIOServerOnce()
@@ -142,19 +162,16 @@ void CacheServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 			CACHE_SERVER_READ_MSG_CONTINUE;
 		}
 		// communicate with the cache server 
-		/*else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
+		else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
 			m_msgHeader.m_nMsgType < MSG_CODE_MAX)
 		{
-			LogicMsgHandler::callHandler(
-				m_msgHeader.m_nMsgType,
-				this,
-				m_bytesInnerSrvOnceMsg,
-				m_msgHeader.m_nMsgLen
-			);
+			CacheMsgHandler::callHandler(
+				m_msgHeader.m_nMsgType, 
+				this, 
+				m_bytesInnerSrvOnceMsg, 
+				m_msgHeader.m_nMsgLen);
 			CACHE_SERVER_READ_MSG_CONTINUE;
-		}*/
-
-		
+		}
 
 		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
 	}
