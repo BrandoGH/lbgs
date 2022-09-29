@@ -4,8 +4,10 @@
 
 namespace
 {
-const int g_nUserNameMaxSize = 12;
-const int g_nUserPasswordMaxSize = 32;
+// Role id fixed 36
+const int g_nRoleIdMaxSize = 37;
+const int g_nRoleNameMaxSize = 13;
+const int g_nRoleLoginPasswordMaxSize = 32;
 }
 
 #pragma pack(push,4)
@@ -20,15 +22,15 @@ struct MsgLoginCS
 	};
 	MsgLoginCS()
 	{
-		memset(m_strUserName, 0, g_nUserNameMaxSize);
-		memset(m_strPassword, 0, g_nUserPasswordMaxSize);
+		memset(m_strRoleName, 0, g_nRoleNameMaxSize);
+		memset(m_strPassword, 0, g_nRoleLoginPasswordMaxSize);
 		m_cLoginFlag = LF_DEFAULT;
 		memset(m_nReserve, 0, sizeof(m_nReserve));
 	}
-	char m_strUserName[g_nUserNameMaxSize];
-	char m_strPassword[g_nUserPasswordMaxSize];
+	char m_strRoleName[g_nRoleNameMaxSize];
+	char m_strPassword[g_nRoleLoginPasswordMaxSize];
 	char m_cLoginFlag;
-	char m_nReserve[3];
+	char m_nReserve[2];
 };
 BOOST_STATIC_ASSERT(sizeof(MsgLoginCS) == 48);
 
@@ -66,18 +68,21 @@ struct RoleInfoParam
 {
 	RoleInfoParam()
 	{
-		memset(m_strUserName, 0, g_nUserNameMaxSize);
-		memset(m_strPassword, 0, g_nUserPasswordMaxSize);
+		memset(m_strRoleId, 0, g_nRoleIdMaxSize);
+		memset(m_strRoleName, 0, g_nRoleNameMaxSize);
+		memset(m_strPassword, 0, g_nRoleLoginPasswordMaxSize);
 	}
-	char m_strUserName[g_nUserNameMaxSize];
-	char m_strPassword[g_nUserPasswordMaxSize];
+	char m_strRoleId[g_nRoleIdMaxSize];
+	char m_strRoleName[g_nRoleNameMaxSize];
+	char m_strPassword[g_nRoleLoginPasswordMaxSize];
 };
 namespace boost{namespace serialization
 {
 template<class Archive>
 void serialize(Archive& ar, RoleInfoParam& p, const unsigned int version)
 {
-	ar& p.m_strUserName;
+	ar& p.m_strRoleId;
+	ar& p.m_strRoleName;
 	ar& p.m_strPassword;
 }
 }}

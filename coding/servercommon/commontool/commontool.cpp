@@ -57,4 +57,12 @@ int getRandom(int left, int right)
 	return (left +(rand() % (right - left + 1)));
 }
 
+std::string genRoleIdByUserName(const std::string& userName)
+{
+	boost::uuids::string_generator sGen;
+	boost::uuids::uuid idFm = sGen("{0123456789abcdef0123456789abcdef}");
+	boost::uuids::name_generator ng(idFm);
+	return boost::uuids::to_string(ng(userName));
+}
+
 }

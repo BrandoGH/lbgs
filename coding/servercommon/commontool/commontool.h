@@ -17,6 +17,8 @@ bool isIpFormat(const std::string& ip);
 // [left ,right]
 int getRandom(int left,int right);
 
+std::string genRoleIdByUserName(const std::string& userName);
+
 }
 
 #endif // !__COMMON_TOOL_H__
