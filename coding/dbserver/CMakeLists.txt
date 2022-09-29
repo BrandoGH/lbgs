@@ -4,6 +4,8 @@ main.cpp
 ./src/dbserver.cpp
 ./src/dbserver_aid.h
 ./src/dbserver_aid.cpp
+./msghandler/dbmsghandler.h
+./msghandler/dbmsghandler.cpp
 )
 set(BIN_NAME dbserver)
 

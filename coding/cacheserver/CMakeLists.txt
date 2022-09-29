@@ -8,6 +8,8 @@ main.cpp
 ./redis/baseredis.cpp
 ./redis/rediscluster.h
 ./redis/rediscluster.cpp
+./msghandler/cachemsghandler.h
+./msghandler/cachemsghandler.cpp
 )
 set(BIN_NAME cacheserver)
 
