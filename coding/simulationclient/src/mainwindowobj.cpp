@@ -444,9 +444,9 @@ void MainWindowObj::assembleLogin()
 		return;
 	}
 	MsgLoginCS msg;
-	memmove(msg.m_strUserName, m_lineUserName->text().toStdString().data(), sizeof(msg.m_strUserName));
+	memmove(msg.m_strRoleName, m_lineUserName->text().toStdString().data(), sizeof(msg.m_strRoleName));
 	memmove(msg.m_strPassword, m_linePassword->text().toStdString().data(), sizeof(msg.m_strPassword));
 	msg.m_cLoginFlag = MsgLoginCS::LF_LOGIN;
-	assembleProtocal((const char*)&msg, sizeof(MsgLoginCS), EnMsgType::MSG_TYPE_LOGIN_CS);
+	assembleProtocal((const char*)&msg, sizeof(MsgLoginCS), EnMsgType::MSG_TYPE_LOGIN_REGISTER_CS);
 	onSendClicked(true);
 }
