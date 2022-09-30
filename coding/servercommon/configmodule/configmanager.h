@@ -12,6 +12,7 @@ class ConfigInterface;
 class GateServerConfig;
 class ProxyServerConfig;
 class CacheServerConfig;
+class DBServerConfig;
 
 class ConfigManager
 {
@@ -21,11 +22,12 @@ public:
 		DENUM(GateServerConfig),
 		DENUM(ProxyServerConfig),
 		DENUM(CacheServerConfig),
+		DENUM(DBServerConfig),
 
 
 		TYPE_MAX,
 	};
-	BOOST_STATIC_ASSERT(TYPE_MAX == 3);	// tip current bytes count
+	BOOST_STATIC_ASSERT(TYPE_MAX == 4);	// tip current bytes count
 
 public:
 	static ConfigManager* instance();
@@ -33,8 +35,9 @@ public:
 	GET_CONFIG(GateServerConfig)
 	GET_CONFIG(ProxyServerConfig)
 	GET_CONFIG(CacheServerConfig)
+	GET_CONFIG(DBServerConfig)
 	
-	BOOST_STATIC_ASSERT(TYPE_MAX == 3);
+	BOOST_STATIC_ASSERT(TYPE_MAX == 4);
 
 protected:
 	ConfigManager();

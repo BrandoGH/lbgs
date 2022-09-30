@@ -15,6 +15,8 @@
 ./configmodule/proxyserverconfig/proxyserverconfig.cpp
 ./configmodule/cacheserverconfig/cacheserverconfig.h
 ./configmodule/cacheserverconfig/cacheserverconfig.cpp
+./configmodule/dbserverconfig/dbserverconfig.h
+./configmodule/dbserverconfig/dbserverconfig.cpp
 ./sysinfomodule/sysinfo.h
 ./sysinfomodule/sysinfo.cpp
 ./sysinfomodule/minidump/minidump.h

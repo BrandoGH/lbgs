@@ -26,7 +26,8 @@ class ConfigInterface
 public:
 	enum EnErrorCode
 	{
-		INIT_OK = 0,
+		INIT_ERROR	= -1,
+		INIT_OK		= 0,
 	};
 
 public:

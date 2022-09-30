@@ -3,6 +3,7 @@
 #include "sysinfomodule/sysinfo.h"
 #include "gateserverconfig/gateserverconfig.h"
 #include "proxyserverconfig/proxyserverconfig.h"
+#include "dbserverconfig/dbserverconfig.h"
 #include "cacheserverconfig/cacheserverconfig.h"
 
 #include <logmodule/logdef.h>
@@ -15,13 +16,15 @@ ConfigManager::ConfigManager()
 	NEW_CONFIG(GateServerConfig);
 	NEW_CONFIG(ProxyServerConfig);
 	NEW_CONFIG(CacheServerConfig);
-	BOOST_STATIC_ASSERT(TYPE_MAX == 3);
+	NEW_CONFIG(DBServerConfig);
+	BOOST_STATIC_ASSERT(TYPE_MAX == 4);
 
 	// config path
 	m_cfgPath[DENUM(GateServerConfig)] = "server/server.xml";
 	m_cfgPath[DENUM(ProxyServerConfig)] = "server/server.xml";
 	m_cfgPath[DENUM(CacheServerConfig)] = "server/server.xml";
-	BOOST_STATIC_ASSERT(TYPE_MAX == 3);
+	m_cfgPath[DENUM(DBServerConfig)] = "server/server.xml";
+	BOOST_STATIC_ASSERT(TYPE_MAX == 4);
 
 	// check
 	for (int i = 0; i < TYPE_MAX; ++i)

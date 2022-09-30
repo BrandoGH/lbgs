@@ -45,12 +45,6 @@ struct CacheClusterConfigInfo
 class CacheServerConfig : public ConfigInterface
 {
 public:
-	enum EnErrorCode
-	{
-		INIT_ERROR = 1,
-	};
-
-public:
 	CacheServerConfig();
 	virtual ~CacheServerConfig();
 

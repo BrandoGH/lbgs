@@ -68,7 +68,7 @@
 			<ip>192.168.43.122</ip>
 			<port>5432</port>
 			<username>postgres</username>
-			<dbname>postgres</dbname>
+			<dbname>lbgs</dbname>
 			<password>123456</password>
 		</data>
 	</dbserver>
