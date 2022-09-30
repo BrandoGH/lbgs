@@ -7,7 +7,8 @@ main.cpp
 )
 
 add_definitions(
--DUI_FILE_DIR=\"./ui/\"
+-DUI_FILE_DIR_EXE=\"./ui/\"
+-DUI_FILE_DIR_SRC=\"${LBGS_ROOT_DIR}/coding/simulationclient/src/ui/\"
 )
 
 

@@ -13,6 +13,7 @@ class QPlainTextEdit;
 class QTimer;
 class QAction;
 class QStackedWidget;
+class QFile;
 
 class MainWindowObj : public QObject
 {
@@ -62,6 +63,7 @@ private slots:
 
 private:
 	void loadMainWindow();
+	bool loadUiFile(QFile* file, const QString& fileName);
 	void initTimer();
 	bool isServerLittleStore() { return m_bServerLittleStoreMode; }
 

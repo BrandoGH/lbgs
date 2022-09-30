@@ -321,7 +321,10 @@ void MainWindowObj::loadMainWindow()
 {
 	QUiLoader uiLoader;
 	QFile uiFile;
-	uiFile.setFileName(UI_FILE_DIR"mainwindow.ui");
+	if (!loadUiFile(&uiFile, "mainwindow.ui"))
+	{
+		return;
+	}
 	uiFile.open(QFile::ReadOnly);
 	m_mw = (QMainWindow*)uiLoader.load(&uiFile);
 	uiFile.close();
@@ -380,6 +383,25 @@ void MainWindowObj::loadMainWindow()
 		m_stackWidget->setCurrentIndex(SW_COMMUNICATION);
 	}
 	
+}
+
+bool MainWindowObj::loadUiFile(QFile* file, const QString& fileName)
+{
+	if (!file)
+	{
+		return false;
+	}
+	file->setFileName(UI_FILE_DIR_EXE + fileName);
+	if (!file->exists())
+	{
+		file->setFileName(UI_FILE_DIR_SRC + fileName);
+	}
+	if (!file->exists())
+	{
+		qDebug() << "loadMainWindow() error";
+		return false;
+	}
+	return true;
 }
 
 void MainWindowObj::initTimer()
