@@ -262,6 +262,7 @@ void MainWindowObj::onTriggeredUIHotReload(bool checked)
 
 void MainWindowObj::onLoginClicked(bool checked)
 {
+	SIM_CLIENT_LOG(QString("waiting......."));
 	if (!m_lineUserName || !m_linePassword)
 	{
 		return;
@@ -272,7 +273,6 @@ void MainWindowObj::onLoginClicked(bool checked)
 		return;
 	}
 	assembleLogin();
-
 }
 
 void MainWindowObj::onOnceClientConnected(uint clientId)
@@ -310,7 +310,42 @@ void MainWindowObj::onReadData(uint clientId, const QByteArray& data)
 		return;
 	}
 	SIM_CLIENT_LOG(QString("R_client[%1][%2][%3]").arg(clientId).arg(data.size()).arg(QString(data.toHex().toUpper())));
+
+	MsgHeader* header = (MsgHeader*)(data.data());
+	if (!header)
+	{
+		return;
+	}
+	switch (header->m_nMsgType)
+	{
+	case MSG_TYPE_LOGIN_REGISTER_SC:
+		onLoginMsg(data);
+		break;
+	}
 }
+
+void MainWindowObj::onLoginMsg(const QByteArray& data)
+{
+	MsgLoginSC* sc = (MsgLoginSC*)(data.data() + sizeof(MsgHeader));
+	if (!sc)
+	{
+		return;
+	}
+
+	QString strError;
+	if (sc->m_cLoginStatus == MsgLoginSC::LS_LOGIN_ERROR)
+	{
+		switch (sc->m_cErrorReason)
+		{
+		case MsgLoginSC::ER_UNREGISTERED:
+			strError = "role is not exists!";
+			break;
+		}
+
+		QMessageBox::information(m_mw, "error", strError);
+	}
+}
+
 
 void MainWindowObj::onSendData(uint clientId, const QByteArray& data)
 {

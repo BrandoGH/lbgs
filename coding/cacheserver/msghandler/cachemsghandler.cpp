@@ -47,7 +47,7 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 	BaseRedis::RedisReturnST value = redis->get(CommonTool::genRoleIdByUserName(msg->m_strRoleName));
 	if (value.m_len == 0)		// new role
 	{
-		// TODO search db
+		//  search db
 		pCacheServer->sendToDBServer(data, dataSize);
 
 		// TEST
@@ -79,15 +79,8 @@ void onLoginCL(CacheServer* pCacheServer, byte* data, uint dataSize)
 		LOG_CACHESERVER.printLog("header NULL");
 		return;
 	}
-	header->m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgLoginSC);
-	header->m_nMsgType = MSG_TYPE_LOGIN_REGISTER_SC;
-	header->m_nSender = MsgHeader::F_CACHESERVER;
-	header->m_nReceiver = MsgHeader::F_LOGICSERVER;
-	header->m_nProxyer = MsgHeader::F_PROXYSERVER;
 
-	MsgLoginSC* loginSc = (MsgLoginSC*)(data + sizeof(MsgHeader));
-
-	pCacheServer->sendToProxySrv(data, header->m_nMsgLen);
+	pCacheServer->sendToLogicServer(data, dataSize);
 
 }
 

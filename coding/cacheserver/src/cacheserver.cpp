@@ -61,6 +61,22 @@ void CacheServer::sendToDBServer(const byte* data, uint size)
 	
 	h->m_nSender = MsgHeader::F_CACHESERVER;
 	h->m_nReceiver = MsgHeader::F_DBSERVER;
+	h->m_nProxyer = MsgHeader::F_PROXYSERVER;
+
+	sendToProxySrv(data, size);
+}
+
+void CacheServer::sendToLogicServer(const byte* data, uint size)
+{
+	MsgHeader* h = (MsgHeader*)data;
+	if (!h)
+	{
+		return;
+	}
+
+	h->m_nSender = MsgHeader::F_CACHESERVER;
+	h->m_nReceiver = MsgHeader::F_LOGICSERVER;
+	h->m_nProxyer = MsgHeader::F_PROXYSERVER;
 
 	sendToProxySrv(data, size);
 }

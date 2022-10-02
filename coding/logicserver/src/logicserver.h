@@ -15,6 +15,7 @@ public:
 
 	void start();
 	void sendToProxySrv(const byte* data, uint size);
+	void sendToClient(const byte* data, uint size);
 
 HANDLER:
 	void onConnectInnerServer(const CommonBoost::ErrorCode& err);

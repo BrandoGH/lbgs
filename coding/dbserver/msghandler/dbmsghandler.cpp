@@ -1,5 +1,6 @@
 #include "dbmsghandler.h"
 #include "src/dbserver.h"
+#include "src/dbmanager.h"
 
 #include <logmodule/logdef.h>
 #include <msgmodule/msgcommondef.h>
@@ -26,18 +27,48 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 	}
 
 	MsgLoginCS* msg = (MsgLoginCS*)(data + sizeof(MsgHeader));
-	if (!msg || msg->m_cLoginFlag != MsgLoginCS::LF_LOGIN)
+	if (!msg)
 	{
 		LOG_DBSERVER.printLog("msg NULL");
 		return;
 	}
 
+	MsgLoginSC sc;
+	DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
+	if (msg->m_cLoginFlag == MsgLoginCS::LF_LOGIN)
+	{
+		// new role
+		if (!DB_MGR->loginCheckRoleExists(std::string(msg->m_strRoleName)))
+		{
+			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
+			sc.m_cErrorReason = MsgLoginSC::ER_UNREGISTERED;
+
+			memmove(dataArr, data, sizeof(MsgHeader));
+			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
+		}
+	}
+	callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pDBServer, dataArr,sizeof(dataArr));
 	
 }
 
 void onLoginDC(DBServer* pDBServer, byte* data, uint dataSize)
 {
-	
+	if (!pDBServer || !data)
+	{
+		LOG_DBSERVER.printLog("point NULL");
+		return;
+	}
+	MsgHeader* h = (MsgHeader*)data;
+	if (!h)
+	{
+		LOG_DBSERVER.printLog("hearder NULL");
+		return;
+	}
+
+	h->m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgLoginSC);
+	h->m_nMsgType = MSG_TYPE_LOGIN_REGISTER_SC;
+
+	pDBServer->sendToCacheServer(data, dataSize);
 }
 
 

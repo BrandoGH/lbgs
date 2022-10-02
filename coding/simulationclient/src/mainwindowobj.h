@@ -61,6 +61,9 @@ private slots:
 	void onReadData(uint clientId, const QByteArray& data);
 	void onSendData(uint clientId, const QByteArray& data);
 
+HANDLER:
+	void onLoginMsg(const QByteArray& data);
+
 private:
 	void loadMainWindow();
 	bool loadUiFile(QFile* file, const QString& fileName);

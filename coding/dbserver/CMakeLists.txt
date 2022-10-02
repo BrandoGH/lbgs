@@ -2,10 +2,15 @@ set(CODE_FILE
 main.cpp
 ./src/dbserver.h
 ./src/dbserver.cpp
+./src/dbmanager.h
+./src/dbmanager.cpp
 ./src/dbserver_aid.h
 ./src/dbserver_aid.cpp
 ./msghandler/dbmsghandler.h
 ./msghandler/dbmsghandler.cpp
+./postgresql/basepsql.h
+./postgresql/basepsql.cpp
+./postgresql/psqltables.h
 )
 set(BIN_NAME dbserver)
 

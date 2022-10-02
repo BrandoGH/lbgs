@@ -1,5 +1,6 @@
 #include "dbserver.h"
 #include "msghandler/dbmsghandler.h"
+#include "dbmanager.h"
 
 #include <configmodule/configmanager.h>
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
@@ -22,6 +23,7 @@ DBServer::DBServer()
 	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
 
 	initInnerClient();
+	initPostgresql();
 }
 
 DBServer::~DBServer()
@@ -48,6 +50,21 @@ void DBServer::sendToProxySrv(const byte* data, uint size)
 		MSG_BUFFER(data, size),
 		m_pInnerStrand->wrap(BIND(&DBServer::onProxySrvSend, this, boost::placeholders::_1, boost::placeholders::_2))
 	);
+}
+
+void DBServer::sendToCacheServer(const byte* data, uint size)
+{
+	MsgHeader* h = (MsgHeader*)data;
+	if (!h)
+	{
+		return;
+	}
+
+	h->m_nSender = MsgHeader::F_DBSERVER; 
+	h->m_nReceiver = MsgHeader::F_CACHESERVER;
+	h->m_nProxyer = MsgHeader::F_PROXYSERVER;
+
+	sendToProxySrv(data, size);
 }
 
 void DBServer::onRunInnnerIOServerOnce()
@@ -163,6 +180,31 @@ void DBServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 	readFromProxySrv();
 }
 
+void DBServer::onSqlConnectResult(bool ok, int errorCode)
+{
+	if (!ok || errorCode != BasePsql::PCS_OK)
+	{
+		LOG_DBSERVER.printLog("Connect to postgresql error");
+		printf_color(PRINTF_RED, "Connect to postgresql error\n");
+		assert(0);
+		return;
+	}
+
+	LOG_DBSERVER.printLog("Connect to postgresql success");
+	printf_color(PRINTF_GREEN, "Connect to postgresql success\n");
+
+	/*std::string user = "name";
+	if (DB_MGR->loginCheckRoleExists(user))
+	{
+		printf_color(PRINTF_GREEN, "user[%s] exists\n", user.data());
+	}
+	else
+	{
+		printf_color(PRINTF_RED, "user[%s] is not exists\n", user.data());
+	}*/
+	
+}
+
 void DBServer::initInnerClient()
 {
 	if (!CONFIG_MGR->GetProxyServerConfig())
@@ -219,6 +261,11 @@ void DBServer::readFromProxySrv()
 		MSG_BUFFER(m_bytesInnerSrvBuffer, sizeof(m_bytesInnerSrvBuffer)),
 		m_pInnerStrand->wrap(BIND(&DBServer::onProxySrvRead, this, boost::placeholders::_1, boost::placeholders::_2))
 	);
+}
+
+void DBServer::initPostgresql()
+{
+	DB_MGR->connectDB(BIND(&DBServer::onSqlConnectResult, this, boost::placeholders::_1, boost::placeholders::_2));
 }
 
 void DBServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)

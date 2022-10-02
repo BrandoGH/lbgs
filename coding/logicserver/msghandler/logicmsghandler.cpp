@@ -81,9 +81,19 @@ void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 		return;
 	}
 	MsgHeader* header = (MsgHeader*)data;
+	if (!header)
+	{
+		LOG_LOGICSERVER.printLog("header NULL");
+		return;
+	}
 	MsgLoginSC* msg = (MsgLoginSC*)(data + sizeof(MsgHeader));
+	if (!msg)
+	{
+		LOG_LOGICSERVER.printLog("msg NULL");
+		return;
+	}
 
-	return;
+	pLogicServer->sendToClient(data, dataSize);
 }
 
 

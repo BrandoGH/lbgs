@@ -15,6 +15,7 @@ public:
 
 	void start();
 	void sendToProxySrv(const byte* data, uint size);
+	void sendToCacheServer(const byte* data, uint size);
 
 HANDLER:
 	void onConnectInnerServer(const CommonBoost::ErrorCode& err);
@@ -28,12 +29,18 @@ HANDLER:
 		uint readSize
 	);
 
+	// sql
+	void onSqlConnectResult(bool ok, int errorCode);
+
 private:
 	// link proxy server
 	void initInnerClient();
 	void connectInnerServer();
 	void closeInnerSocket();
 	void readFromProxySrv();
+
+	// sql
+	void initPostgresql();
 private:
 	CommonBoost::IOServer m_innerServer;
 	CommonBoost::SocketPtr m_pInnerSocket;
@@ -46,9 +53,6 @@ private:
 	ushort m_nHasReadProxyDataSize;
 	// heart msg with proxy server
 	TimerDBProxySrvHeart m_innerSrvHeart;
-
-
-
 };
 
 #endif  //__DB_SERVER_H
