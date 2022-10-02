@@ -11,6 +11,11 @@
 
 #include <iosfwd>
 
+namespace
+{
+const int g_nKeyStatusExpireSec = 60 * 10;
+}
+
 RedisCluster::RedisCluster()
 	: m_CfgCache(CONFIG_MGR->GetCacheServerConfig())
 	, m_nRedisConnectCount(0)
@@ -237,6 +242,23 @@ void RedisCluster::expireKey(const std::string& key, int expireSec)
 	}
 	boost::shared_ptr<BaseRedis> opRedis = weakRedis.lock();
 	opRedis->expireKey(key, expireSec);
+}
+
+void RedisCluster::setKeyStatus(const std::string& key, int status)
+{
+	if (status < RCS_STATUS_START || status >= RCS_STATUS_MAX)
+	{
+		LOG_CACHESERVER.printLog("status error, status = %d", status);
+		return;
+	}
+
+	std::string val = CAST_TO(std::string, status);
+	setex(key, val.data(), key.size(), val.size(), g_nKeyStatusExpireSec);
+}
+
+int RedisCluster::getKeyStatusExpireSec()
+{
+	return g_nKeyStatusExpireSec;
 }
 
 void RedisCluster::OnOpResult(

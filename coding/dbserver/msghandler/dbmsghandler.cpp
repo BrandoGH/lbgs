@@ -19,10 +19,10 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 		LOG_DBSERVER.printLog("Pointer NULL");
 		return;
 	}
-	MsgHeader* heeder = (MsgHeader*)data;
-	if (!heeder)
+	MsgHeader* header = (MsgHeader*)data;
+	if (!header)
 	{
-		LOG_DBSERVER.printLog("heeder NULL");
+		LOG_DBSERVER.printLog("header NULL");
 		return;
 	}
 
@@ -35,6 +35,7 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 
 	MsgLoginSC sc;
 	DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
+	memset(dataArr, 0, sizeof(dataArr));
 	if (msg->m_cLoginFlag == MsgLoginCS::LF_LOGIN)
 	{
 		// new role
@@ -45,9 +46,13 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 
 			memmove(dataArr, data, sizeof(MsgHeader));
 			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
+			callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pDBServer, dataArr, sizeof(dataArr));
 		}
 	}
-	callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pDBServer, dataArr,sizeof(dataArr));
+	else if (msg->m_cLoginFlag == MsgLoginCS::LF_REGISTER)
+	{
+		// TODO register role
+	}
 	
 }
 

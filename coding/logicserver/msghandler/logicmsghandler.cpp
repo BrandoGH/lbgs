@@ -63,14 +63,22 @@ void onClientLoginCS(LogicServer* pLogicServer, byte* data, uint dataSize)
 		return;
 	}
 	MsgLoginCS* msg = (MsgLoginCS*)(data + sizeof(MsgHeader));
-	if (!msg || msg->m_cLoginFlag != MsgLoginCS::LF_LOGIN)
+	if (!msg)
 	{
 		LOG_LOGICSERVER.printLog("msg NULL");
 		return;
 	}
+
+	if (msg->m_cLoginFlag == MsgLoginCS::LF_LOGIN)
+	{
+		// try get redis value
+		pLogicServer->sendToCache(data, dataSize);
+	}
+	else if (msg->m_cLoginFlag == MsgLoginCS::LF_REGISTER)
+	{
+		// TODO register role
+	}
 	
-	// try get redis value
-	pLogicServer->sendToCache(data, dataSize);
 }
 
 void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)

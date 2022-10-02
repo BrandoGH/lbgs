@@ -19,6 +19,18 @@ class RedisCluster
 	typedef boost::function< void(bool /*ok*/) > CallbackClusterConnected;
 
 public:
+	// cache data status
+	enum EnKeyStatusFlag
+	{
+		RCS_STATUS_START,
+
+		RCS_UNCONFIRMED = RCS_STATUS_START,
+		RCS_DB_NOT_EXISTS,
+
+		RCS_STATUS_MAX,
+	};
+
+public:
 	RedisCluster();
 	~RedisCluster();
 
@@ -26,7 +38,7 @@ public:
 
 	void setConnectedCallback(CallbackClusterConnected callback);
 
-	// redis cluster cmd
+	// redis cluster cmd start
 	void set(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setnx(const std::string& key, const char* val, uint keySize, uint valSize);
 	void setxx(const std::string& key, const char* val, uint keySize, uint valSize);
@@ -39,6 +51,11 @@ public:
 	BaseRedis::RedisReturnST incr(const std::string& key);		// if error, RedisReturnST.getData have something string
 	BaseRedis::RedisReturnST decr(const std::string& key);		// if error, RedisReturnST.getData have something string
 	void expireKey(const std::string& key, int expireSec);
+	// redis cluster cmd end
+
+
+	void setKeyStatus(const std::string& key, int status);
+	int getKeyStatusExpireSec();
 
 
 HANDLER:
