@@ -70,7 +70,7 @@ void onClientLoginCS(LogicServer* pLogicServer, byte* data, uint dataSize)
 	}
 	
 	// try get redis value
-	ROLE_MGR->loginCheck(data, dataSize);
+	pLogicServer->sendToCache(data, dataSize);
 }
 
 void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)

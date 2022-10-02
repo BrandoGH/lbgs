@@ -68,6 +68,21 @@ void LogicServer::sendToClient(const byte* data, uint size)
 	sendToProxySrv(data, size);
 }
 
+void LogicServer::sendToCache(const byte* data, uint size)
+{
+	MsgHeader* h = (MsgHeader*)data;
+	if (!h)
+	{
+		LOG_LOGICSERVER.printLog("msg header NULL");
+		return;
+	}
+	h->m_nSender = MsgHeader::F_LOGICSERVER;
+	h->m_nReceiver = MsgHeader::F_CACHESERVER;
+	h->m_nProxyer = MsgHeader::F_PROXYSERVER;
+
+	sendToProxySrv(data, size);
+}
+
 void LogicServer::onRunInnnerIOServerOnce()
 {
 	if (!m_bInnerRunOnce)

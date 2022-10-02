@@ -11,8 +11,6 @@ public:
 
 	static RoleManager* instance();
 
-	void loginCheck(byte* msgData, uint dataSize);
-
 private:
 	void deleteInstance();
 
