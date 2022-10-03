@@ -14,8 +14,8 @@ bool getNumByHexSymbol(char hexSymbol, int& retNum);
 
 bool isIpFormat(const std::string& ip);
 
-// [left ,right]
-int getRandom(int left,int right);
+int getRandom(int left, int right);						// [left ,right]
+int getRandomByBase(int base, int left, int right);		// return base+[left ,right]
 
 std::string genRoleIdByUserName(const std::string& userName);
 

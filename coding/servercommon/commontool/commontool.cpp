@@ -57,6 +57,11 @@ int getRandom(int left, int right)
 	return (left +(rand() % (right - left + 1)));
 }
 
+int getRandomByBase(int base, int left, int right)
+{
+	return base + getRandom(left, right);
+}
+
 std::string genRoleIdByUserName(const std::string& userName)
 {
 	boost::uuids::string_generator sGen;

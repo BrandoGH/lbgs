@@ -13,7 +13,10 @@
 
 namespace
 {
+// The cache time is at least 10 minutes and no more than half an hour
 const int g_nKeyStatusExpireSec = 60 * 10;
+const int g_nKeyStatusExpireSecRandomMin = 60 * 10;
+const int g_nKeyStatusExpireSecRandomMax = 60 * 30;
 }
 
 RedisCluster::RedisCluster()
@@ -253,12 +256,12 @@ void RedisCluster::setKeyStatus(const std::string& key, int status)
 	}
 
 	std::string val = CAST_TO(std::string, status);
-	setex(key, val.data(), key.size(), val.size(), g_nKeyStatusExpireSec);
+	setex(key, val.data(), key.size(), val.size(), getKeyStatusExpireSec());
 }
 
 int RedisCluster::getKeyStatusExpireSec()
 {
-	return g_nKeyStatusExpireSec;
+	return CommonTool::getRandomByBase(g_nKeyStatusExpireSec, g_nKeyStatusExpireSecRandomMin, g_nKeyStatusExpireSecRandomMax);
 }
 
 void RedisCluster::OnOpResult(

@@ -125,7 +125,7 @@ void onLoginCL(CacheServer* pCacheServer, byte* data, uint dataSize)
 	{
 		BaseRedis::RedisReturnST value = redis->get(
 			genRoleLoginStatusKey(header->m_nClientSrcSeq));
-		std::string roleId = value.m_getData;
+		std::string roleId = value.m_len > 0 ? value.m_getData : "";
 		BaseRedis::RedisReturnST roldIdVal = redis->get(roleId);
 		if (roldIdVal.m_len > 0 && CAST_TO(int, std::string(roldIdVal.m_getData)) == RedisCluster::RCS_UNCONFIRMED)
 		{
