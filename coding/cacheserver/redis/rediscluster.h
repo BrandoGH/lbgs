@@ -53,8 +53,6 @@ public:
 	void expireKey(const std::string& key, int expireSec);
 	// redis cluster cmd end
 
-
-	void setKeyStatus(const std::string& key, int status);
 	int getKeyStatusExpireSec();
 
 

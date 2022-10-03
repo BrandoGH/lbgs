@@ -247,18 +247,6 @@ void RedisCluster::expireKey(const std::string& key, int expireSec)
 	opRedis->expireKey(key, expireSec);
 }
 
-void RedisCluster::setKeyStatus(const std::string& key, int status)
-{
-	if (status < RCS_STATUS_START || status >= RCS_STATUS_MAX)
-	{
-		LOG_CACHESERVER.printLog("status error, status = %d", status);
-		return;
-	}
-
-	std::string val = CAST_TO(std::string, status);
-	setex(key, val.data(), key.size(), val.size(), getKeyStatusExpireSec());
-}
-
 int RedisCluster::getKeyStatusExpireSec()
 {
 	return CommonTool::getRandomByBase(g_nKeyStatusExpireSec, g_nKeyStatusExpireSecRandomMin, g_nKeyStatusExpireSecRandomMax);
