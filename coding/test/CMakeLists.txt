@@ -4,6 +4,7 @@ set(CODE_FILE
 ./example_redis.cpp
 ./example_psql.cpp
 ./example_boost_serialization.cpp
+./example_lock_free.cpp
 ./servercommon/commontooltest.cpp
 ./servercommon/safequeuetest.cpp
 )
