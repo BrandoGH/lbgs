@@ -35,7 +35,7 @@ bool DBManager::loginCheckRoleExists(const std::string& roleName)
 		<< R"( WHERE role_name=')" << roleName << R"(')";
 	if (!m_sql.query(fm.str(), NULL))
 	{
-		return false;
+		assert(0);
 	}
 
 	return m_sql.getRows() > 0;

@@ -54,6 +54,7 @@ private slots:
 	void onTriggeredGameLogin(bool checked);
 	void onTriggeredUIHotReload(bool checked);
 	void onLoginClicked(bool checked);
+	void onRegisterClicked(bool checked);
 
 	// client
 	void onOnceClientConnected(uint clientId);
@@ -73,7 +74,7 @@ private:
 	// protocol
 	void assembleProtocal(const char* bodyData, uint dataSize, int msgType);
 	void assembleHeart();
-	void assembleLogin();
+	void assembleLoginOrReg(int flag);
 
 private:
 	QMainWindow* m_mw;
@@ -104,6 +105,7 @@ private:
 	QLineEdit* m_lineUserName;
 	QLineEdit* m_linePassword;
 	QPushButton* m_btLogin;
+	QPushButton* m_btRegister;
 
 
 
