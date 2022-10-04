@@ -5,6 +5,7 @@ set(CODE_FILE
 ./example_psql.cpp
 ./example_boost_serialization.cpp
 ./example_lock_free.cpp
+./example_concurrentqueue.cpp
 ./servercommon/commontooltest.cpp
 ./servercommon/safequeuetest.cpp
 )

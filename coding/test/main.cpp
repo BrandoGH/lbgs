@@ -2,12 +2,13 @@
 #include <servercommon/sysinfomodule/minidump/minidump.h>
 #include <servercommon/basedef.h>
 
-
 TEST(main_test, test)
 {
 	// example code 
 	printf_color(PRINTF_YELLOW, "-----------------------------------------------  main_test_start ----------------------------------------------\n");
-	printf_color(PRINTF_YELLOW, "// You can write your test code here(local temp) , such as \"hello world !!\" \n");
+	printf_color(PRINTF_YELLOW, R"(// You can write your test code here(local temp) , such as "hello world !!"
+)");
+	// do test code
 
 
 	printf_color(PRINTF_YELLOW, "-----------------------------------------------  main_test_end   ----------------------------------------------\n");
