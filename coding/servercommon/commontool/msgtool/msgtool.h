@@ -142,11 +142,6 @@ bool Md5Str2Bytes(const std::string& str32, OutMd5BytesType& outBytes)
 		return false;
 	}
 
-	for(int i = 0; i < str32.size(); i += 2)
-	{
-		str32.substr(i,2);
-	}
-
 	int inStringIdx = 0;
 	std::string tmpStr;
 	int hexBigNum = 0;

@@ -66,6 +66,10 @@ typedef unsigned short			ushort;
 typedef unsigned int			uint;
 typedef unsigned long			ulong;
 typedef unsigned long long		ullong;
+typedef char					CString32[32];
+typedef char					CString64[64];
+typedef char					CString128[128];
+typedef char					CString512[512];
 
 namespace Common
 {

@@ -31,6 +31,8 @@
 ./commontool/commontool.cpp
 ./commontool/msgtool/msgtool.h
 ./commontool/msgtool/msgtool.cpp
+./commontool/serializememory/serializememory.hpp
+./commontool/serializememory/serializememory.cpp
 ./timermodule/timer.h
 ./timermodule/timer.cpp
 ./queuemodule/safequeue.hpp
