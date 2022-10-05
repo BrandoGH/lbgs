@@ -38,5 +38,5 @@ bool DBManager::loginCheckRoleExists(const std::string& roleName)
 		assert(0);
 	}
 
-	return m_sql.getRows() > 0;
+	return m_sql.getRows() == 1;
 }

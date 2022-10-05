@@ -17,19 +17,6 @@ class RedisCluster
 {
 	// callback
 	typedef boost::function< void(bool /*ok*/) > CallbackClusterConnected;
-
-public:
-	// cache data status
-	enum EnKeyStatusFlag
-	{
-		RCS_STATUS_START,
-
-		RCS_UNCONFIRMED = RCS_STATUS_START,
-		RCS_DB_NOT_EXISTS,
-
-		RCS_STATUS_MAX,
-	};
-
 public:
 	RedisCluster();
 	~RedisCluster();

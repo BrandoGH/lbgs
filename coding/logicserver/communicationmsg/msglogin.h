@@ -20,6 +20,7 @@ struct MsgLoginCS
 		LF_LOGIN,
 		LF_REGISTER,
 	};
+
 	MsgLoginCS()
 	{
 		memset(m_strRoleName, 0, g_nRoleNameMaxSize);
@@ -52,16 +53,20 @@ struct MsgLoginSC
 
 	MsgLoginSC()
 	{
+		memset(m_strRoleName, 0, g_nRoleNameMaxSize);
+		memset(m_strPassword, 0, g_nRoleLoginPasswordMaxSize);
 		m_cLoginStatus = LS_DEFAULT;
 		m_cErrorReason = ER_DEFAULT;
-		memset(m_nReserve, 0, sizeof(m_nReserve));
+		m_nReserve = 0;
 	}
 
+	char m_strRoleName[g_nRoleNameMaxSize];
+	char m_strPassword[g_nRoleLoginPasswordMaxSize];
 	char m_cLoginStatus;
 	char m_cErrorReason;
-	char m_nReserve[2];
+	char m_nReserve;
 };
-BOOST_STATIC_ASSERT(sizeof(MsgLoginSC) == 4);
+BOOST_STATIC_ASSERT(sizeof(MsgLoginSC) == 48);
 
 // save user info
 struct RoleInfoParam

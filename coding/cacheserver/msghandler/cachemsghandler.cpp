@@ -12,37 +12,12 @@
 
 namespace
 {
-// roleSeq = clientSeq of Gateserver, format: [roleSeq]_login
-std::string genRoleLoginStatusKey(int roleSeq)
+// cache data status
+enum EnLoginKeyStatusFlag
 {
-	std::stringstream fm;
-	fm << CAST_TO(std::string, roleSeq) << "_login";
-	return fm.str();
-}
-
-// [roleSeq]_login = [roleId]_[status]
-std::string genRoleLoginStatusValue(const std::string& roleId, int status)
-{
-	std::stringstream fm;
-	fm << roleId << "__" << status;
-	return fm.str();
-}
-
-// vecSplit[0] = roleId vecSplit[1] = status 
-std::string getRoleLoginStatusValue_RoleId(const std::string& val)
-{
-	std::vector<std::string> vecSplit;
-	boost::split(vecSplit, val, boost::is_any_of("__"), boost::token_compress_on);
-	return vecSplit[0];
-}
-
-// vecSplit[0] = roleId vecSplit[1] = status 
-int getRoleLoginStatusValue_Status(const std::string& val)
-{
-	std::vector<std::string> vecSplit;
-	boost::split(vecSplit, val, boost::is_any_of("__"), boost::token_compress_on);
-	return CAST_TO(int, vecSplit[1]);
-}
+	LKSF_UNCONFIRMED,
+	LKSF_DB_NOT_EXISTS,
+};
 }
 
 namespace CacheMsgHandler
@@ -76,24 +51,22 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 		return;
 	}
 
+	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
 	// role login
 	if (msg->m_cLoginFlag == MsgLoginCS::LF_LOGIN)
 	{
-		std::string key = genRoleLoginStatusKey(header->m_nClientSrcSeq);
-		BaseRedis::RedisReturnST value = redis->get(key);
-		if (value.m_len == 0)		// new role
+		BaseRedis::RedisReturnST value = redis->get(roleId);
+		if (value.m_len <= 0)		// new role
 		{
-			std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
-			std::string saveVal = genRoleLoginStatusValue(roleId, RedisCluster::RCS_UNCONFIRMED);
+			std::string saveVal = CAST_TO(std::string, EnLoginKeyStatusFlag::LKSF_UNCONFIRMED);
 			// [roleSeq]_login = [roleId]_[status]
-			redis->setex(key, saveVal.data(), key.size(), saveVal.size(), redis->getKeyStatusExpireSec());
+			redis->setex(roleId, saveVal.data(), roleId.size(), saveVal.size(), redis->getKeyStatusExpireSec());
 
 			//  search db
 			pCacheServer->sendToDBServer(data, dataSize);
 
 		} 
-		else if (value.m_len > 0 && 
-			getRoleLoginStatusValue_Status(std::string(value.m_getData)) == RedisCluster::RCS_DB_NOT_EXISTS)
+		else if (CAST_TO(int, std::string(value.m_getData)) == EnLoginKeyStatusFlag::LKSF_DB_NOT_EXISTS)
 		{
 			DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
 			memset(dataArr, 0, sizeof(dataArr));
@@ -104,6 +77,8 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 			MsgLoginSC sc;
 			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
 			sc.m_cErrorReason = MsgLoginSC::ER_UNREGISTERED;
+			memmove(sc.m_strRoleName, msg->m_strRoleName, sizeof(sc.m_strRoleName));
+			memmove(sc.m_strPassword, msg->m_strPassword, sizeof(sc.m_strPassword));
 
 			memmove(dataArr, data, sizeof(MsgHeader));
 			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
@@ -145,21 +120,20 @@ void onLoginCL(CacheServer* pCacheServer, byte* data, uint dataSize)
 		return;
 	}
 
+	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
 	// set cache data, if role is not exists
-	if (msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_ERROR &&
-		msg->m_cErrorReason == MsgLoginSC::ER_UNREGISTERED)
+	if (msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_ERROR)
 	{
-		std::string key = genRoleLoginStatusKey(header->m_nClientSrcSeq);
-		BaseRedis::RedisReturnST value = redis->get(key);
-		if (value.m_len > 0)
+		if (msg->m_cErrorReason == MsgLoginSC::ER_UNREGISTERED)
 		{
-			if (getRoleLoginStatusValue_Status(std::string(value.m_getData)) == RedisCluster::RCS_UNCONFIRMED)
+			BaseRedis::RedisReturnST value = redis->get(roleId);
+			if (value.m_len > 0)
 			{
-				std::string roleId = getRoleLoginStatusValue_RoleId(std::string(value.m_getData));
-				std::string saveVal = genRoleLoginStatusValue(roleId, RedisCluster::RCS_DB_NOT_EXISTS);
-				redis->setex(key, saveVal.data(), key.size(), saveVal.size(), redis->getKeyStatusExpireSec());
+				std::string saveVal = CAST_TO(std::string, EnLoginKeyStatusFlag::LKSF_DB_NOT_EXISTS);
+				redis->setex(roleId, saveVal.data(), roleId.size(), saveVal.size(), redis->getKeyStatusExpireSec());
 			}
 		}
+		
 	}
 
 	pCacheServer->sendToLogicServer(data, dataSize);

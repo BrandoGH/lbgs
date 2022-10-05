@@ -43,6 +43,8 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 		{
 			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
 			sc.m_cErrorReason = MsgLoginSC::ER_UNREGISTERED;
+			memmove(sc.m_strRoleName, msg->m_strRoleName, sizeof(sc.m_strRoleName));
+			memmove(sc.m_strPassword, msg->m_strPassword, sizeof(sc.m_strPassword));
 
 			memmove(dataArr, data, sizeof(MsgHeader));
 			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
