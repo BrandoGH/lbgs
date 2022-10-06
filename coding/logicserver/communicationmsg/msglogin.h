@@ -1,6 +1,8 @@
 #ifndef __MSG_LOGIN_H__
 #define __MSG_LOGIN_H__
+
 #include <boost/static_assert.hpp>
+#include <servercommon/basedef.h>
 
 namespace
 {
@@ -41,13 +43,19 @@ struct MsgLoginSC
 	enum EnLoginStatus
 	{
 		LS_DEFAULT = -1,
+
 		LS_LOGIN_OK,
 		LS_LOGIN_ERROR,
+
+		LS_REGISTER_OK,
+		LS_REGISTER_ERROR,
 	};
 
 	enum EnErrorReason
 	{
 		ER_DEFAULT = -1,
+
+		ER_NO_ERROR,
 		ER_UNREGISTERED,
 	};
 
@@ -81,16 +89,7 @@ struct RoleInfoParam
 	char m_strRoleName[g_nRoleNameMaxSize];
 	char m_strPassword[g_nRoleLoginPasswordMaxSize];
 };
-namespace boost{namespace serialization
-{
-template<class Archive>
-void serialize(Archive& ar, RoleInfoParam& p, const unsigned int version)
-{
-	ar& p.m_strRoleId;
-	ar& p.m_strRoleName;
-	ar& p.m_strPassword;
-}
-}}
+typedef byte RoleInfoParamHex[sizeof(RoleInfoParam)];
 
 #pragma pack(pop)
 

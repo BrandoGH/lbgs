@@ -36,10 +36,12 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 	MsgLoginSC sc;
 	DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
 	memset(dataArr, 0, sizeof(dataArr));
+
+	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
 	if (msg->m_cLoginFlag == MsgLoginCS::LF_LOGIN)
 	{
 		// new role
-		if (!DB_MGR->loginCheckRoleExists(std::string(msg->m_strRoleName)))
+		if (!DB_MGR->loginCheckRoleExists(roleId))
 		{
 			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
 			sc.m_cErrorReason = MsgLoginSC::ER_UNREGISTERED;
@@ -53,7 +55,24 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 	}
 	else if (msg->m_cLoginFlag == MsgLoginCS::LF_REGISTER)
 	{
-		// TODO register role
+		RoleInfoParam param;
+		memmove(param.m_strRoleId, roleId.data(), sizeof(param.m_strRoleId));
+		memmove(param.m_strRoleName, msg->m_strRoleName, sizeof(param.m_strRoleName));
+		memmove(param.m_strPassword, msg->m_strPassword, sizeof(param.m_strPassword));
+		
+		if (!DB_MGR->loginCheckRoleExists(roleId))
+		{
+			DB_MGR->registerRoleInfo(param);
+			sc.m_cLoginStatus = MsgLoginSC::LS_REGISTER_OK;
+			sc.m_cErrorReason = MsgLoginSC::ER_NO_ERROR;
+			memmove(sc.m_strRoleName, msg->m_strRoleName, sizeof(sc.m_strRoleName));
+			memmove(sc.m_strPassword, msg->m_strPassword, sizeof(sc.m_strPassword));
+
+			memmove(dataArr, data, sizeof(MsgHeader));
+			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
+			callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pDBServer, dataArr, sizeof(dataArr));
+
+		}
 	}
 	
 }

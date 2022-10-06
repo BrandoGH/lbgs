@@ -74,6 +74,15 @@ public:
 	});
 	*/
 	bool query(const std::string& sql, CallbackQuery callback);
+	bool query(
+		const std::string& sql, 
+		int nParams,
+		const Oid* paramTypes,
+		const char* const* paramValues,
+		const int* paramLengths,
+		const int* paramFormats,
+		int resultForma,	/*0-text  1-binary*/
+		CallbackQuery callback);
 	uint getRows();
 	uint getColumns();
 

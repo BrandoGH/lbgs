@@ -2,6 +2,8 @@
 #define __DB_MANAGER_H__
 #include "postgresql/basepsql.h"
 
+#include <logicserver/communicationmsg/msglogin.h>
+
 class DBManager
 {
 public:
@@ -12,7 +14,8 @@ public:
 	void connectDB(BasePsql::CallbackStartConnect callback);
 	BasePsql* getBaseSql();
 
-	bool loginCheckRoleExists(const std::string& roleName);
+	bool loginCheckRoleExists(const std::string& roleId);
+	void registerRoleInfo(const RoleInfoParam& roleInfo);
 
 private:
 	static DBManager* instanceObj;

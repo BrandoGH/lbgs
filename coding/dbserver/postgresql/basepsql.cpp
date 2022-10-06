@@ -67,6 +67,49 @@ bool BasePsql::query(const std::string& sql, CallbackQuery callback)
 	return queryOk;
 }
 
+bool BasePsql::query(
+	const std::string& sql, 
+	int nParams,
+	const Oid* paramTypes,
+	const char* const* paramValues, 
+	const int* paramLengths, 
+	const int* paramFormats, 
+	int resultForma, 
+	CallbackQuery callback)
+{
+	CommonBoost::UniqueLock lock(m_mtx);
+	bool queryOk = false;
+	if (!m_psqlConn)
+	{
+		LOG_DBSERVER.printLog("m_psqlConn NULL");
+		if (!callback.empty())
+		{
+			callback(queryOk, PGRES_FATAL_ERROR);
+		}
+		return queryOk;
+	}
+	clearResult();
+	m_psqlRes = PQexecParams(
+		m_psqlConn, 
+		sql.data(), nParams, paramTypes, paramValues, paramLengths, paramFormats, resultForma);
+	if (!m_psqlRes ||
+		getQuerySqlStatus() == PGRES_FATAL_ERROR)
+	{
+		LOG_DBSERVER.printLog("fatal error!!");
+		if (!callback.empty())
+		{
+			callback(queryOk, PGRES_FATAL_ERROR);
+		}
+		return queryOk;
+	}
+	queryOk = true;
+	if (!callback.empty())
+	{
+		callback(queryOk, getQuerySqlStatus());
+	}
+	return queryOk;
+}
+
 uint BasePsql::getRows()
 {
 	return PQntuples(m_psqlRes);

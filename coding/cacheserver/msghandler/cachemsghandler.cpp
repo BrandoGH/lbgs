@@ -15,8 +15,13 @@ namespace
 // cache data status
 enum EnLoginKeyStatusFlag
 {
+	// login
 	LKSF_UNCONFIRMED,
 	LKSF_DB_NOT_EXISTS,
+	
+	// register
+	LKSF_REGISTERING,
+	LKSF_REGISTER_OK,
 };
 }
 
@@ -52,10 +57,10 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 	}
 
 	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
+	BaseRedis::RedisReturnST value = redis->get(roleId);
 	// role login
 	if (msg->m_cLoginFlag == MsgLoginCS::LF_LOGIN)
 	{
-		BaseRedis::RedisReturnST value = redis->get(roleId);
 		if (value.m_len <= 0)		// new role
 		{
 			std::string saveVal = CAST_TO(std::string, EnLoginKeyStatusFlag::LKSF_UNCONFIRMED);
@@ -64,7 +69,6 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 
 			//  search db
 			pCacheServer->sendToDBServer(data, dataSize);
-
 		} 
 		else if (CAST_TO(int, std::string(value.m_getData)) == EnLoginKeyStatusFlag::LKSF_DB_NOT_EXISTS)
 		{
@@ -87,7 +91,12 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 	}
 	else if (msg->m_cLoginFlag == MsgLoginCS::LF_REGISTER)
 	{
-		// TODO register role
+		std::string saveVal = CAST_TO(std::string, EnLoginKeyStatusFlag::LKSF_REGISTERING);
+		// [roleSeq]_login = [roleId]_[status]
+		redis->setex(roleId, saveVal.data(), roleId.size(), saveVal.size(), redis->getKeyStatusExpireSec());
+
+		//  search db
+		pCacheServer->sendToDBServer(data, dataSize);
 	}
 }
 
