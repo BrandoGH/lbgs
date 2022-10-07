@@ -64,7 +64,6 @@ MainWindowObj::MainWindowObj(QObject* parent)
 	, m_lineUserName(NULL)
 	, m_linePassword(NULL)
 	, m_btLogin(NULL)
-	, m_btRegister(NULL)
 {
 	loadMainWindow();
 	initTimer();
@@ -273,22 +272,7 @@ void MainWindowObj::onLoginClicked(bool checked)
 		QMessageBox::information(m_mw, "error", "please input info", QMessageBox::Ok);
 		return;
 	}
-	assembleLoginOrReg(MsgLoginCS::LF_LOGIN);
-}
-
-void MainWindowObj::onRegisterClicked(bool checked)
-{
-	SIM_CLIENT_LOG(QString("waiting......."));
-	if (!m_lineUserName || !m_linePassword)
-	{
-		return;
-	}
-	if (m_lineUserName->text().isEmpty() || m_linePassword->text().isEmpty())
-	{
-		QMessageBox::information(m_mw, "error", "please input info", QMessageBox::Ok);
-		return;
-	}
-	assembleLoginOrReg(MsgLoginCS::LF_REGISTER);
+	assembleLogin();
 }
 
 void MainWindowObj::onOnceClientConnected(uint clientId)
@@ -348,17 +332,31 @@ void MainWindowObj::onLoginMsg(const QByteArray& data)
 		return;
 	}
 
-	QString strError;
+	QString strTipInfo;
+
+	if (sc->m_cLoginStatus == MsgLoginSC::LS_LOGIN_OK && 
+		sc->m_cErrorReason == MsgLoginSC::ER_NO_ERROR)
+	{
+		// into game world TODO
+
+		strTipInfo = "login ok!!";
+		QMessageBox::information(m_mw, "login", strTipInfo);
+		return;
+	}
+
 	if (sc->m_cLoginStatus == MsgLoginSC::LS_LOGIN_ERROR)
 	{
 		switch (sc->m_cErrorReason)
 		{
-		case MsgLoginSC::ER_UNREGISTERED:
-			strError = "role is not exists!";
+		case MsgLoginSC::ER_PASSWORD_ERROR:
+			strTipInfo = "password error";
+			break;
+		case MsgLoginSC::ER_HAS_LOGIN_ERROR:
+			strTipInfo = "this role has been logined!!";
 			break;
 		}
 
-		QMessageBox::information(m_mw, "error", strError);
+		QMessageBox::information(m_mw, "error", strTipInfo);
 	}
 }
 
@@ -404,7 +402,6 @@ void MainWindowObj::loadMainWindow()
 		m_lineUserName = m_mw->findChild<QLineEdit*>("lineEdit_loginName");
 		m_linePassword = m_mw->findChild<QLineEdit*>("lineEdit_loginPassword");
 		m_btLogin = m_mw->findChild<QPushButton*>("pushButton_login");
-		m_btRegister = m_mw->findChild<QPushButton*>("pushButton_register");
 
 
 
@@ -427,7 +424,6 @@ void MainWindowObj::loadMainWindow()
 
 		// Game login simulation
 		connect(m_btLogin, SIGNAL(clicked(bool)), this, SLOT(onLoginClicked(bool)));
-		connect(m_btRegister, SIGNAL(clicked(bool)), this, SLOT(onRegisterClicked(bool)));
 
 	}
 
@@ -512,7 +508,7 @@ void MainWindowObj::assembleHeart()
 
 }
 
-void MainWindowObj::assembleLoginOrReg(int flag)
+void MainWindowObj::assembleLogin()
 {
 	if (!m_lineUserName || !m_linePassword)
 	{
@@ -521,7 +517,6 @@ void MainWindowObj::assembleLoginOrReg(int flag)
 	MsgLoginCS msg;
 	memmove(msg.m_strRoleName, m_lineUserName->text().toStdString().data(), sizeof(msg.m_strRoleName));
 	memmove(msg.m_strPassword, m_linePassword->text().toStdString().data(), sizeof(msg.m_strPassword));
-	msg.m_cLoginFlag = flag;
 	assembleProtocal((const char*)&msg, sizeof(MsgLoginCS), EnMsgType::MSG_TYPE_LOGIN_REGISTER_CS);
 	onSendClicked(true);
 }
