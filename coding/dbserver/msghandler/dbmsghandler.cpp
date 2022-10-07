@@ -55,7 +55,7 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 
 			memmove(dataArr, data, sizeof(MsgHeader));
 			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
-			callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pDBServer, dataArr, sizeof(dataArr));
+			callHandler(MSG_TYPE_LOGIN_SC, pDBServer, dataArr, sizeof(dataArr));
 
 			// TODO load role info from db
 		});
@@ -73,7 +73,7 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 
 		memmove(dataArr, data, sizeof(MsgHeader));
 		memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
-		callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pDBServer, dataArr, sizeof(dataArr));
+		callHandler(MSG_TYPE_LOGIN_SC, pDBServer, dataArr, sizeof(dataArr));
 
 		// TODO load role info from db
 	}
@@ -94,7 +94,7 @@ void onLoginDC(DBServer* pDBServer, byte* data, uint dataSize)
 	}
 
 	h->m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgLoginSC);
-	h->m_nMsgType = MSG_TYPE_LOGIN_REGISTER_SC;
+	h->m_nMsgType = MSG_TYPE_LOGIN_SC;
 
 	pDBServer->sendToCacheServer(data, dataSize);
 }

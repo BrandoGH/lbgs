@@ -318,7 +318,7 @@ void MainWindowObj::onReadData(uint clientId, const QByteArray& data)
 	}
 	switch (header->m_nMsgType)
 	{
-	case MSG_TYPE_LOGIN_REGISTER_SC:
+	case MSG_TYPE_LOGIN_SC:
 		onLoginMsg(data);
 		break;
 	}
@@ -517,6 +517,6 @@ void MainWindowObj::assembleLogin()
 	MsgLoginCS msg;
 	memmove(msg.m_strRoleName, m_lineUserName->text().toStdString().data(), sizeof(msg.m_strRoleName));
 	memmove(msg.m_strPassword, m_linePassword->text().toStdString().data(), sizeof(msg.m_strPassword));
-	assembleProtocal((const char*)&msg, sizeof(MsgLoginCS), EnMsgType::MSG_TYPE_LOGIN_REGISTER_CS);
+	assembleProtocal((const char*)&msg, sizeof(MsgLoginCS), EnMsgType::MSG_TYPE_LOGIN_CS);
 	onSendClicked(true);
 }

@@ -58,7 +58,7 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 	else
 	{
 		header->m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgLoginSC);
-		header->m_nMsgType = MSG_TYPE_LOGIN_REGISTER_SC;
+		header->m_nMsgType = MSG_TYPE_LOGIN_SC;
 		DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
 		memset(dataArr, 0, sizeof(dataArr));
 		MsgLoginSC sc;
@@ -77,7 +77,7 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 		memmove(sc.m_strPassword, msg->m_strPassword, sizeof(sc.m_strPassword));
 		memmove(dataArr, data, sizeof(MsgHeader));
 		memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
-		callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pCacheServer, dataArr, sizeof(dataArr));
+		callHandler(MSG_TYPE_LOGIN_SC, pCacheServer, dataArr, sizeof(dataArr));
 	}
 }
 
