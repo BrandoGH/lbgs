@@ -11,6 +11,7 @@ DBManager::DBManager()
 	, m_nQueueRigsterSize(0)
 {
 	initQueueThread();
+	initTimingSyncToCacheFunc();
 }
 
 DBManager::~DBManager()
@@ -41,6 +42,11 @@ void DBManager::registerDBServer(DBServer* dbServer)
 	m_gloabelDBServer = dbServer;
 }
 
+DBServer* DBManager::getGlobalDBServer()
+{
+	return m_gloabelDBServer;
+}
+
 bool DBManager::checkRoleExists(const std::string& roleId)
 {
 	std::stringstream fm;
@@ -56,9 +62,9 @@ bool DBManager::checkRoleExists(const std::string& roleId)
 
 void DBManager::registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, CallbackRigster callback)
 {
-	m_queueRigster.enqueue(roleInfo);
-	++m_nQueueRigsterSize;
 	m_cbRigster = callback;
+	++m_nQueueRigsterSize;
+	m_queueRigster.enqueue(roleInfo);
 }
 
 void DBManager::timingSyncToCache(EnTimingSyncType type)
@@ -70,10 +76,19 @@ void DBManager::timingSyncToCache(EnTimingSyncType type)
 
 }
 
+void DBManager::onTimingSyncRoleInfo()
+{
+}
+
 void DBManager::initQueueThread()
 {
 	CommonBoost::Thread t(BIND(&DBManager::onExecRigsterQueueSql, this));
 	t.detach();
+}
+
+void DBManager::initTimingSyncToCacheFunc()
+{
+	m_pTimingSyncFunc[TST_ROLE_INFO] = &DBManager::onTimingSyncRoleInfo;
 }
 
 int DBManager::getQueueRigsterSize()

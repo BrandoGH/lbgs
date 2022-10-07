@@ -12,6 +12,8 @@ communicationmsg/msgheart.h
 communicationmsg/msglogin.h
 rolemanager/rolemanager.h
 rolemanager/rolemanager.cpp
+rolemanager/role.h
+rolemanager/role.cpp
 )
 set(BIN_NAME logicserver)
 

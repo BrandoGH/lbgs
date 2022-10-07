@@ -92,6 +92,23 @@ void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 		return;
 	}
 
+	if (msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_OK && msg->m_cErrorReason == MsgLoginSC::ER_NO_ERROR)
+	{
+		// create role
+		std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
+		RoleManager::CreateRoleInput input;
+		RoleLoginInfoParam param;
+		memmove(param.m_strRoleId, roleId.data(), sizeof(param.m_strRoleId));
+		memmove(param.m_strRoleName, msg->m_strRoleName, sizeof(param.m_strRoleName));
+		memmove(param.m_strPassword, msg->m_strPassword, sizeof(param.m_strPassword));
+
+		input.m_nClientSeq = header->m_nClientSrcSeq;
+		input.m_param = param;
+		ROLE_MGR->createRole(input);
+
+		// TODO load role info from db
+	}
+
 	pLogicServer->sendToClient(data, dataSize);
 }
 
