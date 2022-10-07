@@ -79,8 +79,7 @@ private:
 	Common::LoggerPtr m_pLog;
 	std::string m_strLogString;
 
-	CommonBoost::Mutex m_mtxContent;
-	CommonBoost::Mutex m_mtxHeader;
+	CommonBoost::Mutex m_mtx;
 };
 
 namespace CommonLog

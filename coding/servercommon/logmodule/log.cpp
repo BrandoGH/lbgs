@@ -106,7 +106,7 @@ LogModule& LogModule::setLogHeader(
 	int threadId
 )
 {
-	CommonBoost::UniqueLock lock(m_mtxHeader);
+	CommonBoost::UniqueLock lock(m_mtx);
 	m_strFunctionName = function;
 	m_strFileName = file;
 	m_nLine = line;
@@ -122,7 +122,7 @@ void LogModule::printLog(const char * format, ...)
 			__FILE__,__LINE__,__FUNCTION__, THREAD_ID);
 		return;
 	}
-	CommonBoost::UniqueLock lock(m_mtxContent);
+	CommonBoost::UniqueLock lock(m_mtx);
 	if (m_nLevel < LV_INFO || m_nLevel > LV_ERROR)
 	{
 		m_nLevel = LV_INFO;
