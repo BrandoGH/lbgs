@@ -42,6 +42,10 @@ public:
 
 	int getKeyStatusExpireSec();
 
+	// [roleId]_loginstatus = true/false
+	std::string getLoginStatusCacheKey(const std::string& roleId);
+	void setLoginStatusCache(const std::string& roleId, bool val);
+	bool getLoginStatusCache(const std::string& roleId);
 
 HANDLER:
 	void OnStartConnectResult(bool ok, int curRedisSeq);

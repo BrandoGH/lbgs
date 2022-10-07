@@ -8,32 +8,21 @@ namespace
 {
 // Role id fixed 36
 const int g_nRoleIdMaxSize = 37;
-const int g_nRoleNameMaxSize = 13;
-const int g_nRoleLoginPasswordMaxSize = 32;
+const int g_nRoleNameMaxSize = 14;
+const int g_nRoleLoginPasswordMaxSize = 34;
 }
 
 #pragma pack(push,4)
 // 152-role login seq
 struct MsgLoginCS	
 {
-	enum EnLoginFlag
-	{
-		LF_DEFAULT = -1,
-		LF_LOGIN,
-		LF_REGISTER,
-	};
-
 	MsgLoginCS()
 	{
 		memset(m_strRoleName, 0, g_nRoleNameMaxSize);
 		memset(m_strPassword, 0, g_nRoleLoginPasswordMaxSize);
-		m_cLoginFlag = LF_DEFAULT;
-		memset(m_nReserve, 0, sizeof(m_nReserve));
 	}
 	char m_strRoleName[g_nRoleNameMaxSize];
 	char m_strPassword[g_nRoleLoginPasswordMaxSize];
-	char m_cLoginFlag;
-	char m_nReserve[2];
 };
 BOOST_STATIC_ASSERT(sizeof(MsgLoginCS) == 48);
 
@@ -46,9 +35,6 @@ struct MsgLoginSC
 
 		LS_LOGIN_OK,
 		LS_LOGIN_ERROR,
-
-		LS_REGISTER_OK,
-		LS_REGISTER_ERROR,
 	};
 
 	enum EnErrorReason
@@ -56,7 +42,8 @@ struct MsgLoginSC
 		ER_DEFAULT = -1,
 
 		ER_NO_ERROR,
-		ER_UNREGISTERED,
+		ER_PASSWORD_ERROR,
+		ER_HAS_LOGIN_ERROR,
 	};
 
 	MsgLoginSC()
@@ -65,21 +52,21 @@ struct MsgLoginSC
 		memset(m_strPassword, 0, g_nRoleLoginPasswordMaxSize);
 		m_cLoginStatus = LS_DEFAULT;
 		m_cErrorReason = ER_DEFAULT;
-		m_nReserve = 0;
+		memset(m_nReserve, 0, sizeof(m_nReserve));
 	}
 
 	char m_strRoleName[g_nRoleNameMaxSize];
 	char m_strPassword[g_nRoleLoginPasswordMaxSize];
 	char m_cLoginStatus;
 	char m_cErrorReason;
-	char m_nReserve;
+	char m_nReserve[2];
 };
-BOOST_STATIC_ASSERT(sizeof(MsgLoginSC) == 48);
+BOOST_STATIC_ASSERT(sizeof(MsgLoginSC) == 52);
 
 // save user info
-struct RoleInfoParam
+struct RoleLoginInfoParam
 {
-	RoleInfoParam()
+	RoleLoginInfoParam()
 	{
 		memset(m_strRoleId, 0, g_nRoleIdMaxSize);
 		memset(m_strRoleName, 0, g_nRoleNameMaxSize);
@@ -89,7 +76,7 @@ struct RoleInfoParam
 	char m_strRoleName[g_nRoleNameMaxSize];
 	char m_strPassword[g_nRoleLoginPasswordMaxSize];
 };
-typedef byte RoleInfoParamHex[sizeof(RoleInfoParam)];
+typedef byte RoleLoginInfoParamHex[sizeof(RoleLoginInfoParam)];
 
 #pragma pack(pop)
 

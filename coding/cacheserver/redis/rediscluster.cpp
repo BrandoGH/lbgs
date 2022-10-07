@@ -13,10 +13,10 @@
 
 namespace
 {
-// The cache time is at least 10 minutes and no more than half an hour
-const int g_nKeyStatusExpireSec = 60 * 10;
-const int g_nKeyStatusExpireSecRandomMin = 60 * 10;
-const int g_nKeyStatusExpireSecRandomMax = 60 * 30;
+// The cache time is at least g_nKeyStatusExpireSec sec and no more than g_nKeyStatusExpireSecRandomMax sec
+const int g_nKeyStatusExpireSec = 60 * 60;				// 1 hours
+const int g_nKeyStatusExpireSecRandomMin = g_nKeyStatusExpireSec * 2;
+const int g_nKeyStatusExpireSecRandomMax = g_nKeyStatusExpireSec * 10;
 }
 
 RedisCluster::RedisCluster()
@@ -250,6 +250,26 @@ void RedisCluster::expireKey(const std::string& key, int expireSec)
 int RedisCluster::getKeyStatusExpireSec()
 {
 	return CommonTool::getRandomByBase(g_nKeyStatusExpireSec, g_nKeyStatusExpireSecRandomMin, g_nKeyStatusExpireSecRandomMax);
+}
+
+std::string RedisCluster::getLoginStatusCacheKey(const std::string& roleId)
+{
+	return std::string(roleId + "_loginstatus");
+}
+
+void RedisCluster::setLoginStatusCache(const std::string& roleId, bool val)
+{
+	std::string key = getLoginStatusCacheKey(roleId);
+	std::string saveVal = val ? "true" : "false";
+	setex(key, saveVal.data(), key.size(), saveVal.size(),getKeyStatusExpireSec());
+}
+
+bool RedisCluster::getLoginStatusCache(const std::string& roleId)
+{
+	std::string key = getLoginStatusCacheKey(roleId);
+	BaseRedis::RedisReturnST getV = get(key);
+	bool bRet = (getV.m_len > 0) && std::string(getV.m_getData) == "true";
+	return bRet;
 }
 
 void RedisCluster::OnOpResult(

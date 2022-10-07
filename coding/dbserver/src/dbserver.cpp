@@ -17,6 +17,8 @@ DBServer::DBServer()
 	, m_bInnerRunOnce(false)
 	, m_nHasReadProxyDataSize(0)
 {
+	DB_MGR->registerDBServer(this);
+
 	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	m_innerSrvHeart.setDBServer(this);
 	m_innerSrvHeart.setInterval(info.heart_time);

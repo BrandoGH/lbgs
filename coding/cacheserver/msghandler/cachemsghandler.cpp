@@ -12,17 +12,7 @@
 
 namespace
 {
-// cache data status
-enum EnLoginKeyStatusFlag
-{
-	// login
-	LKSF_UNCONFIRMED,
-	LKSF_DB_NOT_EXISTS,
-	
-	// register
-	LKSF_REGISTERING,
-	LKSF_REGISTER_OK,
-};
+
 }
 
 namespace CacheMsgHandler
@@ -57,46 +47,37 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 	}
 
 	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
-	BaseRedis::RedisReturnST value = redis->get(roleId);
-	// role login
-	if (msg->m_cLoginFlag == MsgLoginCS::LF_LOGIN)
+	bool bKeyExists = redis->existsKey(redis->getLoginStatusCacheKey(roleId));
+	bool bLogin = redis->getLoginStatusCache(roleId);
+
+	if (!bKeyExists) // new role
 	{
-		if (value.m_len <= 0)		// new role
-		{
-			std::string saveVal = CAST_TO(std::string, EnLoginKeyStatusFlag::LKSF_UNCONFIRMED);
-			// [roleSeq]_login = [roleId]_[status]
-			redis->setex(roleId, saveVal.data(), roleId.size(), saveVal.size(), redis->getKeyStatusExpireSec());
-
-			//  search db
-			pCacheServer->sendToDBServer(data, dataSize);
-		} 
-		else if (CAST_TO(int, std::string(value.m_getData)) == EnLoginKeyStatusFlag::LKSF_DB_NOT_EXISTS)
-		{
-			DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
-			memset(dataArr, 0, sizeof(dataArr));
-
-			header->m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgLoginSC);
-			header->m_nMsgType = MSG_TYPE_LOGIN_REGISTER_SC;
-
-			MsgLoginSC sc;
-			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
-			sc.m_cErrorReason = MsgLoginSC::ER_UNREGISTERED;
-			memmove(sc.m_strRoleName, msg->m_strRoleName, sizeof(sc.m_strRoleName));
-			memmove(sc.m_strPassword, msg->m_strPassword, sizeof(sc.m_strPassword));
-
-			memmove(dataArr, data, sizeof(MsgHeader));
-			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
-			callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pCacheServer, dataArr, sizeof(dataArr));
-		}
-	}
-	else if (msg->m_cLoginFlag == MsgLoginCS::LF_REGISTER)
-	{
-		std::string saveVal = CAST_TO(std::string, EnLoginKeyStatusFlag::LKSF_REGISTERING);
-		// [roleSeq]_login = [roleId]_[status]
-		redis->setex(roleId, saveVal.data(), roleId.size(), saveVal.size(), redis->getKeyStatusExpireSec());
-
 		//  search db
 		pCacheServer->sendToDBServer(data, dataSize);
+	} 
+	else
+	{
+		header->m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgLoginSC);
+		header->m_nMsgType = MSG_TYPE_LOGIN_REGISTER_SC;
+		DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
+		memset(dataArr, 0, sizeof(dataArr));
+		MsgLoginSC sc;
+		if (bLogin)
+		{
+			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
+			sc.m_cErrorReason = MsgLoginSC::ER_HAS_LOGIN_ERROR;
+		}
+		else
+		{
+			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_OK;
+			sc.m_cErrorReason = MsgLoginSC::ER_NO_ERROR;
+		}
+
+		memmove(sc.m_strRoleName, msg->m_strRoleName, sizeof(sc.m_strRoleName));
+		memmove(sc.m_strPassword, msg->m_strPassword, sizeof(sc.m_strPassword));
+		memmove(dataArr, data, sizeof(MsgHeader));
+		memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
+		callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pCacheServer, dataArr, sizeof(dataArr));
 	}
 }
 
@@ -130,19 +111,15 @@ void onLoginCL(CacheServer* pCacheServer, byte* data, uint dataSize)
 	}
 
 	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
-	// set cache data, if role is not exists
-	if (msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_ERROR)
+
+	if ((msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_OK && msg->m_cErrorReason == MsgLoginSC::ER_NO_ERROR) || 
+		msg->m_cErrorReason == MsgLoginSC::ER_HAS_LOGIN_ERROR)
 	{
-		if (msg->m_cErrorReason == MsgLoginSC::ER_UNREGISTERED)
-		{
-			BaseRedis::RedisReturnST value = redis->get(roleId);
-			if (value.m_len > 0)
-			{
-				std::string saveVal = CAST_TO(std::string, EnLoginKeyStatusFlag::LKSF_DB_NOT_EXISTS);
-				redis->setex(roleId, saveVal.data(), roleId.size(), saveVal.size(), redis->getKeyStatusExpireSec());
-			}
-		}
-		
+		redis->setLoginStatusCache(roleId, true);
+	}
+	else
+	{
+		redis->setLoginStatusCache(roleId, false);
 	}
 
 	pCacheServer->sendToLogicServer(data, dataSize);
