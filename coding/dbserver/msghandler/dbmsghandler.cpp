@@ -56,6 +56,8 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 			memmove(dataArr, data, sizeof(MsgHeader));
 			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
 			callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pDBServer, dataArr, sizeof(dataArr));
+
+			// TODO load role info from db
 		});
 	}
 	else
@@ -73,6 +75,7 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 		memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
 		callHandler(MSG_TYPE_LOGIN_REGISTER_SC, pDBServer, dataArr, sizeof(dataArr));
 
+		// TODO load role info from db
 	}
 }
 

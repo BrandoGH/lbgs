@@ -105,8 +105,6 @@ void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 		input.m_nClientSeq = header->m_nClientSrcSeq;
 		input.m_param = param;
 		ROLE_MGR->createRole(input);
-
-		// TODO load role info from db
 	}
 
 	pLogicServer->sendToClient(data, dataSize);
