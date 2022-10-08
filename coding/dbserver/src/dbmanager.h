@@ -12,7 +12,7 @@ class DBManager
 {
 	// callback
 	// success will be return roleInfo
-	typedef boost::function< void(const RoleLoginInfoParam&) > CallbackRigster;
+	typedef boost::function< void(const RoleLoginInfoParam&) > CallbackRoleParam;
 
 	// timing sync to cache
 	typedef void(DBManager::*HanlderFuncTimingSyncToCache)(void);
@@ -36,7 +36,8 @@ public:
 	DBServer* getGlobalDBServer();
 
 	bool checkRoleExists(const std::string& roleId);
-	void registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, CallbackRigster callback);
+	void registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, CallbackRoleParam callback);
+
 
 	void timingSyncToCache(EnTimingSyncType type);
 
@@ -60,7 +61,7 @@ private:
 	bool m_bQueueThreadStopFlag;
 	moodycamel::ConcurrentQueue<RoleLoginInfoParam> m_queueRigster;
 	boost::atomic_int m_nQueueRigsterSize;
-	CallbackRigster m_cbRigster;
+	CallbackRoleParam m_cbRigster;
 
 	HanlderFuncTimingSyncToCache m_pTimingSyncFunc[TST_MAX];
 };

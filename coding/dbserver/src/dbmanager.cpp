@@ -60,7 +60,7 @@ bool DBManager::checkRoleExists(const std::string& roleId)
 	return m_sql.getRows() == 1;
 }
 
-void DBManager::registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, CallbackRigster callback)
+void DBManager::registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, CallbackRoleParam callback)
 {
 	m_cbRigster = callback;
 	++m_nQueueRigsterSize;

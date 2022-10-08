@@ -51,7 +51,7 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 	bool bKeyExists = redis->existsKey(redis->getLoginStatusCacheKey(roleId));
 	bool bLogin = redis->getLoginStatusCache(roleId);
 
-	if (!bKeyExists) // new role
+	if (!bKeyExists)
 	{
 		//  search db
 		pCacheServer->sendToDBServer(data, dataSize);
