@@ -30,6 +30,7 @@ private:
 	static RoleManager* instanceObj;
 
 	std::map<std::string, boost::shared_ptr<Role>> m_mapIdToRole;
+	CommonBoost::Mutex m_mtxMap;
 };
 
 #define ROLE_MGR RoleManager::instance()

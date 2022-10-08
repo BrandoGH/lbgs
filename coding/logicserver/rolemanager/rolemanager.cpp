@@ -25,7 +25,16 @@ void RoleManager::createRole(const CreateRoleInput& input)
 	boost::shared_ptr<Role> newRole = boost::make_shared<Role>();
 	newRole->setClientSeq(input.m_nClientSeq);
 	newRole->setLoginParam(input.m_param);
-	m_mapIdToRole[input.m_param.m_strRoleId] = newRole;
+
+	// insert to map
+	CommonBoost::UniqueLock lock(m_mtxMap);
+	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit = 
+		m_mapIdToRole.find(input.m_param.m_strRoleId);
+	if (cit != m_mapIdToRole.cend())
+	{
+		m_mapIdToRole[input.m_param.m_strRoleId] = newRole;
+	}
+	lock.unlock();
 
 	newRole->login();
 
