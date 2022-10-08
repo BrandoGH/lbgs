@@ -2,8 +2,10 @@
 #include "gateserver.h"
 
 #include <servercommon/commontool/msgtool/msgtool.h>
-#include "boost/asio/bind_executor.hpp"
-#include "boost/asio/basic_stream_socket.hpp"
+#include <servercommon/msgmodule/msgcommondef.h>
+#include <boost/asio/bind_executor.hpp>
+#include <boost/asio/basic_stream_socket.hpp>
+#include <logicserver/communicationmsg/msglogout.h>
 
 User::User(CommonBoost::IOServer& ioserver)
 	: m_nHasReadDataSize(0)
@@ -58,6 +60,7 @@ void User::onAyncRead(
 {
 	if (ec)
 	{
+		sendLogoutProtocal(ec);
 		sigError(shared_from_this(), ec);
 		return;
 	}
@@ -222,4 +225,20 @@ void User::forwardToProxy(const byte* readOnceMsg, uint msgSize)
 
 
 	sigSendDataToProxy(readOnceMsg, msgSize, getSeq());
+}
+
+void User::sendLogoutProtocal(const CommonBoost::ErrorCode& ec)
+{
+	DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgLogoutCS));
+
+	MsgHeader header;
+	header.m_nMsgType = MSG_TYPE_LOGOUT_CS;
+
+	MsgLogoutCS cs;
+	cs.m_nErrorCode = ec.value();
+
+	memmove(sendData, (const char*)&header, sizeof(MsgHeader));
+	memmove(sendData + sizeof(MsgHeader), (const char*)&cs, sizeof(MsgLogoutCS));
+
+	forwardToProxy(sendData, sizeof(sendData));
 }

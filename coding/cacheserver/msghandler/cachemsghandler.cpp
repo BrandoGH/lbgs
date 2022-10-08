@@ -5,6 +5,7 @@
 #include <logmodule/logdef.h>
 #include <msgmodule/msgcommondef.h>
 #include <logicserver/communicationmsg/msglogin.h>
+#include <logicserver/communicationmsg/msglogout.h>
 #include <iosfwd>
 #include <commontool/commontool.h>
 #include <boost/algorithm/string.hpp>
@@ -126,6 +127,38 @@ void onLoginCL(CacheServer* pCacheServer, byte* data, uint dataSize)
 
 }
 
+void onLogoutLC(CacheServer* pCacheServer, byte* data, uint dataSize)
+{
+	if (!pCacheServer || !data)
+	{
+		LOG_CACHESERVER.printLog("Pointer NULL");
+		return;
+	}
+
+	RedisCluster* redis = pCacheServer->getRedisCluster();
+	if (!redis)
+	{
+		LOG_CACHESERVER.printLog("getRedisCluster NULL");
+		return;
+	}
+
+	MsgHeader* header = (MsgHeader*)data;
+	if (!header)
+	{
+		LOG_CACHESERVER.printLog("header NULL");
+		return;
+	}
+
+	MsgLogoutCS* msg = (MsgLogoutCS*)(data + sizeof(MsgHeader));
+	if (!msg)
+	{
+		LOG_CACHESERVER.printLog("msg NULL");
+		return;
+	}
+	// delete cache
+	redis->setLoginStatusCache(msg->m_roleId, false);
+}
+
 
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
@@ -134,6 +167,7 @@ HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 	NULL,
 	onLoginLC,
 	onLoginCL,
+	onLogoutLC,
 };
 
 

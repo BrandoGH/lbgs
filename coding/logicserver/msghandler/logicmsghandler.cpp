@@ -2,6 +2,7 @@
 #include "src/logicserver.h"
 #include "src/globallogicserver.h"
 #include "communicationmsg/msgheart.h"
+#include "communicationmsg/msglogout.h"
 #include "communicationmsg/msglogin.h"
 #include "rolemanager/rolemanager.h"
 
@@ -110,6 +111,29 @@ void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 	pLogicServer->sendToClient(data, dataSize);
 }
 
+void onClientLogoutCS(LogicServer* pLogicServer, byte* data, uint dataSize)
+{
+	if (!pLogicServer || !data)
+	{
+		LOG_LOGICSERVER.printLog("pLogicServer NULL");
+		return;
+	}
+	MsgHeader* header = (MsgHeader*)data;
+	if (!header)
+	{
+		LOG_LOGICSERVER.printLog("header NULL");
+		return;
+	}
+	MsgLogoutCS* msg = (MsgLogoutCS*)(data + sizeof(MsgHeader));
+	if (!msg)
+	{
+		LOG_LOGICSERVER.printLog("msg NULL");
+		return;
+	}
+
+	ROLE_MGR->removeRole(header->m_nClientSrcSeq, msg->m_nErrorCode);
+}
+
 
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
@@ -118,6 +142,7 @@ HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 	onClientHeartSC,
 	onClientLoginCS,
 	onClientLoginSC,
+	onClientLogoutCS,
 };
 
 void callHandler(int msgType, LogicServer* pLogicServer, byte* data, uint dataSize)

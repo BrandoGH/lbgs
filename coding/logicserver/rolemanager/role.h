@@ -12,16 +12,24 @@ public:
 	~Role();
 
 	void login();
+	void logout();
 
 	void setClientSeq(int seq);
 	int getClientSeq();
 	void setLoginParam(const RoleLoginInfoParam& param);
-	const std::string& getRoleId();
-	const std::string& getRoleName();
+	std::string getRoleId();
+	std::string getRoleName();
+	void setLogoutErrorCode(int ec);
+	int getLogoutErrorCode();
+
+private:
+	void deleteLoginCache();
 
 private:
 	int m_nClientSeq;
 	RoleLoginInfoParam m_paramLogin;
+
+	int m_nLogoutErrorCode;
 };
 
 #endif // !__ROLE_H__

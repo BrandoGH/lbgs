@@ -55,6 +55,7 @@ HANDLER:
 private:
 	// send info to proxy server
 	void forwardToProxy(const byte* readOnceMsg, uint msgSize);
+	void sendLogoutProtocal(const CommonBoost::ErrorCode& ec);
 
 private:
 	CommonBoost::SocketPtr m_pSocket;

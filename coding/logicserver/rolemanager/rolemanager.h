@@ -22,6 +22,7 @@ public:
 	static RoleManager* instance();
 
 	void createRole(const CreateRoleInput& input);
+	void removeRole(int roleSeq, int errCode);
 
 private:
 	void deleteInstance();
