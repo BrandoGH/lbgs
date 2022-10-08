@@ -11,10 +11,11 @@ public:
 	Role();
 	~Role();
 
+	void login();
+
 	void setClientSeq(int seq);
 	int getClientSeq();
 	void setLoginParam(const RoleLoginInfoParam& param);
-
 	const std::string& getRoleId();
 	const std::string& getRoleName();
 

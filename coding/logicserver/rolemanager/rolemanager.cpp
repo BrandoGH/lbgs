@@ -25,8 +25,10 @@ void RoleManager::createRole(const CreateRoleInput& input)
 	boost::shared_ptr<Role> newRole = boost::make_shared<Role>();
 	newRole->setClientSeq(input.m_nClientSeq);
 	newRole->setLoginParam(input.m_param);
-
 	m_mapIdToRole[input.m_param.m_strRoleId] = newRole;
+
+	newRole->login();
+
 }
 
 void RoleManager::deleteInstance()

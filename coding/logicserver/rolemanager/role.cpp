@@ -8,6 +8,10 @@ Role::~Role()
 {
 }
 
+void Role::login()
+{
+}
+
 void Role::setClientSeq(int seq)
 {
 	m_nClientSeq = seq;
