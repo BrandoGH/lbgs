@@ -82,6 +82,9 @@ private:
 		const char* str
 	);
 
+	void deleteLoginStatusCacheKey(const std::string& roleId, int expireSec);
+	void deleteLoginParamCacheKey(const std::string& roleId, int expireSec);
+
 private:
 	std::vector< boost::shared_ptr<BaseRedis> > m_vecRedisCluster;
 	std::map<std::string, int> m_mapClusterInfoIndex;	// "ip:port" -> m_vecRedisCluster index

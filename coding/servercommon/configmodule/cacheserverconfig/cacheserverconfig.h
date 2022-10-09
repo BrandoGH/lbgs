@@ -16,9 +16,11 @@ struct CacheServerConnectBaseCfgInfo
 	{
 		m_nConnectTimeoutSec = 0;
 		m_nConnectTimeoutMicrosec = 0LL;
+		m_nLogoutAfExpire = 0;
 	}
 	int m_nConnectTimeoutSec;
 	long long m_nConnectTimeoutMicrosec;
+	int m_nLogoutAfExpire;
 };
 
 struct CacheClusterConfigInfo
@@ -53,6 +55,7 @@ public:
 	int getCurClusterCount();
 	const CacheServerConnectBaseCfgInfo* getBaseCacheCfg();
 	const CacheClusterConfigInfo* getClusterConfigByIndex(int idx);
+	int getLogoutAfterExpire();
 
 private:
 	int initBaseInfoCfg(CommonBoost::PTree& rootNode);

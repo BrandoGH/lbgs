@@ -38,6 +38,11 @@ const CacheClusterConfigInfo* CacheServerConfig::getClusterConfigByIndex(int idx
 	return &m_arrRedisClusterCfgInfo[idx];
 }
 
+int CacheServerConfig::getLogoutAfterExpire()
+{
+	return m_cfgBase.m_nLogoutAfExpire;
+}
+
 int CacheServerConfig::initBaseInfoCfg(CommonBoost::PTree& rootNode)
 {
 	CommonBoost::PTree::iterator it = rootNode.begin();
@@ -47,12 +52,18 @@ int CacheServerConfig::initBaseInfoCfg(CommonBoost::PTree& rootNode)
 		
 		m_cfgBase.m_nConnectTimeoutSec = CAST_TO(int, dataNode.get_child("connect_timeout_sec").data());
 		m_cfgBase.m_nConnectTimeoutMicrosec = CAST_TO(long long, dataNode.get_child("connect_timeout_microsec").data());
+		m_cfgBase.m_nLogoutAfExpire = CAST_TO(int, dataNode.get_child("logout_after_expire").data());
 
 		if (m_cfgBase.m_nConnectTimeoutSec < 0 ||
-			m_cfgBase.m_nConnectTimeoutMicrosec < 0)
+			m_cfgBase.m_nConnectTimeoutMicrosec < 0 ||
+			m_cfgBase.m_nLogoutAfExpire <= 0)
 		{
-			LOG_CACHESERVER.printLog("config init error! m_cfgBase.m_nConnectTimeoutSec[%d], m_cfgBase.m_nConnectTimeoutMicrosec[%ld]",
-				m_cfgBase.m_nConnectTimeoutSec, m_cfgBase.m_nConnectTimeoutMicrosec);
+			LOG_CACHESERVER.printLog("config init error! m_cfgBase.m_nConnectTimeoutSec[%d]," 
+				"m_cfgBase.m_nConnectTimeoutMicrosec[%ld]"
+				"m_cfgBase.m_nLogoutAfExpire[%d]",
+				m_cfgBase.m_nConnectTimeoutSec, 
+				m_cfgBase.m_nConnectTimeoutMicrosec, 
+				m_cfgBase.m_nLogoutAfExpire);
 			return INIT_ERROR;
 		}
 	}

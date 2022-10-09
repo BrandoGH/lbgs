@@ -19,6 +19,8 @@
 			<data>
 				<connect_timeout_sec>1</connect_timeout_sec>
 				<connect_timeout_microsec>500000</connect_timeout_microsec>
+				<!--logout_after_expire(sec), default 1 month-->
+				<logout_after_expire>2592000</logout_after_expire>
 			</data>
 		</baseconfig>
 		

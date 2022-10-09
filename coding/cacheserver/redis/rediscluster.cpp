@@ -255,9 +255,11 @@ int RedisCluster::getRandomExpireSec()
 
 void RedisCluster::autoDeleteCache(const std::string& roleId)
 {
-	int rSec = getRandomExpireSec();
-	expireKey(getLoginStatusCacheKey(roleId), rSec);
-	expireKey(getLoginParamCacheKey(roleId), rSec);
+	int rSec = CONFIG_MGR->GetCacheServerConfig() ? 
+		CONFIG_MGR->GetCacheServerConfig()->getLogoutAfterExpire() :
+		getRandomExpireSec();
+	deleteLoginStatusCacheKey(roleId, rSec);
+	deleteLoginParamCacheKey(roleId, rSec);
 }
 
 std::string RedisCluster::getLoginStatusCacheKey(const std::string& roleId)
@@ -429,6 +431,17 @@ void RedisCluster::clusterDataCheck_Set(
 		opRedis->expireKey(opKey,expireSecSet);
 		break;
 	}
+}
+
+void RedisCluster::deleteLoginStatusCacheKey(const std::string& roleId, int expireSec)
+{
+	setLoginStatusCache(roleId, false);
+	expireKey(getLoginStatusCacheKey(roleId), expireSec);
+}
+
+void RedisCluster::deleteLoginParamCacheKey(const std::string& roleId, int expireSec)
+{
+	expireKey(getLoginParamCacheKey(roleId), expireSec);
 }
 
 void RedisCluster::OnStartConnectResult(bool ok, int curRedisSeq)
