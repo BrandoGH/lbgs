@@ -66,22 +66,25 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 		MsgLoginSC sc;
 		sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_OK;
 		sc.m_cErrorReason = MsgLoginSC::ER_NO_ERROR;
-		if (bLogin)
+		do 
 		{
-			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
-			sc.m_cErrorReason = MsgLoginSC::ER_HAS_LOGIN_ERROR;
-		}
-		else if (bRoleIdExists)
-		{
-			RoleLoginInfoParam param;
-			redis->getLoginParam(roleId, param);
-			if (strcmp(msg->m_strRoleName, param.m_strRoleName) == 0 &&
-				strcmp(msg->m_strPassword, param.m_strPassword) != 0)
+			if (bLogin)
 			{
 				sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
-				sc.m_cErrorReason = MsgLoginSC::ER_PASSWORD_ERROR;
+				sc.m_cErrorReason = MsgLoginSC::ER_HAS_LOGIN_ERROR;
+				break;
+			} else if (bRoleIdExists)
+			{
+				RoleLoginInfoParam param;
+				redis->getLoginParam(roleId, param);
+				if (strcmp(msg->m_strRoleName, param.m_strRoleName) == 0 &&
+					strcmp(msg->m_strPassword, param.m_strPassword) != 0)
+				{
+					sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
+					sc.m_cErrorReason = MsgLoginSC::ER_PASSWORD_ERROR;
+				}
 			}
-		}
+		} while (0);
 
 		memmove(sc.m_strRoleName, msg->m_strRoleName, sizeof(sc.m_strRoleName));
 		memmove(sc.m_strPassword, msg->m_strPassword, sizeof(sc.m_strPassword));
@@ -122,15 +125,22 @@ void onLoginCL(CacheServer* pCacheServer, byte* data, uint dataSize)
 
 	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
 
-	if ((msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_OK && msg->m_cErrorReason == MsgLoginSC::ER_NO_ERROR) || 
-		msg->m_cErrorReason == MsgLoginSC::ER_HAS_LOGIN_ERROR)
+	
+	if ((msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_OK && msg->m_cErrorReason == MsgLoginSC::ER_NO_ERROR))
 	{
 		RoleLoginInfoParam param;
 		memmove(param.m_strRoleId, roleId.data(), sizeof(param.m_strRoleId));
 		memmove(param.m_strRoleName, msg->m_strRoleName, sizeof(param.m_strRoleName));
 		memmove(param.m_strPassword, msg->m_strPassword, sizeof(param.m_strPassword));
-		redis->setLoginStatusCache(roleId, true);
 		redis->setLoginParam(roleId, param);
+		redis->setLoginStatusCache(roleId, true);
+	}
+	else if (msg->m_cErrorReason == MsgLoginSC::ER_HAS_LOGIN_ERROR)
+	{
+		RoleLoginInfoParam param;
+		redis->getLoginParam(roleId, param);
+		redis->setLoginParam(roleId, param);
+		redis->setLoginStatusCache(roleId, true);
 	}
 	else
 	{
