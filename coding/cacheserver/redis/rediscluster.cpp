@@ -248,7 +248,7 @@ void RedisCluster::expireKey(const std::string& key, int expireSec)
 	opRedis->expireKey(key, expireSec);
 }
 
-int RedisCluster::getKeyStatusExpireSec()
+int RedisCluster::getRandomExpireSec()
 {
 	return CommonTool::getRandomByBase(g_nKeyStatusExpireSec, g_nKeyStatusExpireSecRandomMin, g_nKeyStatusExpireSecRandomMax);
 }
@@ -273,20 +273,25 @@ bool RedisCluster::getLoginStatusCache(const std::string& roleId)
 	return bRet;
 }
 
+std::string RedisCluster::getLoginParamCacheKey(const std::string& roleId)
+{
+	return std::string(roleId + "_loginparam");
+}
+
 void RedisCluster::setLoginParam(const std::string& roleId, const RoleLoginInfoParam& param)
 {
-	std::string key = roleId;
+	std::string key = getLoginParamCacheKey(roleId);
 
 	RoleLoginInfoParamHex hex;
 	memset(hex, 0, sizeof(hex));
 	SerialzeMem::serializationToMemData<RoleLoginInfoParam>(const_cast<RoleLoginInfoParam*>(&param), hex, sizeof(hex));
 	std::string hexString = SerialzeMem::dataToHexStr(hex, sizeof(hex));
-	setex(key, hexString.data(), key.size(), hexString.size(), getKeyStatusExpireSec());
+	set(key, hexString.data(), key.size(), hexString.size());
 }
 
 void RedisCluster::getLoginParam(const std::string& roleId, RoleLoginInfoParam& outParam)
 {
-	BaseRedis::RedisReturnST ret = get(roleId);
+	BaseRedis::RedisReturnST ret = get(getLoginParamCacheKey(roleId));
 	if (ret.m_len <= 0)
 	{
 		return;

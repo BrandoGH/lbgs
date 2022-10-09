@@ -41,13 +41,14 @@ public:
 	void expireKey(const std::string& key, int expireSec);
 	// redis cluster cmd end
 
-	int getKeyStatusExpireSec();
+	int getRandomExpireSec();
 
 	// [roleId]_loginstatus = true/false
 	std::string getLoginStatusCacheKey(const std::string& roleId);
 	void setLoginStatusCache(const std::string& roleId, bool val);
 	bool getLoginStatusCache(const std::string& roleId);
-
+	// [roleId]_loginparam = [loginparam]
+	std::string getLoginParamCacheKey(const std::string& roleId);
 	void setLoginParam(const std::string& roleId, const RoleLoginInfoParam& param);
 	void getLoginParam(const std::string& roleId, RoleLoginInfoParam& outParam);
 

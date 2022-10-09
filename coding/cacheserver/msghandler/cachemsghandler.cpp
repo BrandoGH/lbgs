@@ -49,10 +49,10 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 
 	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
 	bool bLoginStatusKeyExists = redis->existsKey(redis->getLoginStatusCacheKey(roleId));
-	bool bRoleIdExists = redis->existsKey(roleId);
+	bool bRoleLoginParamExists = redis->existsKey(redis->getLoginParamCacheKey(roleId));
 	bool bLogin = redis->getLoginStatusCache(roleId);
 
-	if (!bLoginStatusKeyExists || !bRoleIdExists)
+	if (!bLoginStatusKeyExists || !bRoleLoginParamExists)
 	{
 		//  search db
 		pCacheServer->sendToDBServer(data, dataSize);
@@ -73,7 +73,7 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 				sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
 				sc.m_cErrorReason = MsgLoginSC::ER_HAS_LOGIN_ERROR;
 				break;
-			} else if (bRoleIdExists)
+			} else if (bRoleLoginParamExists)
 			{
 				RoleLoginInfoParam param;
 				redis->getLoginParam(roleId, param);

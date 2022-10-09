@@ -18,13 +18,14 @@ Role::~Role()
 
 void Role::login()
 {
+	LOG_ROLE.printLog("role [%s] has login!!", getRoleName().data());
 	// TODO login do something
 }
 
 void Role::logout()
 {
-	LOG_ROLE.printLog("%s has logout!!",getRoleName().data());
-	deleteLoginCache();
+	LOG_ROLE.printLog("role [%s]  has logout!!",getRoleName().data());
+	sendDeleteLoginCacheInfo();
 }
 
 void Role::setClientSeq(int seq)
@@ -62,7 +63,7 @@ int Role::getLogoutErrorCode()
 	return m_nLogoutErrorCode;
 }
 
-void Role::deleteLoginCache()
+void Role::sendDeleteLoginCacheInfo()
 {
 	DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgLogoutCS));
 

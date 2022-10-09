@@ -23,7 +23,7 @@ public:
 	int getLogoutErrorCode();
 
 private:
-	void deleteLoginCache();
+	void sendDeleteLoginCacheInfo();
 
 private:
 	int m_nClientSeq;
