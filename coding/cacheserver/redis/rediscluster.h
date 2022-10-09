@@ -6,6 +6,7 @@
 #include <boostmodule/basedef.h>
 #include <boost/atomic/atomic.hpp>
 #include <boost/function.hpp>
+#include <logicserver/communicationmsg/msglogin.h>
 
 /*
 *	RedisCluster Manager
@@ -46,6 +47,10 @@ public:
 	std::string getLoginStatusCacheKey(const std::string& roleId);
 	void setLoginStatusCache(const std::string& roleId, bool val);
 	bool getLoginStatusCache(const std::string& roleId);
+
+	void setLoginParam(const std::string& roleId, const RoleLoginInfoParam& param);
+	void getLoginParam(const std::string& roleId, RoleLoginInfoParam& outParam);
+
 
 HANDLER:
 	void OnStartConnectResult(bool ok, int curRedisSeq);

@@ -48,10 +48,11 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 	}
 
 	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
-	bool bKeyExists = redis->existsKey(redis->getLoginStatusCacheKey(roleId));
+	bool bLoginStatusKeyExists = redis->existsKey(redis->getLoginStatusCacheKey(roleId));
+	bool bRoleIdExists = redis->existsKey(roleId);
 	bool bLogin = redis->getLoginStatusCache(roleId);
 
-	if (!bKeyExists)
+	if (!bLoginStatusKeyExists || !bRoleIdExists)
 	{
 		//  search db
 		pCacheServer->sendToDBServer(data, dataSize);
@@ -63,15 +64,23 @@ void onLoginLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 		DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
 		memset(dataArr, 0, sizeof(dataArr));
 		MsgLoginSC sc;
+		sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_OK;
+		sc.m_cErrorReason = MsgLoginSC::ER_NO_ERROR;
 		if (bLogin)
 		{
 			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
 			sc.m_cErrorReason = MsgLoginSC::ER_HAS_LOGIN_ERROR;
 		}
-		else
+		else if (bRoleIdExists)
 		{
-			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_OK;
-			sc.m_cErrorReason = MsgLoginSC::ER_NO_ERROR;
+			RoleLoginInfoParam param;
+			redis->getLoginParam(roleId, param);
+			if (strcmp(msg->m_strRoleName, param.m_strRoleName) == 0 &&
+				strcmp(msg->m_strPassword, param.m_strPassword) != 0)
+			{
+				sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
+				sc.m_cErrorReason = MsgLoginSC::ER_PASSWORD_ERROR;
+			}
 		}
 
 		memmove(sc.m_strRoleName, msg->m_strRoleName, sizeof(sc.m_strRoleName));
@@ -116,7 +125,12 @@ void onLoginCL(CacheServer* pCacheServer, byte* data, uint dataSize)
 	if ((msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_OK && msg->m_cErrorReason == MsgLoginSC::ER_NO_ERROR) || 
 		msg->m_cErrorReason == MsgLoginSC::ER_HAS_LOGIN_ERROR)
 	{
+		RoleLoginInfoParam param;
+		memmove(param.m_strRoleId, roleId.data(), sizeof(param.m_strRoleId));
+		memmove(param.m_strRoleName, msg->m_strRoleName, sizeof(param.m_strRoleName));
+		memmove(param.m_strPassword, msg->m_strPassword, sizeof(param.m_strPassword));
 		redis->setLoginStatusCache(roleId, true);
+		redis->setLoginParam(roleId, param);
 	}
 	else
 	{

@@ -7,8 +7,10 @@
 #include <boostmodule/basedef.h>
 
 DBManager::DBManager()
-	: m_bQueueThreadStopFlag(true)
+	: m_bRigQueueThreadStopFlag(true)
 	, m_nQueueRigsterSize(0)
+	, m_bSelectQueueThreadStopFlag(true)
+	, m_nQueueSelectSqlSize(0)
 {
 	initQueueThread();
 	initTimingSyncToCacheFunc();
@@ -17,7 +19,8 @@ DBManager::DBManager()
 DBManager::~DBManager()
 {
 	deleteInstance();
-	m_bQueueThreadStopFlag = false;
+	m_bRigQueueThreadStopFlag = false;
+	m_bSelectQueueThreadStopFlag = false;
 }
 
 DBManager* DBManager::instanceObj = new(std::nothrow) DBManager;
@@ -60,30 +63,69 @@ bool DBManager::checkRoleExists(const std::string& roleId)
 	return m_sql.getRows() == 1;
 }
 
-void DBManager::registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, CallbackRoleParam callback)
+void DBManager::registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, RoleLoginParamCallback callback)
 {
 	m_cbRigster = callback;
 	++m_nQueueRigsterSize;
 	m_queueRigster.enqueue(roleInfo);
 }
 
-void DBManager::timingSyncToCache(EnTimingSyncType type)
+void DBManager::getRoleLoginInfoParamFromDB(const std::string& roleId, RoleLoginParamCallback callback)
 {
-	if (!m_gloabelDBServer)
-	{
-		return;
-	}
+	m_cbSelect = callback;
+	++m_nQueueSelectSqlSize;
 
+	std::stringstream fm;
+	fm << "SELECT " << DB_ROLE_FIELD_ROLE_PARAM << " FROM " << DB_TABLE_ROLE
+		<< " WHERE " << DB_ROLE_FIELD_ROLE_ID << "=\'" << roleId << "\'";
+
+	std::string sql = fm.str();
+	m_queueSelectSql.enqueue(sql);
+}
+
+void DBManager::onExecSelectRoleParam()
+{
+	while (m_bSelectQueueThreadStopFlag)
+	{
+		if (getQueueSelectRoleLoginParamSize() <= 0)
+		{
+			continue;
+		}
+
+		std::string sql;
+		if (!m_queueSelectSql.try_dequeue(sql))
+		{
+			continue;
+		}
+
+		if (!m_sql.query(sql,NULL))
+		{
+			continue;
+		}
+
+		std::string hexStr = m_sql.getValue(0, 0).data();
+		RoleLoginInfoParam param;
+		SerialzeMem::unSerializationFromHexString<RoleLoginInfoParam>(hexStr, param);
+		if (!m_cbSelect.empty())
+		{
+			m_cbSelect(param);
+		}
+
+	}
 }
 
 void DBManager::onTimingSyncRoleInfo()
 {
+	// TODO
 }
 
 void DBManager::initQueueThread()
 {
-	CommonBoost::Thread t(BIND(&DBManager::onExecRigsterQueueSql, this));
-	t.detach();
+	CommonBoost::Thread tRigRole(BIND(&DBManager::onExecRigsterQueueSql, this));
+	CommonBoost::Thread tSelectRoleParam(BIND(&DBManager::onExecSelectRoleParam, this));
+
+	tRigRole.detach();
+	tSelectRoleParam.detach();
 }
 
 void DBManager::initTimingSyncToCacheFunc()
@@ -94,6 +136,11 @@ void DBManager::initTimingSyncToCacheFunc()
 int DBManager::getQueueRigsterSize()
 {
 	return m_nQueueRigsterSize.load();
+}
+
+int DBManager::getQueueSelectRoleLoginParamSize()
+{
+	return m_nQueueSelectSqlSize.load();
 }
 
 void DBManager::deleteInstance()
@@ -107,7 +154,7 @@ void DBManager::deleteInstance()
 
 void DBManager::onExecRigsterQueueSql()
 {
-	while (m_bQueueThreadStopFlag)
+	while (m_bRigQueueThreadStopFlag)
 	{
 		if (getQueueRigsterSize() <= 0)
 		{

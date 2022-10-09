@@ -12,7 +12,7 @@ extern "C"
 
 namespace
 {
-const int g_nGetValueMaxSize = 128;
+const int g_nGetValueMaxSize = 4096;
 }
 
 /*

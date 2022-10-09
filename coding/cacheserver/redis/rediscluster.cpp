@@ -10,6 +10,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <iosfwd>
+#include <commontool/serializememory/serializememory.hpp>
 
 namespace
 {
@@ -261,7 +262,7 @@ void RedisCluster::setLoginStatusCache(const std::string& roleId, bool val)
 {
 	std::string key = getLoginStatusCacheKey(roleId);
 	std::string saveVal = val ? "true" : "false";
-	setex(key, saveVal.data(), key.size(), saveVal.size(),getKeyStatusExpireSec());
+	set(key, saveVal.data(), key.size(), saveVal.size());
 }
 
 bool RedisCluster::getLoginStatusCache(const std::string& roleId)
@@ -270,6 +271,31 @@ bool RedisCluster::getLoginStatusCache(const std::string& roleId)
 	BaseRedis::RedisReturnST getV = get(key);
 	bool bRet = (getV.m_len > 0) && std::string(getV.m_getData) == "true";
 	return bRet;
+}
+
+void RedisCluster::setLoginParam(const std::string& roleId, const RoleLoginInfoParam& param)
+{
+	std::string key = roleId;
+
+	RoleLoginInfoParamHex hex;
+	memset(hex, 0, sizeof(hex));
+	SerialzeMem::serializationToMemData<RoleLoginInfoParam>(const_cast<RoleLoginInfoParam*>(&param), hex, sizeof(hex));
+	std::string hexString = SerialzeMem::dataToHexStr(hex, sizeof(hex));
+	setex(key, hexString.data(), key.size(), hexString.size(), getKeyStatusExpireSec());
+}
+
+void RedisCluster::getLoginParam(const std::string& roleId, RoleLoginInfoParam& outParam)
+{
+	BaseRedis::RedisReturnST ret = get(roleId);
+	if (ret.m_len <= 0)
+	{
+		return;
+	}
+
+	std::string hexVal = ret.m_getData;
+
+	SerialzeMem::unSerializationFromHexString(hexVal, outParam);
+	
 }
 
 void RedisCluster::OnOpResult(

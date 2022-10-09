@@ -60,18 +60,30 @@ void onLoginCD(DBServer* pDBServer, byte* data, uint dataSize)
 	}
 	else
 	{
-		MsgLoginSC sc;
-		DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
-		memset(dataArr, 0, sizeof(dataArr));
+		DB_MGR->getRoleLoginInfoParamFromDB(roleId, [&, msg, pDBServer, data](const RoleLoginInfoParam& retParam)
+		{
+			MsgLoginSC sc;
+			DEFINE_BYTE_ARRAY(dataArr, sizeof(MsgHeader) + sizeof(MsgLoginSC));
+			memset(dataArr, 0, sizeof(dataArr));
 
-		sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_OK;
-		sc.m_cErrorReason = MsgLoginSC::ER_NO_ERROR;
-		memmove(sc.m_strRoleName, msg->m_strRoleName, sizeof(sc.m_strRoleName));
-		memmove(sc.m_strPassword, msg->m_strPassword, sizeof(sc.m_strPassword));
+			sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_OK;
+			sc.m_cErrorReason = MsgLoginSC::ER_NO_ERROR;
 
-		memmove(dataArr, data, sizeof(MsgHeader));
-		memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
-		callHandler(MSG_TYPE_LOGIN_SC, pDBServer, dataArr, sizeof(dataArr));
+			if (strcmp(msg->m_strRoleName, retParam.m_strRoleName) == 0 &&
+				strcmp(msg->m_strPassword, retParam.m_strPassword) != 0)
+			{
+				sc.m_cLoginStatus = MsgLoginSC::LS_LOGIN_ERROR;
+				sc.m_cErrorReason = MsgLoginSC::ER_PASSWORD_ERROR;
+			}
+			
+			memmove(sc.m_strRoleName, retParam.m_strRoleName, sizeof(sc.m_strRoleName));
+			memmove(sc.m_strPassword, retParam.m_strPassword, sizeof(sc.m_strPassword));
+
+			memmove(dataArr, data, sizeof(MsgHeader));
+			memmove(dataArr + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLoginSC));
+			callHandler(MSG_TYPE_LOGIN_SC, pDBServer, dataArr, sizeof(dataArr));
+
+		});
 	}
 }
 

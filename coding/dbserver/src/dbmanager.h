@@ -12,7 +12,7 @@ class DBManager
 {
 	// callback
 	// success will be return roleInfo
-	typedef boost::function< void(const RoleLoginInfoParam&) > CallbackRoleParam;
+	typedef boost::function< void(const RoleLoginInfoParam&) > RoleLoginParamCallback;
 
 	// timing sync to cache
 	typedef void(DBManager::*HanlderFuncTimingSyncToCache)(void);
@@ -36,20 +36,19 @@ public:
 	DBServer* getGlobalDBServer();
 
 	bool checkRoleExists(const std::string& roleId);
-	void registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, CallbackRoleParam callback);
-
-
-	void timingSyncToCache(EnTimingSyncType type);
+	void registerRoleLoginInfo(const RoleLoginInfoParam& roleInfo, RoleLoginParamCallback callback);
+	void getRoleLoginInfoParamFromDB(const std::string& roleId, RoleLoginParamCallback callback);
 
 HANDLER:
 	void onExecRigsterQueueSql();
-
+	void onExecSelectRoleParam();
 	void onTimingSyncRoleInfo();
 
 private:
 	void initQueueThread();
 	void initTimingSyncToCacheFunc();
 	int getQueueRigsterSize();
+	int getQueueSelectRoleLoginParamSize();
 	void deleteInstance();
 
 private:
@@ -58,10 +57,17 @@ private:
 
 	BasePsql m_sql;
 
-	bool m_bQueueThreadStopFlag;
+	// role register
+	bool m_bRigQueueThreadStopFlag;
 	moodycamel::ConcurrentQueue<RoleLoginInfoParam> m_queueRigster;
 	boost::atomic_int m_nQueueRigsterSize;
-	CallbackRoleParam m_cbRigster;
+	RoleLoginParamCallback m_cbRigster;
+	// sql select
+	bool m_bSelectQueueThreadStopFlag;
+	moodycamel::ConcurrentQueue<std::string> m_queueSelectSql;
+	boost::atomic_int m_nQueueSelectSqlSize;
+	RoleLoginParamCallback m_cbSelect;
+
 
 	HanlderFuncTimingSyncToCache m_pTimingSyncFunc[TST_MAX];
 };
