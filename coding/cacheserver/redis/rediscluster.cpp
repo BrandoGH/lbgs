@@ -253,6 +253,13 @@ int RedisCluster::getRandomExpireSec()
 	return CommonTool::getRandomByBase(g_nKeyStatusExpireSec, g_nKeyStatusExpireSecRandomMin, g_nKeyStatusExpireSecRandomMax);
 }
 
+void RedisCluster::autoDeleteCache(const std::string& roleId)
+{
+	int rSec = getRandomExpireSec();
+	expireKey(getLoginStatusCacheKey(roleId), rSec);
+	expireKey(getLoginParamCacheKey(roleId), rSec);
+}
+
 std::string RedisCluster::getLoginStatusCacheKey(const std::string& roleId)
 {
 	return std::string(roleId + "_loginstatus");

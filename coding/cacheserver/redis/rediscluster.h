@@ -43,6 +43,8 @@ public:
 
 	int getRandomExpireSec();
 
+	void autoDeleteCache(const std::string& roleId);
+
 	// [roleId]_loginstatus = true/false
 	std::string getLoginStatusCacheKey(const std::string& roleId);
 	void setLoginStatusCache(const std::string& roleId, bool val);

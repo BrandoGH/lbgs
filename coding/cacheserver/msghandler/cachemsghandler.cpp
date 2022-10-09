@@ -180,7 +180,7 @@ void onLogoutLC(CacheServer* pCacheServer, byte* data, uint dataSize)
 		return;
 	}
 	// delete cache
-	redis->setLoginStatusCache(msg->m_roleId, false);
+	redis->autoDeleteCache(msg->m_roleId);
 }
 
 
