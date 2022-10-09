@@ -40,7 +40,6 @@ void RedisCluster::startConnectCluster()
 {
 	CacheClusterConfigInfo* clusterCfg = NULL;
 	CacheServerConnectBaseCfgInfo* baseCfg = const_cast<CacheServerConnectBaseCfgInfo*>(m_CfgCache->getBaseCacheCfg());
-	std::string strMapKey;
 	for (int i = 0; i < m_CfgCache->getCurClusterCount(); ++i)
 	{
 		clusterCfg = const_cast<CacheClusterConfigInfo*>(m_CfgCache->getClusterConfigByIndex(i));
@@ -62,7 +61,6 @@ void RedisCluster::startConnectCluster()
 		m_vecRedisCluster.push_back(onceRedis);
 		
 		// format key
-		strMapKey.clear();
 		std::stringstream fm;
 		fm << clusterCfg->m_strIp << ":" << clusterCfg->m_nPort;
 		m_mapClusterInfoIndex[fm.str()] = i;
