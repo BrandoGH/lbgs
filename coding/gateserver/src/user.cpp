@@ -82,6 +82,7 @@ void User::onAyncRead(
 	*/
 	while(m_nHasReadDataSize < readSize)
 	{
+		THREAD_SLEEP(1);
 		// Analysis Protocol
 		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
 

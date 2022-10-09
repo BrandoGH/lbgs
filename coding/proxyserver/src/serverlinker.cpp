@@ -148,6 +148,7 @@ void ServerLinker::onAyncRead(
 
 	while(m_nHasReadDataSize < readSize)
 	{
+		THREAD_SLEEP(1);
 		memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
 
 		// Judgment of the maximum length of a protocol

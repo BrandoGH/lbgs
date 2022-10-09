@@ -87,22 +87,20 @@ void DBManager::onExecSelectRoleParam()
 {
 	while (m_bSelectQueueThreadStopFlag)
 	{
+		THREAD_SLEEP(1);
 		if (getQueueSelectRoleLoginParamSize() <= 0)
 		{
-			THREAD_SLEEP(100);	// thread idle just sleep,prevent high CPU
 			continue;
 		}
 
 		std::string sql;
 		if (!m_queueSelectSql.try_dequeue(sql))
 		{
-			THREAD_SLEEP(100);	// thread idle just sleep,prevent high CPU
 			continue;
 		}
 
 		if (!m_sql.query(sql,NULL))
 		{
-			THREAD_SLEEP(100);	// thread idle just sleep,prevent high CPU
 			continue;
 		}
 
@@ -159,16 +157,15 @@ void DBManager::onExecRigsterQueueSql()
 {
 	while (m_bRigQueueThreadStopFlag)
 	{
+		THREAD_SLEEP(1);
 		if (getQueueRigsterSize() <= 0)
 		{
-			THREAD_SLEEP(100);	// thread idle just sleep,prevent high CPU
 			continue;
 		}
 
 		RoleLoginInfoParam roleInfo;
 		if (!m_queueRigster.try_dequeue(roleInfo))
 		{
-			THREAD_SLEEP(100);	// thread idle just sleep,prevent high CPU
 			continue;
 		}
 

@@ -45,7 +45,7 @@ void ProxyServer::start()
 		tAccServer.detach();
 	}
 	printf_color(PRINTF_GREEN, "--ProxyServer start successed!!!!!!!!!!,port[%d]\n", m_nPort);
-	while (1);
+	while (1) { THREAD_SLEEP(1); }
 }
 
 void ProxyServer::initData()
@@ -88,6 +88,7 @@ void ProxyServer::onThreadRunAcceptorIOServer()
 	*/
 	while(1)
 	{
+		THREAD_SLEEP(1);
 		try
 		{
 			m_server.run();

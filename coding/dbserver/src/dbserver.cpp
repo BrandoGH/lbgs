@@ -37,7 +37,7 @@ void DBServer::start()
 {
 	boost::thread tConnect(BIND(&DBServer::onRunInnnerIOServerOnce, this));
 	tConnect.detach();
-	while (1);
+	while (1) { THREAD_SLEEP(1); }
 }
 
 void DBServer::sendToProxySrv(const byte* data, uint size)
@@ -77,6 +77,7 @@ void DBServer::onRunInnnerIOServerOnce()
 		m_bInnerRunOnce = true;
 		while (1)
 		{
+			THREAD_SLEEP(1);
 			try
 			{
 				m_innerServer.run();
@@ -123,6 +124,7 @@ void DBServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 
 	while (m_nHasReadProxyDataSize < readSize)
 	{
+		THREAD_SLEEP(1);
 		memset(m_bytesInnerSrvOnceMsg, 0, sizeof(m_bytesInnerSrvOnceMsg));
 
 		m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize);

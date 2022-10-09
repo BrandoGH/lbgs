@@ -47,6 +47,7 @@ bool SystemInfo::isProcessRuning(const std::string& processName)
 
 	while(bResult)
 	{
+		THREAD_SLEEP(1);
 		std::string pro_name = _bstr_t(program_info.szExeFile);
 		if(processName == pro_name)
 		{
