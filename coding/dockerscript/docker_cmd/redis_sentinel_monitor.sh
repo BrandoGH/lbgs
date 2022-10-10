@@ -1,0 +1,1 @@
+docker run --name docker_redis_sentinel -p 26379:26379 -v /home/liubin/docker_cmd/redis_conf/sentinel.conf:/data/redis_conf/sentinel.conf -v /var/docker/redis/data:/data --tty=true -d  --privileged=true --restart=always redis redis-sentinel /data/redis_conf/sentinel.conf --appendonly yes
