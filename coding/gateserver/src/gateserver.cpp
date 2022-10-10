@@ -275,6 +275,11 @@ void GateServer::sendMsgToClient(const boost::shared_ptr<User> targetUser, byte*
 	targetUser->ayncSend(proxyData, header->m_nMsgLen);
 }
 
+void GateServer::closeAllUser()
+{
+	m_mapSeqToUser.clear();
+}
+
 void GateServer::onUserError(
 	boost::shared_ptr<User> user,
 	const CommonBoost::ErrorCode& ec)
@@ -298,10 +303,13 @@ void GateServer::onUserError(
 	// Client shuts down gracefully
 	if (ec.value() == GateServer::LOGOUT)
 	{
-		LOG_GATESERVER.printLog("client[%s : %d] closed",
-			getIp.data(), 
-			getPort);
- 		user->closeSocket();
+		if (bUserValid)
+		{
+			LOG_GATESERVER.printLog("client[%s : %d] closed",
+				getIp.data(),
+				getPort);
+			user->closeSocket();
+		}
 		return;
 	}
 	else
@@ -349,6 +357,7 @@ void GateServer::onThreadRunAcceptorIOServer()
 		}catch (std::exception& e)
 		{
 			LOG_GATESERVER.printLog("m_server run exception!! info[%s] server will re-start!!",e.what());
+			closeAllUser();
 		}
 	}
 	

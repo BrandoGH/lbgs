@@ -77,6 +77,8 @@ private:
 
 	void sendMsgToClient(const boost::shared_ptr<User> targetUser, byte* proxyData);
 
+	void closeAllUser();
+
 private:
 	CommonBoost::IOServer m_server;
 	CommonBoost::Acceptor* m_pAcceptor;

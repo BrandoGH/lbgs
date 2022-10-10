@@ -53,7 +53,7 @@ void RoleManager::removeRole(int roleSeq, int errCode)
 	CommonBoost::UniqueLock lock(m_mtxMap);
 	
 	boost::shared_ptr<Role> onceRole;
-	for (MapRoleCIT cit = m_mapIdToRole.begin(); cit != m_mapIdToRole.end(); ++cit)
+	for (MapRoleCIT cit = m_mapIdToRole.begin(); cit != m_mapIdToRole.end();)
 	{
 		onceRole = cit->second;
 		int seq = onceRole->getClientSeq();
@@ -64,8 +64,12 @@ void RoleManager::removeRole(int roleSeq, int errCode)
 		{
 			onceRole->setLogoutErrorCode(errCode);
 			onceRole->logout();
-			m_mapIdToRole.erase(cit);
+			m_mapIdToRole.erase(cit++);
 			break;
+		}
+		else
+		{
+			cit++;
 		}
 		
 	}
