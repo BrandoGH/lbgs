@@ -107,6 +107,31 @@ void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 		input.m_param = param;
 		ROLE_MGR->createRole(input);
 	}
+	else if (msg->m_cErrorReason == MsgLoginSC::ER_HAS_LOGIN_ERROR && 
+		!ROLE_MGR->isRoleExists(CommonTool::genRoleIdByUserName(msg->m_strRoleName)))
+	{
+		/*
+		*	Due to network delay, the role is not online but the loginstatus cache is still there
+		*	This time back ER_HAS_LOGIN_ERROR,a second click to log in is required to log in normally
+		*/
+		std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
+		DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgLogoutCS));
+
+		MsgLogoutCS cs;
+		memmove(cs.m_roleId, roleId.data(), sizeof(cs.m_roleId));
+
+		MsgHeader header;
+		header.m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgLogoutCS);
+		header.m_nMsgType = MSG_TYPE_LOGOUT_CS;
+
+		memmove(sendData, (const char*)&header, sizeof(MsgHeader));
+		memmove(sendData + sizeof(MsgHeader), (const char*)&cs, sizeof(MsgLogoutCS));
+
+		if (pLogicServer)
+		{
+			pLogicServer->sendToCache(sendData, sizeof(sendData));
+		}
+	}
 
 	pLogicServer->sendToClient(data, dataSize);
 }

@@ -75,6 +75,14 @@ void RoleManager::removeRole(int roleSeq, int errCode)
 	}
 }
 
+bool RoleManager::isRoleExists(const std::string& roleId)
+{
+	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit = 
+		m_mapIdToRole.find(roleId);
+
+	return (cit != m_mapIdToRole.end());
+}
+
 void RoleManager::deleteInstance()
 {
 	if (instanceObj)

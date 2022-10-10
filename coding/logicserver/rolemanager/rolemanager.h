@@ -23,6 +23,7 @@ public:
 
 	void createRole(const CreateRoleInput& input);
 	void removeRole(int roleSeq, int errCode);
+	bool isRoleExists(const std::string& roleId);
 
 private:
 	void deleteInstance();
