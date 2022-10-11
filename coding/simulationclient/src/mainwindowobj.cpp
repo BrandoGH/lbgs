@@ -463,11 +463,12 @@ void MainWindowObj::initTimer()
 	connect(m_pSendDataTimer, &QTimer::timeout, this,
 		[&]()
 	{
+		assembleHeart();
 		onSendClicked(true);
 	});
 }
 
-void MainWindowObj::assembleProtocal(const char* bodyData, uint dataSize, int msgType)
+void MainWindowObj::assembleProtocal(const char* bodyData, uint dataSize, int msgType, QByteArray& outData)
 {
 	int msgLen = sizeof(MsgHeader) + dataSize + sizeof(MsgEnder);
 
@@ -489,7 +490,7 @@ void MainWindowObj::assembleProtocal(const char* bodyData, uint dataSize, int ms
 		if (CommonTool::MsgTool::data2Md5(m_pSendData, sizeof(MsgHeader) + dataSize, ender.m_bytesMD5))
 		{
 			memmove(m_pSendData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
-			m_msgSendData.setRawData((const char*)m_pSendData, msgLen);
+			outData.setRawData((const char*)m_pSendData, msgLen);
 		}
 	};
 
@@ -504,7 +505,7 @@ void MainWindowObj::assembleHeart()
 {
 	MsgHeartCS msg;
 	memmove(msg.m_bytesHeart, I_MSG_HEART_CS, sizeof(msg.m_bytesHeart));
-	assembleProtocal((const char*)&msg, sizeof(MsgHeartCS), EnMsgType::MSG_TYPE_HEART_CS);
+	assembleProtocal((const char*)&msg, sizeof(MsgHeartCS), EnMsgType::MSG_TYPE_HEART_CS, m_msgSendData);
 
 }
 
@@ -517,6 +518,13 @@ void MainWindowObj::assembleLogin()
 	MsgLoginCS msg;
 	memmove(msg.m_strRoleName, m_lineUserName->text().toStdString().data(), sizeof(msg.m_strRoleName));
 	memmove(msg.m_strPassword, m_linePassword->text().toStdString().data(), sizeof(msg.m_strPassword));
-	assembleProtocal((const char*)&msg, sizeof(MsgLoginCS), EnMsgType::MSG_TYPE_LOGIN_CS);
-	onSendClicked(true);
+	QByteArray data;
+	assembleProtocal((const char*)&msg, sizeof(MsgLoginCS), EnMsgType::MSG_TYPE_LOGIN_CS, data);
+	for (int i = 0; i < m_vecClient.size(); ++i)
+	{
+		if (m_vecClient[i])
+		{
+			m_vecClient[i]->sendData(data);
+		}
+	}
 }

@@ -71,7 +71,7 @@ private:
 	bool isServerLittleStore() { return m_bServerLittleStoreMode; }
 
 	// protocol
-	void assembleProtocal(const char* bodyData, uint dataSize, int msgType);
+	void assembleProtocal(const char* bodyData, uint dataSize, int msgType, QByteArray& outData);
 	void assembleHeart();
 	void assembleLogin();
 
