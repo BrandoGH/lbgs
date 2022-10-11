@@ -25,6 +25,8 @@ public:
 	void removeRole(int roleSeq, int errCode);
 	bool isRoleExists(const std::string& roleId);
 
+	Role* findRoleByClientSeq(int clientSeq);
+
 private:
 	void deleteInstance();
 
@@ -32,6 +34,7 @@ private:
 	static RoleManager* instanceObj;
 
 	std::map<std::string, boost::shared_ptr<Role>> m_mapIdToRole;
+	std::map<int, boost::shared_ptr<Role>> m_mapSeqToRole;
 	CommonBoost::Mutex m_mtxMap;
 };
 

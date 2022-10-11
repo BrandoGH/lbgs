@@ -11,7 +11,7 @@
 
 namespace LogicMsgHandler
 {
-void onClientHeartCS(LogicServer* pLogicServer, byte* data, uint dataSize)
+void onClientHeartCS(LogicServer* pLogicServer, Role* role, byte* data, uint dataSize)
 {
 	if (!pLogicServer || !data)
 	{
@@ -25,10 +25,10 @@ void onClientHeartCS(LogicServer* pLogicServer, byte* data, uint dataSize)
 		return;
 	}
 	
-	callHandler(MSG_TYPE_HEART_SC, pLogicServer, data, dataSize);
+	callHandler(MSG_TYPE_HEART_SC, pLogicServer, role, data, dataSize);
 }
 
-void onClientHeartSC(LogicServer* pLogicServer, byte* data, uint dataSize)
+void onClientHeartSC(LogicServer* pLogicServer, Role* role, byte* data, uint dataSize)
 {
 	if (!pLogicServer || !data)
 	{
@@ -56,7 +56,7 @@ void onClientHeartSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 	pLogicServer->sendToProxySrv(sendDataArr, sizeof(MsgHeader) + sizeof(MsgHeartSC));
 }
 
-void onClientLoginCS(LogicServer* pLogicServer, byte* data, uint dataSize)
+void onClientLoginCS(LogicServer* pLogicServer, Role* role, byte* data, uint dataSize)
 {
 	if (!pLogicServer || !data)
 	{
@@ -73,7 +73,7 @@ void onClientLoginCS(LogicServer* pLogicServer, byte* data, uint dataSize)
 	pLogicServer->sendToCache(data, dataSize);
 }
 
-void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
+void onClientLoginSC(LogicServer* pLogicServer, Role* role, byte* data, uint dataSize)
 {
 	if (!pLogicServer || !data)
 	{
@@ -136,7 +136,7 @@ void onClientLoginSC(LogicServer* pLogicServer, byte* data, uint dataSize)
 	pLogicServer->sendToClient(data, dataSize);
 }
 
-void onClientLogoutCS(LogicServer* pLogicServer, byte* data, uint dataSize)
+void onClientLogoutCS(LogicServer* pLogicServer, Role* role, byte* data, uint dataSize)
 {
 	if (!pLogicServer || !data)
 	{
@@ -170,7 +170,7 @@ HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 	onClientLogoutCS,
 };
 
-void callHandler(int msgType, LogicServer* pLogicServer, byte* data, uint dataSize)
+void callHandler(int msgType, LogicServer* pLogicServer, Role* role, byte* data, uint dataSize)
 {
 	if (!pLogicServer)
 	{
@@ -190,7 +190,7 @@ void callHandler(int msgType, LogicServer* pLogicServer, byte* data, uint dataSi
 		return;
 	}
 
-	g_handlerList[msgType - MSG_TYPE_CLIENT_START](pLogicServer, data, dataSize);
+	g_handlerList[msgType - MSG_TYPE_CLIENT_START](pLogicServer, role, data, dataSize);
 }
 
 }

@@ -28,12 +28,8 @@ void RoleManager::createRole(const CreateRoleInput& input)
 
 	// insert to map
 	CommonBoost::UniqueLock lock(m_mtxMap);
-	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit = 
-		m_mapIdToRole.find(input.m_param.m_strRoleId);
-	if (cit == m_mapIdToRole.cend())
-	{
-		m_mapIdToRole[input.m_param.m_strRoleId] = newRole;
-	}
+	m_mapIdToRole[input.m_param.m_strRoleId] = newRole;
+	m_mapSeqToRole[input.m_nClientSeq] = newRole;
 	lock.unlock();
 
 	newRole->login();
@@ -52,6 +48,7 @@ void RoleManager::removeRole(int roleSeq, int errCode)
 
 	CommonBoost::UniqueLock lock(m_mtxMap);
 	
+	// delete from m_mapIdToRole
 	boost::shared_ptr<Role> onceRole;
 	for (MapRoleCIT cit = m_mapIdToRole.begin(); cit != m_mapIdToRole.end();)
 	{
@@ -71,7 +68,12 @@ void RoleManager::removeRole(int roleSeq, int errCode)
 		{
 			cit++;
 		}
-		
+	}
+
+	// delete from m_mapSeqToRole
+	if (onceRole.get())
+	{
+		m_mapSeqToRole.erase(onceRole->getClientSeq());
 	}
 }
 
@@ -81,6 +83,17 @@ bool RoleManager::isRoleExists(const std::string& roleId)
 		m_mapIdToRole.find(roleId);
 
 	return (cit != m_mapIdToRole.end());
+}
+
+Role* RoleManager::findRoleByClientSeq(int clientSeq)
+{
+	std::map<int, boost::shared_ptr<Role>>::const_iterator cit =
+		m_mapSeqToRole.find(clientSeq);
+	if (cit != m_mapSeqToRole.cend())
+	{
+		return m_mapSeqToRole[clientSeq].get();
+	}
+	return NULL;
 }
 
 void RoleManager::deleteInstance()

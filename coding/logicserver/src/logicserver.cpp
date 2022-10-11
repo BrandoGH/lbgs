@@ -1,6 +1,7 @@
 #include "logicserver.h"
 #include "msghandler/logicmsghandler.h"
 #include "globallogicserver.h"
+#include "rolemanager/rolemanager.h"
 
 #include <configmodule/configmanager.h>
 #include <configmodule/proxyserverconfig/proxyserverconfig.h>
@@ -195,9 +196,11 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 		else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
 			m_msgHeader.m_nMsgType < MSG_CODE_MAX)
 		{
+			
 			LogicMsgHandler::callHandler(
 				m_msgHeader.m_nMsgType,
 				this,
+				ROLE_MGR->findRoleByClientSeq(m_msgHeader.m_nClientSrcSeq),
 				m_bytesInnerSrvOnceMsg,
 				m_msgHeader.m_nMsgLen
 			);
