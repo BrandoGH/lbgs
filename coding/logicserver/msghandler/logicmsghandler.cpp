@@ -5,6 +5,7 @@
 #include "communicationmsg/msglogout.h"
 #include "communicationmsg/msglogin.h"
 #include "rolemanager/rolemanager.h"
+#include "rolemanager/role.h"
 
 #include <logmodule/logdef.h>
 #include <commontool/msgtool/msgtool.h>

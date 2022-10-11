@@ -9,11 +9,17 @@
 // 154- logout req
 struct MsgLogoutCS
 {
+	enum EnErrorCode
+	{
+		EN_SERVER_CHECK_ROLE_INVALID,
+	};
 	MsgLogoutCS()
 	{
 		m_nErrorCode = 0;
 		memset(m_roleId, 0, sizeof(CString64));
 	}
+
+	// Under normal circumstances, the socket returns. In special cases, it is judged by the server, such as heartbeat stop.
 	int m_nErrorCode;
 	CString64 m_roleId;
 };
