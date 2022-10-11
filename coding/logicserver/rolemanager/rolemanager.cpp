@@ -85,13 +85,13 @@ bool RoleManager::isRoleExists(const std::string& roleId)
 	return (cit != m_mapIdToRole.end());
 }
 
-Role* RoleManager::findRoleByClientSeq(int clientSeq)
+boost::shared_ptr<Role> RoleManager::findRoleByClientSeq(int clientSeq)
 {
 	std::map<int, boost::shared_ptr<Role>>::const_iterator cit =
 		m_mapSeqToRole.find(clientSeq);
 	if (cit != m_mapSeqToRole.cend())
 	{
-		return m_mapSeqToRole[clientSeq].get();
+		return m_mapSeqToRole[clientSeq];
 	}
 	return NULL;
 }

@@ -25,7 +25,7 @@ public:
 	void removeRole(int roleSeq, int errCode);
 	bool isRoleExists(const std::string& roleId);
 
-	Role* findRoleByClientSeq(int clientSeq);
+	boost::shared_ptr<Role> findRoleByClientSeq(int clientSeq);
 
 private:
 	void deleteInstance();
