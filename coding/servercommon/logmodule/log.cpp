@@ -118,7 +118,7 @@ void LogModule::printLog(const char * format, ...)
 {
 	if (m_pLog.get() == NULL)
 	{
-		printf("[%s:%d-%s thread(%d)]: m_pLog.get() == NULL",
+		printf("[%s:%d-%s thread(%d)]: m_pLog.get() == NULL\n",
 			__FILE__,__LINE__,__FUNCTION__, THREAD_ID);
 		return;
 	}
