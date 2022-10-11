@@ -59,6 +59,7 @@ void Client::onConnected()
 void Client::onError(QAbstractSocket::SocketError eCode)
 {
 	emit sigError(getClientId(), eCode);
+	closeSocket();
 }
 
 void Client::onReadData()
