@@ -6,6 +6,7 @@ set(CODE_FILE
 ./example_serialization.cpp
 ./example_lock_free.cpp
 ./example_concurrentqueue.cpp
+./example_coroutine.cpp
 ./servercommon/commontooltest.cpp
 ./servercommon/safequeuetest.cpp
 )
@@ -43,6 +44,8 @@ if (WIN32)
 	hiredis
 	libpq
 	boost_serialization-vc140-mt
+	boost_coroutine-vc140-mt
+	boost_context-vc140-mt
 	)
 
 elseif(UNIX)
@@ -64,5 +67,7 @@ elseif(UNIX)
 	libssl.a
 	dl
 	libboost_serialization.a
+	libboost_coroutine.a
+	libboost_context.a
 	)
 endif()
