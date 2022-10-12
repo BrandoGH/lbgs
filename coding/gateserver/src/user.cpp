@@ -81,7 +81,6 @@ void User::onAyncRead(
 	}
 	if (ec)
 	{
-		printf_color(PRINTF_YELLOW, "%s: error, will sendUserError\n", __FUNCTION__);
 		LOG_GATESERVER.printLog("error, will sendUserError");
 
 		if (!m_bHasSendError)

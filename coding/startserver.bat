@@ -1,13 +1,9 @@
 @echo off
 
 start /B ./exe/Release/proxyserver.exe
-choice /t 1 /d y /n >nul
 start /B ./exe/Release/gateserver.exe
-choice /t 1 /d y /n >nul
 start /B ./exe/Release/logicserver.exe
-choice /t 1 /d y /n >nul
 start /B ./exe/Release/cacheserver.exe
-choice /t 1 /d y /n >nul
 start /B ./exe/Release/dbserver.exe
 choice /t 1 /d y /n >nul
 
