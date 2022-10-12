@@ -15,8 +15,9 @@ int UserSeqManager::getAvailableSeq()
 	// if list have id avalible
 	if (!m_lsAsideSeq.empty())
 	{
-		retSeq = m_lsAsideSeq.front();
-		m_lsAsideSeq.pop_front();
+		SetIntCit cit = m_lsAsideSeq.cbegin();
+		retSeq = *cit;
+		m_lsAsideSeq.erase(cit);
 	}
 	else
 	{
@@ -29,7 +30,7 @@ int UserSeqManager::getAvailableSeq()
 
 void UserSeqManager::pushAsideSeq(int asideSeq)
 {
-	m_lsAsideSeq.push_front(asideSeq);
+	m_lsAsideSeq.insert(asideSeq);
 }
 
 CommonBoost::Mutex& UserSeqManager::getMutex()

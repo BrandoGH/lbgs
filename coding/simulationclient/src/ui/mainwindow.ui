@@ -84,7 +84,7 @@
     <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_communication">
        <layout class="QGridLayout" name="gridLayout_3">
@@ -357,7 +357,7 @@
         <property name="geometry">
          <rect>
           <x>70</x>
-          <y>110</y>
+          <y>80</y>
           <width>331</width>
           <height>41</height>
          </rect>
@@ -382,7 +382,7 @@
         <property name="geometry">
          <rect>
           <x>70</x>
-          <y>180</y>
+          <y>130</y>
           <width>331</width>
           <height>41</height>
          </rect>
@@ -407,7 +407,7 @@
         <property name="geometry">
          <rect>
           <x>140</x>
-          <y>280</y>
+          <y>180</y>
           <width>161</width>
           <height>51</height>
          </rect>
