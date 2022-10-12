@@ -73,7 +73,7 @@ void GateServer::start()
 		m_nPort, 
 		g_nConnectMaxCount
 	);
-	for (int i = 0; i < CPU_MAX_THREAD - 1; ++i)
+	for (int i = 0; i < CPU_MAX_THREAD - 2; ++i)
 	{
 		boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
 		tAccServer.detach();
@@ -82,6 +82,10 @@ void GateServer::start()
 		"--Gateserver start successed!!!!!!!!!!port[%d],max link count[%d]\n", m_nPort, g_nConnectMaxCount);
 	boost::thread tConnect(BIND(&GateServer::runInnnerIOServerOnce, this));
 	tConnect.detach();
+
+	boost::thread tUserAync(BIND(&GateServer::runUserIOServerOnce, this));
+	tConnect.detach();
+
 	while (1) { THREAD_SLEEP(1); }
 }
 
@@ -98,7 +102,7 @@ void GateServer::accept()
 		return;
 	}
 
-	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server);
+	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server, m_userIOServer);
 	newUser->slotConnect(this);
 	if (newUser->getSocket().get() == NULL)
 	{
@@ -206,6 +210,23 @@ void GateServer::runInnnerIOServerOnce()
 			{
 				LOG_GATESERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
 			}
+		}
+	}
+}
+
+void GateServer::runUserIOServerOnce()
+{
+	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_userIOServer));
+	while (1)
+	{
+		THREAD_SLEEP(1);
+		try
+		{
+			m_userIOServer.run();
+			break;
+		} catch (std::exception& e)
+		{
+			LOG_GATESERVER.printLog("m_userIOServer run exception!! info[%s] server will re-start!!", e.what());
 		}
 	}
 }
@@ -350,6 +371,7 @@ void GateServer::onThreadRunAcceptorIOServer()
 		}catch (std::exception& e)
 		{
 			LOG_GATESERVER.printLog("m_server run exception!! info[%s] server will re-start!!",e.what());
+			printf_color(PRINTF_RED, "%s: m_server run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
 		}
 	}
 	
@@ -459,11 +481,16 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		}
 
 		// Reassemble the message and send it to the client
-		boost::shared_ptr<User> callbackUser = m_mapSeqToUser[m_msgHeader.m_nClientSrcSeq];
-		if (callbackUser)
+		MapSeqToUserIter userIt = m_mapSeqToUser.find(m_msgHeader.m_nClientSrcSeq);
+		if (userIt != m_mapSeqToUser.cend())
 		{
-			sendMsgToClient(callbackUser, m_bytesInnerSrvOnceMsg);
+			boost::shared_ptr<User> callbackUser = userIt->second;
+			if (callbackUser)
+			{
+				sendMsgToClient(callbackUser, m_bytesInnerSrvOnceMsg);
+			}
 		}
+		
 		
 
 		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;

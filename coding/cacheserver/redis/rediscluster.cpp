@@ -339,8 +339,18 @@ BaseRedis::RedisReturnST RedisCluster::clusterDataCheck_MOVED(const std::string&
 	std::vector<std::string> vecSplit;
 	boost::split(vecSplit, checkStr, boost::is_any_of(" "), boost::token_compress_on);
 
-	m_nTTLIndex = m_mapClusterInfoIndex[vecSplit[vecSplit.size() - 1]];
-	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[m_nTTLIndex];
+	boost::weak_ptr<BaseRedis> weakRedis;
+	std::map<std::string, int>::const_iterator cit = m_mapClusterInfoIndex.find(vecSplit[vecSplit.size() - 1]);
+	if (cit != m_mapClusterInfoIndex.cend())
+	{
+		m_nTTLIndex = cit->second;
+		if (m_nTTLIndex < 0)
+		{
+			LOG_CACHESERVER.printLog("m_nTTLIndex < 0, m_nTTLIndex[%d]", m_nTTLIndex);
+			return inputSt;
+		}
+		weakRedis = m_vecRedisCluster[m_nTTLIndex];
+	}
 	if (weakRedis.expired())
 	{
 		LOG_CACHESERVER.printLog("m_vecRedisCluster[%d] expired", m_nTTLIndex);
@@ -399,7 +409,12 @@ void RedisCluster::clusterDataCheck_Set(
 	std::vector<std::string> vecSplit;
 	boost::split(vecSplit, strDeal, boost::is_any_of(" "), boost::token_compress_on);
 
-	int index = m_mapClusterInfoIndex[vecSplit[vecSplit.size() - 1]];
+	std::map<std::string, int>::const_iterator cit = m_mapClusterInfoIndex.find(vecSplit[vecSplit.size() - 1]);
+	int index = 0;
+	if (cit != m_mapClusterInfoIndex.cend())
+	{
+		index = cit->second;
+	}
 	boost::weak_ptr<BaseRedis> weakRedis = m_vecRedisCluster[index];
 	if (weakRedis.expired())
 	{

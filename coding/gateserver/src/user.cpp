@@ -13,10 +13,11 @@ namespace
 const int g_nTimingCheckUserMillisec = 5000; // more than the heart time
 }
 
-User::User(CommonBoost::IOServer& ioserver)
+User::User(CommonBoost::IOServer& ioserver, CommonBoost::IOServer& timerServe)
 	: m_nHasReadDataSize(0)
 	, m_nSeq(0)
 	, m_ioserver(ioserver)
+	, m_timerServer(timerServe)
 	, m_bUserValid(false)
 	, m_bHasSendError(false)
 {
@@ -73,10 +74,19 @@ void User::onAyncRead(
 	uint readSize
 	)
 {
+	if (!m_pSocket || !m_pSocket->is_open())
+	{
+		LOG_GATESERVER.printLog("!m_pSocket || !m_pSocket->is_open()");
+		return;
+	}
 	if (ec)
 	{
+		printf_color(PRINTF_YELLOW, "%s: error, will sendUserError\n", __FUNCTION__);
+		LOG_GATESERVER.printLog("error, will sendUserError");
+
 		if (!m_bHasSendError)
 		{
+			LOG_GATESERVER.printLog("sendUserError");
 			m_bHasSendError = sendUserError(ec);
 		}
 		return;
@@ -233,17 +243,22 @@ void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)
 
 void User::onCheckUserValid()
 {
-	if (m_bUserValid && m_pUesrCheckTimer)
+	if (!m_pUesrCheckTimer)
 	{
-		printf_color(PRINTF_YELLOW, "%s (client seq=%d): m_bUserValid = [%d]\n", __FUNCTION__,getSeq(), m_bUserValid.load());
+		LOG_GATESERVER.printLog("m_pUesrCheckTimer == NULL");
+		return;
+	}
+	if (m_bUserValid)
+	{
+		// printf_color(PRINTF_YELLOW, "%s (client seq=%d): m_bUserValid = [%d]\n", __FUNCTION__,getSeq(), m_bUserValid.load());
 		m_pUesrCheckTimer->expires_from_now(boost::posix_time::millisec(g_nTimingCheckUserMillisec));
-		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, this));
+		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, shared_from_this()));
 		m_bUserValid = false;
 	}
 	else
 	{
-		printf_color(PRINTF_YELLOW, "%s: need delete user, client seq[%d]\n", __FUNCTION__, getSeq());
-
+		// printf_color(PRINTF_YELLOW, "%s: No messaging, about to delete user, client seq[%d]\n", __FUNCTION__, getSeq());
+		LOG_GATESERVER.printLog("No messaging, about to delete user, client seq[%d]", getSeq());
 		if (!m_bHasSendError)
 		{
 			CommonBoost::ErrorCode ec = boost::system::errc::make_error_code(boost::system::errc::success);
@@ -289,12 +304,9 @@ void User::sendLogoutProtocal(const CommonBoost::ErrorCode& ec)
 
 bool User::sendUserError(const CommonBoost::ErrorCode& ec)
 {
-	if (m_pUesrCheckTimer)
-	{
-		m_pUesrCheckTimer->cancel();
-	}
 	sendLogoutProtocal(ec);
 	sigError(shared_from_this(), ec);
+	closeSocket();
 	return true;
 }
 
@@ -302,8 +314,8 @@ void User::checkUserValid()
 {
 	if (!m_pUesrCheckTimer)
 	{
-		m_pUesrCheckTimer = boost::make_shared<CommonBoost::DeadlineTimer>(m_ioserver, boost::posix_time::millisec(g_nTimingCheckUserMillisec));
-		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, this));
+		m_pUesrCheckTimer = boost::make_shared<CommonBoost::DeadlineTimer>(m_timerServer, boost::posix_time::millisec(g_nTimingCheckUserMillisec));
+		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, shared_from_this()));
 	}
 	m_bUserValid = true;
 }

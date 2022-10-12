@@ -50,24 +50,34 @@ void RoleManager::removeRole(int roleSeq, int errCode)
 	
 	// delete from m_mapIdToRole
 	boost::shared_ptr<Role> onceRole;
+	int seq = 0;
+	std::string id;
 	for (MapRoleCIT cit = m_mapIdToRole.begin(); cit != m_mapIdToRole.end();)
 	{
 		onceRole = cit->second;
-		int seq = onceRole->getClientSeq();
-		std::string id = onceRole->getRoleId();
-		if (onceRole.get() &&
-			(seq == roleSeq) &&
+
+		if (!onceRole.get())
+		{
+			cit++;
+		}
+
+		seq = onceRole->getClientSeq();
+		id = onceRole->getRoleId();
+
+		if ((seq == roleSeq) &&
 			(id.length() > 0))
 		{
 			onceRole->setLogoutErrorCode(errCode);
 			onceRole->logout();
 			m_mapIdToRole.erase(cit++);
 			break;
-		}
-		else
+		} else
 		{
 			cit++;
 		}
+		
+
+		
 	}
 
 	// delete from m_mapSeqToRole
@@ -91,7 +101,7 @@ boost::shared_ptr<Role> RoleManager::findRoleByClientSeq(int clientSeq)
 		m_mapSeqToRole.find(clientSeq);
 	if (cit != m_mapSeqToRole.cend())
 	{
-		return m_mapSeqToRole[clientSeq];
+		return cit->second;
 	}
 	return NULL;
 }

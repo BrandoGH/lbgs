@@ -70,6 +70,7 @@ private:
 	void connectInnerServer();
 	void closeInnerSocket();
 	void runInnnerIOServerOnce();
+	void runUserIOServerOnce();
 	//After each client connects, a message is sent to tell the client server information. Currently, the byte order storage method is sent, and the client assembles the message.
 	void sendServerInfo(const boost::shared_ptr<User>& user);
 	bool isConnectProxySrvSucc() { return m_bConnectProxySrv; }
@@ -98,6 +99,9 @@ private:
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	TimerGateProxySrvHeart m_innerSrvHeart;
 	ushort m_nHasReadProxyDataSize;
+
+	CommonBoost::IOServer m_userIOServer;
+
 };
 
 #endif
