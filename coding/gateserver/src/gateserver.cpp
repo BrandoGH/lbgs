@@ -140,6 +140,9 @@ void GateServer::removeUserRelated(boost::shared_ptr<User> user)
 	if (it != m_mapSeqToUser.end())
 	{
 		m_mapSeqToUser.erase(it);
+
+		--m_nConnectCount;
+		LOG_GATESERVER.printLog("current connect count: [%d], max[%d]", m_nConnectCount.load(), g_nConnectMaxCount);
 	}
 }
 
@@ -275,18 +278,10 @@ void GateServer::sendMsgToClient(const boost::shared_ptr<User> targetUser, byte*
 	targetUser->ayncSend(proxyData, header->m_nMsgLen);
 }
 
-void GateServer::closeAllUser()
-{
-	m_mapSeqToUser.clear();
-}
-
 void GateServer::onUserError(
 	boost::shared_ptr<User> user,
 	const CommonBoost::ErrorCode& ec)
 {
-	--m_nConnectCount;
-	LOG_GATESERVER.printLog("current connect count: [%d], max[%d]", m_nConnectCount.load(), g_nConnectMaxCount);
-
 	std::string getIp;
 	ushort getPort = 0;
 
@@ -308,7 +303,6 @@ void GateServer::onUserError(
 			LOG_GATESERVER.printLog("client[%s : %d] closed",
 				getIp.data(),
 				getPort);
-			user->closeSocket();
 		}
 		return;
 	}
@@ -322,7 +316,6 @@ void GateServer::onUserError(
 				getPort, 
 				ec.value(),
 				ec.message().data());
-			user->closeSocket();
 		}
 		else
 		{
@@ -357,7 +350,6 @@ void GateServer::onThreadRunAcceptorIOServer()
 		}catch (std::exception& e)
 		{
 			LOG_GATESERVER.printLog("m_server run exception!! info[%s] server will re-start!!",e.what());
-			closeAllUser();
 		}
 	}
 	
@@ -519,13 +511,15 @@ void GateServer::onAcceptHandler(
 	user->getLinkPort(port);
 	if (!ip.empty() && port != 0)
 	{
-		LOG_GATESERVER.printLog("new client[%s : %d] connect succ, client has link count[%d]",
+		LOG_GATESERVER.printLog("new client[%s : %d](seq=%d) connect succ, client has link count[%d]",
 			ip.data(),
 			port,
+			user->getSeq(),
 			m_nConnectCount.load());
 	}
 	sendServerInfo(user);
 	user->ayncRead();
+	user->checkUserValid();
 	accept();
 }
 

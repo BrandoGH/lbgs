@@ -5,11 +5,20 @@
 #include <servercommon/msgmodule/msgcommondef.h>
 #include <boost/asio/bind_executor.hpp>
 #include <boost/asio/basic_stream_socket.hpp>
+#include <boost/system/errc.hpp>
 #include <logicserver/communicationmsg/msglogout.h>
+
+namespace
+{
+const int g_nTimingCheckUserMillisec = 5000; // more than the heart time
+}
 
 User::User(CommonBoost::IOServer& ioserver)
 	: m_nHasReadDataSize(0)
 	, m_nSeq(0)
+	, m_ioserver(ioserver)
+	, m_bUserValid(false)
+	, m_bHasSendError(false)
 {
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
@@ -33,10 +42,13 @@ void User::ayncRead()
 	}
 
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
-	m_pSocket->async_read_some(
-		MSG_BUFFER(m_bytesReadBuffer, sizeof(m_bytesReadBuffer)),
-		m_pStrand->wrap(BIND(&User::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2))
-	);
+	if (m_pSocket->is_open())
+	{
+		m_pSocket->async_read_some(
+			MSG_BUFFER(m_bytesReadBuffer, sizeof(m_bytesReadBuffer)),
+			m_pStrand->wrap(BIND(&User::onAyncRead, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2))
+		);
+	}
 }
 
 void User::ayncSend(const byte* data, uint size)
@@ -46,11 +58,14 @@ void User::ayncSend(const byte* data, uint size)
 		LOG_GATESERVER.printLog("m_pSocket == NULL || m_pStrand == NULL");
 		return;
 	}
-
-	m_pSocket->async_write_some(
-		MSG_BUFFER(data, size),
-		m_pStrand->wrap(BIND(&User::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2))
-	);
+	if (m_pSocket->is_open())
+	{
+		m_pSocket->async_write_some(
+			MSG_BUFFER(data, size),
+			m_pStrand->wrap(BIND(&User::onAyncSend, shared_from_this(), boost::placeholders::_1, boost::placeholders::_2))
+		);
+	}
+	
 }
 
 void User::onAyncRead(
@@ -60,8 +75,10 @@ void User::onAyncRead(
 {
 	if (ec)
 	{
-		sendLogoutProtocal(ec);
-		sigError(shared_from_this(), ec);
+		if (!m_bHasSendError)
+		{
+			m_bHasSendError = sendUserError(ec);
+		}
 		return;
 	}
 	if (readSize <= 0 || readSize > MsgBuffer::g_nReadBufferSize)
@@ -131,6 +148,7 @@ void User::onAyncRead(
 	}
 
 	ayncRead();
+	checkUserValid();
 }
 
 
@@ -141,7 +159,7 @@ CommonBoost::SocketPtr & User::getSocket()
 
 void User::getLinkIP(std::string& outIp)
 {
-	if (m_pSocket)
+	if (m_pSocket && m_pSocket->is_open())
 	{
 		outIp = m_pSocket->remote_endpoint().address().to_string();
 	}
@@ -149,7 +167,7 @@ void User::getLinkIP(std::string& outIp)
 
 void User::getLinkPort(ushort& outPort)
 {
-	if (m_pSocket)
+	if (m_pSocket && m_pSocket->is_open())
 	{
 		outPort = m_pSocket->remote_endpoint().port();
 	}
@@ -162,7 +180,10 @@ void User::closeSocket()
 		LOG_GATESERVER.printLog("socket close error!");
 		return;
 	}
-	m_pSocket->close();
+	if (m_pSocket->is_open())
+	{
+		m_pSocket->close();
+	}
 }
 
 int User::slotConnect(GateServer* gateServer)
@@ -210,6 +231,28 @@ void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)
 	}
 }
 
+void User::onCheckUserValid()
+{
+	if (m_bUserValid && m_pUesrCheckTimer)
+	{
+		printf_color(PRINTF_YELLOW, "%s (client seq=%d): m_bUserValid = [%d]\n", __FUNCTION__,getSeq(), m_bUserValid.load());
+		m_pUesrCheckTimer->expires_from_now(boost::posix_time::millisec(g_nTimingCheckUserMillisec));
+		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, this));
+		m_bUserValid = false;
+	}
+	else
+	{
+		printf_color(PRINTF_YELLOW, "%s: need delete user, client seq[%d]\n", __FUNCTION__, getSeq());
+
+		if (!m_bHasSendError)
+		{
+			CommonBoost::ErrorCode ec = boost::system::errc::make_error_code(boost::system::errc::success);
+			m_bHasSendError = sendUserError(ec);
+		}
+	}
+	
+}
+
 void User::forwardToProxy(const byte* readOnceMsg, uint msgSize)
 {
 	MsgHeader* header = (MsgHeader*)readOnceMsg;
@@ -242,4 +285,25 @@ void User::sendLogoutProtocal(const CommonBoost::ErrorCode& ec)
 	memmove(sendData + sizeof(MsgHeader), (const char*)&cs, sizeof(MsgLogoutCS));
 
 	forwardToProxy(sendData, sizeof(sendData));
+}
+
+bool User::sendUserError(const CommonBoost::ErrorCode& ec)
+{
+	if (m_pUesrCheckTimer)
+	{
+		m_pUesrCheckTimer->cancel();
+	}
+	sendLogoutProtocal(ec);
+	sigError(shared_from_this(), ec);
+	return true;
+}
+
+void User::checkUserValid()
+{
+	if (!m_pUesrCheckTimer)
+	{
+		m_pUesrCheckTimer = boost::make_shared<CommonBoost::DeadlineTimer>(m_ioserver, boost::posix_time::millisec(g_nTimingCheckUserMillisec));
+		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, this));
+	}
+	m_bUserValid = true;
 }

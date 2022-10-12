@@ -203,10 +203,12 @@ void CacheServer::onRedisClusterConnected(bool ok)
 	if (!ok)
 	{
 		LOG_CACHESERVER.printLog("Redis cluster connected error!!");
+		printf_color(PRINTF_GREEN, "Redis cluster connected error!!\n");
 		assert(0);
 		return;
 	}
 	LOG_CACHESERVER.printLog("Redis cluster connected ok---------!!");
+	printf_color(PRINTF_GREEN, "Redis cluster connected ok---------!!\n");
 }
 
 void CacheServer::initInnerClient()

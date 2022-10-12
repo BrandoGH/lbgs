@@ -5,6 +5,7 @@
 #include <servercommon/boostmodule/signalcommunication.h>
 #include <servercommon/basedef.h>
 #include <servercommon/msgmodule/msgcommondef.h>
+#include <boost/atomic.hpp>
 
 #include <logmodule/logdef.h>
 
@@ -32,6 +33,7 @@ public:
 	int slotConnect(GateServer* gateServer);
 	void setSeq(int seq);
 	int getSeq();
+	void checkUserValid();
 
 SIGNALS:
 	DEFINE_SIGNAL(void(
@@ -52,14 +54,18 @@ HANDLER:
 		uint readSize
 	);
 
+	void onCheckUserValid();
+
 private:
 	// send info to proxy server
 	void forwardToProxy(const byte* readOnceMsg, uint msgSize);
 	void sendLogoutProtocal(const CommonBoost::ErrorCode& ec);
+	bool sendUserError(const CommonBoost::ErrorCode& ec);
 
 private:
 	CommonBoost::SocketPtr m_pSocket;
 	CommonBoost::StrandPtr m_pStrand;
+	CommonBoost::IOServer& m_ioserver;
 	byte m_bytesReadBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	MsgHeader m_msgHeader;
@@ -67,6 +73,11 @@ private:
 	ushort m_nHasReadDataSize;
 	// this user seq num
 	int m_nSeq;
+
+	// check user
+	boost::shared_ptr<CommonBoost::DeadlineTimer> m_pUesrCheckTimer;
+	boost::atomic_bool m_bUserValid;
+	boost::atomic_bool m_bHasSendError;
 };
 
 #endif // !__USER_H__
