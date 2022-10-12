@@ -118,8 +118,13 @@ void LogModule::printLog(const char * format, ...)
 {
 	if (m_pLog.get() == NULL)
 	{
-		printf("[%s:%d-%s thread(%d)]: m_pLog.get() == NULL\n",
-			__FILE__,__LINE__,__FUNCTION__, THREAD_ID);
+		/*
+		*  Usually, the situation will not enter here. If it comes here, 
+		*		it is most likely because the configuration file needs to be used for singleton initialization. 
+		*		If the information is related to configuration initialization, this error can be ignored.
+		*/
+		printf("[%s:%d-%s thread(%d)]: m_pLog.get() == NULL, input string[%s]\n",
+			__FILE__,__LINE__,__FUNCTION__, THREAD_ID, format);
 		return;
 	}
 	CommonBoost::UniqueLock lock(m_mtx);
