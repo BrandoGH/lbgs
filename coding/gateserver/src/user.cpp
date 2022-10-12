@@ -260,6 +260,7 @@ void User::onCheckUserValid()
 		LOG_GATESERVER.printLog("No messaging, about to delete user, client seq[%d]", getSeq());
 		if (!m_bHasSendError)
 		{
+			LOG_GATESERVER.printLog("sendUserError");
 			CommonBoost::ErrorCode ec = boost::system::errc::make_error_code(boost::system::errc::success);
 			m_bHasSendError = sendUserError(ec);
 		}
