@@ -10,7 +10,11 @@
 
 namespace
 {
-const int g_nTimingCheckUserMillisec = 5000; // more than the heart time
+/*
+* more than the heart time
+* Disconnect if there is no message communication within the specified time
+*/
+const int g_nTimingCheckUserMillisec = 1000 * 60;
 }
 
 User::User(CommonBoost::IOServer& ioserver, CommonBoost::IOServer& timerServe)
