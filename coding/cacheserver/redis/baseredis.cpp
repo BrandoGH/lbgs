@@ -45,7 +45,7 @@ BaseRedis::~BaseRedis()
 void BaseRedis::start(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo, const std::string password)
 {
 	boost::thread tStart(
-		BIND(&BaseRedis::onThreadStart, this, ip, port, timeoutInfo, password));
+		BIND(&BaseRedis::onThreadStart, shared_from_this(), ip, port, timeoutInfo, password));
 	tStart.detach();
 }
 

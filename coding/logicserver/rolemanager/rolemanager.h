@@ -33,8 +33,8 @@ private:
 private:
 	static RoleManager* instanceObj;
 
-	std::map<std::string, boost::shared_ptr<Role>> m_mapIdToRole;
-	std::map<int, boost::shared_ptr<Role>> m_mapSeqToRole;
+	std::map<std::string, boost::weak_ptr<Role>> m_mapIdToRole;
+	std::map<int, boost::weak_ptr<Role>> m_mapSeqToRole;
 	CommonBoost::Mutex m_mtxMap;
 };
 
