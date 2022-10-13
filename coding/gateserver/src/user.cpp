@@ -6,6 +6,8 @@
 #include <boost/asio/bind_executor.hpp>
 #include <boost/asio/basic_stream_socket.hpp>
 #include <boost/system/errc.hpp>
+#include <boost/asio/socket_base.hpp>
+
 #include <logicserver/communicationmsg/msglogout.h>
 
 namespace
@@ -85,8 +87,7 @@ void User::onAyncRead(
 	}
 	if (ec)
 	{
-		LOG_GATESERVER.printLog("error, will sendUserError");
-
+		LOG_GATESERVER.printLog("error, will sendUserError, m_bHasSendError[%d]", m_bHasSendError.load());
 		if (!m_bHasSendError)
 		{
 			LOG_GATESERVER.printLog("sendUserError");
@@ -244,6 +245,12 @@ void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)
 			ec.value(),
 			readSize,
 			ec.message().data());
+
+		if (m_pSocket)
+		{
+			LOG_GATESERVER.printLog("send error, will shutdown send channel");
+			m_pSocket->shutdown(boost::asio::socket_base::shutdown_send, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 	}
 }
 
@@ -264,7 +271,7 @@ void User::onCheckUserValid()
 	else
 	{
 		// printf_color(PRINTF_YELLOW, "%s: No messaging, about to delete user, client seq[%lld]\n", __FUNCTION__, getSeq());
-		LOG_GATESERVER.printLog("No messaging, about to delete user, client seq[%lld]", getSeq());
+		LOG_GATESERVER.printLog("No messaging, about to delete user, client seq[%lld], will sendUserError, m_bHasSendError[%d]", getSeq(), m_bHasSendError.load());
 		if (!m_bHasSendError)
 		{
 			LOG_GATESERVER.printLog("sendUserError");
@@ -313,6 +320,12 @@ bool User::sendUserError(const CommonBoost::ErrorCode& ec)
 {
 	sendLogoutProtocal(ec);
 	sigError(shared_from_this(), ec);
+
+	if (m_pSocket)
+	{
+		LOG_GATESERVER.printLog("will shutdown read channel");
+		m_pSocket->shutdown(boost::asio::socket_base::shutdown_receive, const_cast<CommonBoost::ErrorCode&>(ec));
+	}
 	return true;
 }
 

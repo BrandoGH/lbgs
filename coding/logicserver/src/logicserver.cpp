@@ -129,7 +129,11 @@ void LogicServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize
 			readSize,
 			ec.message().data());
 
-		// Do other exceptions
+		if (m_pInnerSocket)
+		{
+			LOG_LOGICSERVER.printLog("will shutdown send channel");
+			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_send, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 	}
 }
 
@@ -140,6 +144,11 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 		LOG_LOGICSERVER.printLog("ecode[%d],messages[%s]",
 			ec.value(),
 			ec.message().data());
+		if (m_pInnerSocket)
+		{
+			LOG_LOGICSERVER.printLog("will shutdown read channel");
+			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_receive, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 		connectInnerServer();
 		return;
 	}

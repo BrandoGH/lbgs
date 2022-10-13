@@ -4,6 +4,7 @@
 #include <servercommon/logmodule/logdef.h>
 #include <servercommon/configmodule/configmanager.h>
 #include <servercommon/basedef.h>
+#include <boost/asio/socket_base.hpp>
 
 ProxyServer::ProxyServer()
 {
@@ -15,6 +16,7 @@ ProxyServer::ProxyServer()
 		m_pAcceptor = new CommonBoost::Acceptor(
 			m_server,
 			CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
+		m_pAcceptor->set_option(boost::asio::socket_base::reuse_address(true));
 		accept();
 		LOG_PROXYSERVER.printLog("has run gateserver succ");
 	}
@@ -27,6 +29,7 @@ ProxyServer::ProxyServer(int port)
 	m_pAcceptor = new CommonBoost::Acceptor(
 		m_server,
 		CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
+	m_pAcceptor->set_option(boost::asio::socket_base::reuse_address(true));
 	accept();
 	LOG_PROXYSERVER.printLog("has run gateserver succ");
 }
@@ -156,17 +159,7 @@ void ProxyServer::onLinkerError(
 	else
 	{
 		// Ohter error
-		if(!linker.expired())
-		{
-			LOG_PROXYSERVER.printLog("other error! ecode[%d],messages[%s]",
-				ec.value(),
-				ec.message().data());
-		}
-		else
-		{
-			LOG_PROXYSERVER.printLog("ecode[%d],messages[%s]", ec.value(), ec.message().data());
-		}
-
+		LOG_PROXYSERVER.printLog("ecode[%d],messages[%s]", ec.value(), ec.message().data());
 	}
 
 }

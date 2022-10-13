@@ -39,10 +39,10 @@ GateServer::GateServer()
 		m_pAcceptor = new CommonBoost::Acceptor(
 			m_server,
 			CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
+		m_pAcceptor->set_option(boost::asio::socket_base::reuse_address(true));
 		accept();
 		LOG_GATESERVER.printLog("has run gateserver succ");
 	}
-
 }
 
 GateServer::GateServer(int port)
@@ -52,6 +52,7 @@ GateServer::GateServer(int port)
 	m_pAcceptor = new CommonBoost::Acceptor(
 		m_server,
 		CommonBoost::Endpoint(CommonBoost::TCP::v4(), m_nPort));
+	m_pAcceptor->set_option(boost::asio::socket_base::reuse_address(true));
 	accept();
 	LOG_GATESERVER.printLog("has run gateserver succ");
 }
@@ -428,7 +429,11 @@ void GateServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize)
 			readSize,
 			ec.message().data());
 
-		// Do other exceptions
+		if (m_pInnerSocket)
+		{
+			LOG_GATESERVER.printLog("will shutdown send channel");
+			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_send, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 	}
 }
 
@@ -439,6 +444,11 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		LOG_GATESERVER.printLog("ecode[%d],messages[%s]",
 			ec.value(),
 			ec.message().data());
+		if (m_pInnerSocket)
+		{
+			LOG_GATESERVER.printLog("will shutdown read channel");
+			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_receive, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 		connectInnerServer();
 		return;
 	}

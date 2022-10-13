@@ -98,6 +98,12 @@ void ServerLinker::onAyncSend(const CommonBoost::ErrorCode& ec, uint readSize)
 			ec.value(),
 			readSize,
 			ec.message().data());
+
+		if (m_pSocket)
+		{
+			LOG_PROXYSERVER.printLog("error, socket send channel will close!");
+			m_pSocket->shutdown(boost::asio::socket_base::shutdown_send, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 	}
 }
 
@@ -120,6 +126,11 @@ void ServerLinker::onAyncRead(
 	if(ec)
 	{
 		sigError(shared_from_this(), ec);
+		if (m_pSocket)
+		{
+			LOG_PROXYSERVER.printLog("error, socket read channel will close!");
+			m_pSocket->shutdown(boost::asio::socket_base::shutdown_receive, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 		return;
 	}
 	if(readSize <= 0 || readSize > MsgBuffer::g_nReadBufferSize)

@@ -116,7 +116,11 @@ void CacheServer::onProxySrvSend(const CommonBoost::ErrorCode& ec, uint readSize
 			readSize,
 			ec.message().data());
 
-		// Do other exceptions
+		if (m_pInnerSocket)
+		{
+			LOG_CACHESERVER.printLog("will shutdown send channel");
+			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_send, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 	}
 }
 
@@ -127,6 +131,12 @@ void CacheServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 		LOG_CACHESERVER.printLog("ecode[%d],messages[%s]",
 			ec.value(),
 			ec.message().data());
+
+		if (m_pInnerSocket)
+		{
+			LOG_CACHESERVER.printLog("will shutdown read channel");
+			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_receive, const_cast<CommonBoost::ErrorCode&>(ec));
+		}
 		connectInnerServer();
 		return;
 	}
