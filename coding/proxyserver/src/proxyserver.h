@@ -44,7 +44,7 @@ private:
 	int m_nPort;
 
 	// List of all linkers connected to the proxy server
-	boost::weak_ptr<ServerLinker> m_linkerList[MsgHeader::F_MAX];
+	boost::shared_ptr<ServerLinker> m_linkerList[MsgHeader::F_MAX];
 	CommonBoost::Mutex m_mtxLinkerList;
 
 };

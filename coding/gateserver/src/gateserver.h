@@ -85,8 +85,8 @@ private:
 	boost::atomic<int> m_nConnectCount;
 	int m_nPort;
 
-	typedef std::map< int, boost::weak_ptr<User> >::const_iterator MapSeqToUserIter;
-	std::map< int, boost::weak_ptr<User> > m_mapSeqToUser;
+	typedef std::map< int, boost::shared_ptr<User> >::const_iterator MapSeqToUserIter;
+	std::map< int, boost::shared_ptr<User> > m_mapSeqToUser;
 
 	// Communication with the proxy server
 	bool m_bInnerRunOnce;

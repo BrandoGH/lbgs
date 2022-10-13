@@ -322,13 +322,13 @@ void GateServer::onUserError(
 	ushort getPort = 0;
 	sUser->getLinkIP(getIp);
 	sUser->getLinkPort(getPort);
+
 	// Client shuts down gracefully
 	if (ec.value() == GateServer::LOGOUT)
 	{
 		LOG_GATESERVER.printLog("client[%s : %d] closed",
 			getIp.data(),
 			getPort);
-		return;
 	}
 	else
 	{
@@ -488,7 +488,7 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		MapSeqToUserIter userIt = m_mapSeqToUser.find(m_msgHeader.m_nClientSrcSeq);
 		if (userIt != m_mapSeqToUser.cend())
 		{
-			boost::shared_ptr<User> callbackUser = userIt->second.lock();
+			boost::shared_ptr<User> callbackUser = userIt->second;
 			if (callbackUser)
 			{
 				sendMsgToClient(callbackUser, m_bytesInnerSrvOnceMsg);

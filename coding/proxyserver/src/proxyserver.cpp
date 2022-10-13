@@ -111,7 +111,7 @@ void ProxyServer::onLinkerFirstConnect(const boost::weak_ptr<ServerLinker>& link
 	}
 
 	CommonBoost::UniqueLock lock(m_mtxLinkerList);
-	m_linkerList[listIndex] = linker;
+	m_linkerList[listIndex] = linker.lock();
 }
 
 void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSize)
@@ -124,7 +124,7 @@ void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSi
 	}
 
 	CommonBoost::UniqueLock lock(m_mtxLinkerList);
-	if (m_linkerList[listIndex].expired())
+	if (!m_linkerList[listIndex])
 	{
 		LOG_PROXYSERVER.printLog("m_linkerList[%d] NULL", listIndex);
 		return;
@@ -134,13 +134,13 @@ void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSi
 	MsgHeader* pMsgHeader = (MsgHeader*)(data);
 	if (!pMsgHeader)
 	{
+		LOG_PROXYSERVER.printLog("pMsgHeader NULL");
 		return;
 	}
 	
 	// Do somthing.....[nothing now]
-	boost::shared_ptr<ServerLinker> sLinker = m_linkerList[listIndex].lock();
 	lock.lock();
-	sLinker->ayncSend(data, dataSize);
+	m_linkerList[listIndex]->ayncSend(data, dataSize);
 }
 
 void ProxyServer::onLinkerError(
