@@ -193,6 +193,9 @@ void User::closeSocket()
 	{
 		m_pSocket->close();
 	}
+
+	LOG_GATESERVER.printLog("socket close ok! client seq[%d]",getSeq());
+
 }
 
 int User::slotConnect(GateServer* gateServer)
@@ -306,7 +309,6 @@ bool User::sendUserError(const CommonBoost::ErrorCode& ec)
 {
 	sendLogoutProtocal(ec);
 	sigError(shared_from_this(), ec);
-	closeSocket();
 	return true;
 }
 

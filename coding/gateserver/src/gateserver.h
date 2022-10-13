@@ -37,14 +37,14 @@ public:
 
 SLOTS:
 	void onUserError(
-		boost::shared_ptr<User> user,
+		const boost::weak_ptr<User>& user,
 		const CommonBoost::ErrorCode& ec);
 	void OnSendToProxySrvByUser(const byte* data, uint size, int userSeq);
 
 HANDLER:
 	void onAcceptHandler(
 		const CommonBoost::ErrorCode& err,
-		const boost::shared_ptr<User>& user
+		const boost::weak_ptr<User>& user
 		);
 	void onThreadRunAcceptorIOServer();
 
@@ -63,7 +63,7 @@ private:
 	void accept();
 	void initData();
 	// The client disconnects and deletes the user-related data, which can be written here
-	void removeUserRelated(boost::shared_ptr<User> user);		
+	void removeUserRelated(const boost::weak_ptr<User>& user);
 
 	// proxy server 
 	void initInnerClient();
@@ -72,11 +72,11 @@ private:
 	void runInnnerIOServerOnce();
 	void runUserIOServerOnce();
 	//After each client connects, a message is sent to tell the client server information. Currently, the byte order storage method is sent, and the client assembles the message.
-	void sendServerInfo(const boost::shared_ptr<User>& user);
+	void sendServerInfo(const boost::weak_ptr<User>& user);
 	bool isConnectProxySrvSucc() { return m_bConnectProxySrv; }
 	void readFromProxySrv();
 
-	void sendMsgToClient(const boost::shared_ptr<User> targetUser, byte* proxyData);
+	void sendMsgToClient(const boost::weak_ptr<User>& targetUser, byte* proxyData);
 
 private:
 	CommonBoost::IOServer m_server;
@@ -85,8 +85,8 @@ private:
 	boost::atomic<int> m_nConnectCount;
 	int m_nPort;
 
-	typedef std::map< int, boost::shared_ptr<User> >::const_iterator MapSeqToUserIter;
-	std::map< int, boost::shared_ptr<User> > m_mapSeqToUser;
+	typedef std::map< int, boost::weak_ptr<User> >::const_iterator MapSeqToUserIter;
+	std::map< int, boost::weak_ptr<User> > m_mapSeqToUser;
 
 	// Communication with the proxy server
 	bool m_bInnerRunOnce;

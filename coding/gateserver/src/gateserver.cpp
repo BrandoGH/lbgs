@@ -128,19 +128,21 @@ void GateServer::initData()
 	m_innerSrvHeart.setInterval(info.heart_time);
 }
 
-void GateServer::removeUserRelated(boost::shared_ptr<User> user)
+void GateServer::removeUserRelated(const boost::weak_ptr<User>& user)
 {
-	if (!user.get())
+	if (user.expired())
 	{
 		LOG_GATESERVER.printLog("user NULL");
 		return;
 	}
+	boost::shared_ptr<User> sUser = user.lock();
+
 	// Store this user seq, which can be assigned to the next connected client
 	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
-	m_userSeqMgr.pushAsideSeq(user->getSeq());
+	m_userSeqMgr.pushAsideSeq(sUser->getSeq());
 
 	// delete user from seq map
-	MapSeqToUserIter it = m_mapSeqToUser.find(user->getSeq());
+	MapSeqToUserIter it = m_mapSeqToUser.find(sUser->getSeq());
 	if (it != m_mapSeqToUser.end())
 	{
 		m_mapSeqToUser.erase(it);
@@ -231,16 +233,19 @@ void GateServer::runUserIOServerOnce()
 	}
 }
 
-void GateServer::sendServerInfo(const boost::shared_ptr<User>& user)
+void GateServer::sendServerInfo(const boost::weak_ptr<User>& user)
 {
-	if(!user)
+	if(user.expired())
 	{
 		LOG_GATESERVER.printLog("linking user is NULL");
 		return;
 	}
+
+	boost::shared_ptr <User> sUser = user.lock();
+
 	DEFINE_BYTE_ARRAY(mode, 1);
 	mode[0] = CommonTool::MsgTool::isLittleEndian() ? 0xAE : 0x01;
-	user->ayncSend(mode, sizeof(mode));
+	sUser->ayncSend(mode, sizeof(mode));
 }
 
 void GateServer::sendToProxySrv(const byte* data, uint size)
@@ -272,13 +277,15 @@ void GateServer::readFromProxySrv()
 	);
 }
 
-void GateServer::sendMsgToClient(const boost::shared_ptr<User> targetUser, byte* proxyData)
+void GateServer::sendMsgToClient(const boost::weak_ptr<User>& targetUser, byte* proxyData)
 {
-	if (!targetUser.get() || !proxyData)
+	if (targetUser.expired() || !proxyData)
 	{
 		LOG_GATESERVER.printLog("Pointer NULL");
 		return;
 	}
+
+	boost::shared_ptr<User> sUser = targetUser.lock();
 
 	MsgHeader* header = (MsgHeader*)proxyData;
 	if (!header)
@@ -296,41 +303,36 @@ void GateServer::sendMsgToClient(const boost::shared_ptr<User> targetUser, byte*
 		return;
 	}
 	memmove(proxyData + nHeartBodySize, (const char*)&ender, sizeof(MsgEnder));
-	targetUser->ayncSend(proxyData, header->m_nMsgLen);
+	sUser->ayncSend(proxyData, header->m_nMsgLen);
 }
 
 void GateServer::onUserError(
-	boost::shared_ptr<User> user,
+	const boost::weak_ptr<User>& user,
 	const CommonBoost::ErrorCode& ec)
 {
-	std::string getIp;
-	ushort getPort = 0;
-
-	bool bUserValid = false;
-	if (user.get() != NULL)
+	if (user.expired())
 	{
-		bUserValid = true;
-		user->getLinkIP(getIp);
-		user->getLinkPort(getPort);
+		LOG_GATESERVER.printLog("input user param expired");
+		return;
 	}
 
-	removeUserRelated(user);
+	boost::shared_ptr<User> sUser = user.lock();
 
+	std::string getIp;
+	ushort getPort = 0;
+	sUser->getLinkIP(getIp);
+	sUser->getLinkPort(getPort);
 	// Client shuts down gracefully
 	if (ec.value() == GateServer::LOGOUT)
 	{
-		if (bUserValid)
-		{
-			LOG_GATESERVER.printLog("client[%s : %d] closed",
-				getIp.data(),
-				getPort);
-		}
+		LOG_GATESERVER.printLog("client[%s : %d] closed",
+			getIp.data(),
+			getPort);
 		return;
 	}
 	else
 	{
-		// Ohter error
-		if (bUserValid)
+		if (sUser)
 		{
 			LOG_GATESERVER.printLog("client[%s : %d] error! ecode[%d],messages[%s]",
 				getIp.data(), 
@@ -344,6 +346,8 @@ void GateServer::onUserError(
 		}
 
 	}
+
+	removeUserRelated(user);
 
 }
 
@@ -484,7 +488,7 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		MapSeqToUserIter userIt = m_mapSeqToUser.find(m_msgHeader.m_nClientSrcSeq);
 		if (userIt != m_mapSeqToUser.cend())
 		{
-			boost::shared_ptr<User> callbackUser = userIt->second;
+			boost::shared_ptr<User> callbackUser = userIt->second.lock();
 			if (callbackUser)
 			{
 				sendMsgToClient(callbackUser, m_bytesInnerSrvOnceMsg);
@@ -502,7 +506,7 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 
 void GateServer::onAcceptHandler(
 	const CommonBoost::ErrorCode& err,
-	const boost::shared_ptr<User>& user
+	const boost::weak_ptr<User>& user
 	)
 {
 	if (m_nConnectCount > g_nConnectMaxCount)
@@ -518,35 +522,37 @@ void GateServer::onAcceptHandler(
 		accept();
 		return;
 	}
-	if (!user)
+
+	if (user.expired())
 	{
 		LOG_GATESERVER.printLog("linking user is NULL");
 		accept();
 		return;
 	}
+	boost::shared_ptr<User> sUser = user.lock();
 
 	++m_nConnectCount;
 
 	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
-	user->setSeq(m_userSeqMgr.getAvailableSeq());
+	sUser->setSeq(m_userSeqMgr.getAvailableSeq());
 	lock.unlock();
-	m_mapSeqToUser[user->getSeq()] = user;
+	m_mapSeqToUser[sUser->getSeq()] = sUser;
 
 	std::string ip;
 	ushort port = 0;
-	user->getLinkIP(ip);
-	user->getLinkPort(port);
+	sUser->getLinkIP(ip);
+	sUser->getLinkPort(port);
 	if (!ip.empty() && port != 0)
 	{
 		LOG_GATESERVER.printLog("new client[%s : %d](seq=%d) connect succ, client has link count[%d]",
 			ip.data(),
 			port,
-			user->getSeq(),
+			sUser->getSeq(),
 			m_nConnectCount.load());
 	}
 	sendServerInfo(user);
-	user->ayncRead();
-	user->checkUserValid();
+	sUser->ayncRead();
+	sUser->checkUserValid();
 	accept();
 }
 

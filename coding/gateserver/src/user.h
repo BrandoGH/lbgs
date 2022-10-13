@@ -37,7 +37,7 @@ public:
 
 SIGNALS:
 	DEFINE_SIGNAL(void(
-		boost::shared_ptr<User>,
+		const boost::weak_ptr<User>&,
 		const CommonBoost::ErrorCode&), sigError);
 	DEFINE_SIGNAL(void(
 		const byte* data,
