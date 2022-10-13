@@ -73,11 +73,22 @@ void GateServer::start()
 		m_nPort, 
 		g_nConnectMaxCount
 	);
-	for (int i = 0; i < CPU_MAX_THREAD - 2; ++i)
+
+	// Compatible with some low-end servers
+	if (CPU_MAX_THREAD - 2 <= 0)
 	{
 		boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
 		tAccServer.detach();
 	}
+	else
+	{
+		for (int i = 0; i < CPU_MAX_THREAD - 2; ++i)
+		{
+			boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
+			tAccServer.detach();
+		}
+	}
+	
 	printf_color(PRINTF_GREEN, 
 		"--Gateserver start successed!!!!!!!!!!port[%d],max link count[%d]\n", m_nPort, g_nConnectMaxCount);
 	boost::thread tConnect(BIND(&GateServer::runInnnerIOServerOnce, this));
