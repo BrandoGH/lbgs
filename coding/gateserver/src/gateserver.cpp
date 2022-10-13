@@ -19,7 +19,7 @@ namespace
 {
 // Maximum number of connections per server -- Maximum number of connections in available memory
 const int g_nConnectMaxCount = 
-	int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / MsgBuffer::g_nReadBufferSize * 1.0); 
+	int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / sizeof(User) * 1.0);
 
 }
 
