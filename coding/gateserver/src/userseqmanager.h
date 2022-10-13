@@ -3,6 +3,7 @@
 
 #include <boost/atomic/atomic.hpp>
 #include <servercommon/boostmodule/basedef.h>
+#include <servercommon/basedef.h>
 #include <set>
 
 /*
@@ -16,16 +17,12 @@ public:
 	UserSeqManager();
 	~UserSeqManager();
 
-	int getAvailableSeq();
-	void pushAsideSeq(int asideSeq);
+	ullong genSeq(const std::string& ip, ushort port);
 	CommonBoost::Mutex& getMutex();
 
 private:
-	boost::atomic<int> m_nSeq;
-	// After assigning the seq to the client, if the client goes offline, the seq will be placed in this list and used by the next connected client
-	typedef std::set< int >::const_iterator SetIntCit;
-	std::set< int > m_lsAsideSeq;
-	CommonBoost::Mutex m_mtxList;
+	boost::atomic_ullong m_nSeq;
+	CommonBoost::Mutex m_mtx;
 };
 
 #endif

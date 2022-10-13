@@ -28,12 +28,12 @@ void Role::logout()
 	sendDeleteLoginCacheInfo();
 }
 
-void Role::setClientSeq(int seq)
+void Role::setClientSeq(ullong seq)
 {
 	m_nClientSeq = seq;
 }
 
-int Role::getClientSeq()
+ullong Role::getClientSeq()
 {
 	return m_nClientSeq;
 }

@@ -11,7 +11,7 @@ class RoleManager
 public:
 	struct CreateRoleInput
 	{
-		int m_nClientSeq = -1;
+		ullong m_nClientSeq = 0;
 		RoleLoginInfoParam m_param;
 	};
 
@@ -22,11 +22,11 @@ public:
 	static RoleManager* instance();
 
 	void createRole(const CreateRoleInput& input);
-	void removeRole(int roleSeq, int errCode);
+	void removeRole(ullong roleSeq, int errCode);
 	bool isRoleExists(const std::string& roleId);
 
-	boost::shared_ptr<Role> findRoleByClientSeq(int clientSeq);
-
+	boost::shared_ptr<Role> findRoleByClientSeq(ullong clientSeq);
+	
 private:
 	void deleteInstance();
 
@@ -34,7 +34,7 @@ private:
 	static RoleManager* instanceObj;
 
 	std::map<std::string, boost::shared_ptr<Role>> m_mapIdToRole;
-	std::map<int, boost::shared_ptr<Role>> m_mapSeqToRole;
+	std::map<ullong, boost::shared_ptr<Role>> m_mapSeqToRole;
 	CommonBoost::Mutex m_mtxMap;
 };
 

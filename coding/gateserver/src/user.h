@@ -31,8 +31,8 @@ public:
 	void closeSocket();
 
 	int slotConnect(GateServer* gateServer);
-	void setSeq(int seq);
-	int getSeq();
+	void setSeq(ullong seq);
+	ullong getSeq();
 	void checkUserValid();
 
 SIGNALS:
@@ -42,7 +42,7 @@ SIGNALS:
 	DEFINE_SIGNAL(void(
 		const byte* data,
 		uint dataSize, 
-		int userSeq), sigSendDataToProxy);
+		ullong userSeq), sigSendDataToProxy);
 
 HANDLER:
 	void onAyncRead(
@@ -72,7 +72,7 @@ private:
 	MsgEnder m_msgEnder;
 	ushort m_nHasReadDataSize;
 	// this user seq num
-	int m_nSeq;
+	ullong m_nSeq;
 
 	// check user
 	boost::shared_ptr<CommonBoost::DeadlineTimer> m_pUesrCheckTimer;

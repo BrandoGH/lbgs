@@ -14,8 +14,8 @@ public:
 	void login();
 	void logout();
 
-	void setClientSeq(int seq);
-	int getClientSeq();
+	void setClientSeq(ullong seq);
+	ullong getClientSeq();
 	void setLoginParam(const RoleLoginInfoParam& param);
 	std::string getRoleId();
 	std::string getRoleName();
@@ -26,7 +26,7 @@ private:
 	void sendDeleteLoginCacheInfo();
 
 private:
-	int m_nClientSeq;
+	ullong m_nClientSeq;
 	RoleLoginInfoParam m_paramLogin;
 
 	int m_nLogoutErrorCode;

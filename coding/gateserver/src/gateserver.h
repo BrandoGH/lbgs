@@ -39,7 +39,7 @@ SLOTS:
 	void onUserError(
 		const boost::weak_ptr<User>& user,
 		const CommonBoost::ErrorCode& ec);
-	void OnSendToProxySrvByUser(const byte* data, uint size, int userSeq);
+	void OnSendToProxySrvByUser(const byte* data, uint size, ullong userSeq);
 
 HANDLER:
 	void onAcceptHandler(
@@ -85,8 +85,8 @@ private:
 	boost::atomic<int> m_nConnectCount;
 	int m_nPort;
 
-	typedef std::map< int, boost::shared_ptr<User> >::const_iterator MapSeqToUserIter;
-	std::map< int, boost::shared_ptr<User> > m_mapSeqToUser;
+	typedef std::map< ullong, boost::shared_ptr<User> >::const_iterator MapSeqToUserIter;
+	std::map< ullong, boost::shared_ptr<User> > m_mapSeqToUser;
 
 	// Communication with the proxy server
 	bool m_bInnerRunOnce;

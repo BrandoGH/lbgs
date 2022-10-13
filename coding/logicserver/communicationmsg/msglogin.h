@@ -23,7 +23,7 @@ struct MsgLoginCS
 };
 BOOST_STATIC_ASSERT(sizeof(MsgLoginCS) == 96);
 
-// 153-role login req
+// 153-role login rep
 struct MsgLoginSC
 {
 	enum EnLoginStatus

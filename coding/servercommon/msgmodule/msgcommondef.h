@@ -49,12 +49,12 @@ struct MsgHeader
 	byte m_nProxyer;		
 	byte m_nReserve[3];		
 	/*
-	The server is used for internal communication. It stores the serial number that sends the information. 
-	According to the serial number, the gateway decides to whom it is sent.
+	*  4 byte -> ip
+	*  2 byte -> port
 	*/
-	int m_nClientSrcSeq;
+	ullong m_nClientSrcSeq;
 };
-BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 16);
+BOOST_STATIC_ASSERT(sizeof(MsgHeader) == 20);
 
 struct MsgEnder
 {

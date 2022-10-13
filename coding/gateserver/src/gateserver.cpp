@@ -89,7 +89,7 @@ void GateServer::start()
 	while (1) { THREAD_SLEEP(1); }
 }
 
-void GateServer::OnSendToProxySrvByUser(const byte* data, uint size, int userSeq)
+void GateServer::OnSendToProxySrvByUser(const byte* data, uint size, ullong userSeq)
 {
 	sendToProxySrv(data, size);
 }
@@ -139,8 +139,6 @@ void GateServer::removeUserRelated(const boost::weak_ptr<User>& user)
 
 	// Store this user seq, which can be assigned to the next connected client
 	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
-	m_userSeqMgr.pushAsideSeq(sUser->getSeq());
-
 	// delete user from seq map
 	MapSeqToUserIter it = m_mapSeqToUser.find(sUser->getSeq());
 	if (it != m_mapSeqToUser.end())
@@ -533,18 +531,18 @@ void GateServer::onAcceptHandler(
 
 	++m_nConnectCount;
 
-	CommonBoost::UniqueLock lock(m_userSeqMgr.getMutex());
-	sUser->setSeq(m_userSeqMgr.getAvailableSeq());
-	lock.unlock();
-	m_mapSeqToUser[sUser->getSeq()] = sUser;
-
 	std::string ip;
 	ushort port = 0;
 	sUser->getLinkIP(ip);
 	sUser->getLinkPort(port);
+
+	sUser->setSeq(m_userSeqMgr.genSeq(ip, port));
+	m_mapSeqToUser[sUser->getSeq()] = sUser;
+
+	
 	if (!ip.empty() && port != 0)
 	{
-		LOG_GATESERVER.printLog("new client[%s : %d](seq=%d) connect succ, client has link count[%d]",
+		LOG_GATESERVER.printLog("new client[%s : %d](seq=%lld) connect succ, client has link count[%d]",
 			ip.data(),
 			port,
 			sUser->getSeq(),

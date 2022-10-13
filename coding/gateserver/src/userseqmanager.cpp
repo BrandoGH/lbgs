@@ -1,5 +1,8 @@
 #include "userseqmanager.h"
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 UserSeqManager::UserSeqManager()
 	: m_nSeq(0)
 {
@@ -9,31 +12,28 @@ UserSeqManager::~UserSeqManager()
 {
 }
 
-int UserSeqManager::getAvailableSeq()
+ullong UserSeqManager::genSeq(const std::string& ip, ushort port)
 {
-	int retSeq = 0;
-	// if list have id avalible
-	if (!m_lsAsideSeq.empty())
+	ullong retSeq = 0;
+	byte* memSeq = (byte*)&retSeq;
+
+	// ip
+	std::vector<std::string> vecSplit;
+	boost::split(vecSplit, ip, boost::is_any_of("."), boost::token_compress_on);
+	for (int i = 0; i < vecSplit.size(); ++i)
 	{
-		SetIntCit cit = m_lsAsideSeq.cbegin();
-		retSeq = *cit;
-		m_lsAsideSeq.erase(cit);
-	}
-	else
-	{
-		retSeq = m_nSeq.load();
-		m_nSeq += 1;
+		int ipOnceByte = CAST_TO(int, vecSplit[i]);
+		memmove(memSeq + i, (byte*)&ipOnceByte, 1);
 	}
 
+	// port
+	memmove(memSeq + 4, (byte*)&port, sizeof(port));
+	
 	return retSeq;
 }
 
-void UserSeqManager::pushAsideSeq(int asideSeq)
-{
-	m_lsAsideSeq.insert(asideSeq);
-}
 
 CommonBoost::Mutex& UserSeqManager::getMutex()
 {
-	return m_mtxList;
+	return m_mtx;
 }

@@ -194,7 +194,7 @@ void User::closeSocket()
 		m_pSocket->close();
 	}
 
-	LOG_GATESERVER.printLog("socket close ok! client seq[%d]",getSeq());
+	LOG_GATESERVER.printLog("socket close ok! client seq[%lld]",getSeq());
 
 }
 
@@ -222,12 +222,12 @@ int User::slotConnect(GateServer* gateServer)
 	return CONNECT_OK;
 }
 
-void User::setSeq(int seq)
+void User::setSeq(ullong seq)
 {
 	m_nSeq = seq;
 }
 
-int User::getSeq()
+ullong User::getSeq()
 {
 	return m_nSeq;
 }
@@ -252,15 +252,15 @@ void User::onCheckUserValid()
 	}
 	if (m_bUserValid)
 	{
-		// printf_color(PRINTF_YELLOW, "%s (client seq=%d): m_bUserValid = [%d]\n", __FUNCTION__,getSeq(), m_bUserValid.load());
+		// printf_color(PRINTF_YELLOW, "%s (client seq=%lld): m_bUserValid = [%d]\n", __FUNCTION__,getSeq(), m_bUserValid.load());
 		m_pUesrCheckTimer->expires_from_now(boost::posix_time::millisec(g_nTimingCheckUserMillisec));
 		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, shared_from_this()));
 		m_bUserValid = false;
 	}
 	else
 	{
-		// printf_color(PRINTF_YELLOW, "%s: No messaging, about to delete user, client seq[%d]\n", __FUNCTION__, getSeq());
-		LOG_GATESERVER.printLog("No messaging, about to delete user, client seq[%d]", getSeq());
+		// printf_color(PRINTF_YELLOW, "%s: No messaging, about to delete user, client seq[%lld]\n", __FUNCTION__, getSeq());
+		LOG_GATESERVER.printLog("No messaging, about to delete user, client seq[%lld]", getSeq());
 		if (!m_bHasSendError)
 		{
 			LOG_GATESERVER.printLog("sendUserError");
