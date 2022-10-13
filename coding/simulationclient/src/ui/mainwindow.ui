@@ -225,7 +225,7 @@
               </font>
              </property>
              <property name="text">
-              <string>15000</string>
+              <string>3000</string>
              </property>
              <property name="placeholderText">
               <string>Time interval(ms)</string>
