@@ -28,14 +28,14 @@ private:
 
 SLOTS:
 	void onLinkerError(
-		boost::shared_ptr<ServerLinker> linker,
+		const boost::weak_ptr<ServerLinker>& linker,
 		const CommonBoost::ErrorCode& ec);
-	void onLinkerFirstConnect(boost::shared_ptr<ServerLinker> linker, int listIndex);
+	void onLinkerFirstConnect(const boost::weak_ptr<ServerLinker>& linker, int listIndex);
 	void onSendToDstServer(int listIndex, const byte* data, uint dataSize);
 HANDLER:
 	void onAcceptHandler(
 		const CommonBoost::ErrorCode& err,
-		const boost::shared_ptr<ServerLinker>& linker
+		const boost::weak_ptr<ServerLinker>& linker
 	);
 
 private:
@@ -44,7 +44,7 @@ private:
 	int m_nPort;
 
 	// List of all linkers connected to the proxy server
-	boost::shared_ptr<ServerLinker> m_linkerList[MsgHeader::F_MAX];
+	boost::weak_ptr<ServerLinker> m_linkerList[MsgHeader::F_MAX];
 	CommonBoost::Mutex m_mtxLinkerList;
 
 };

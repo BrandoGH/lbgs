@@ -25,6 +25,7 @@ ServerLinker::ServerLinker(CommonBoost::IOServer& ioserver)
 
 ServerLinker::~ServerLinker()
 {
+	closeSocket();
 }
 
 CommonBoost::SocketPtr& ServerLinker::getSocket()

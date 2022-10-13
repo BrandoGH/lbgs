@@ -30,10 +30,10 @@ private:
 
 SIGNALS:
 	DEFINE_SIGNAL(void(
-		boost::shared_ptr<ServerLinker>,
+		const boost::weak_ptr<ServerLinker>&,
 		const CommonBoost::ErrorCode&), sigError);
 	DEFINE_SIGNAL(void(
-		boost::shared_ptr<ServerLinker>,
+		const boost::weak_ptr<ServerLinker>&,
 		int listIndex),sigFirstConnect);
 	DEFINE_SIGNAL(void(
 		int dstServerType,

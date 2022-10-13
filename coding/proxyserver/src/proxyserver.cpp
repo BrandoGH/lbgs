@@ -101,9 +101,9 @@ void ProxyServer::onThreadRunAcceptorIOServer()
 	}
 }
 
-void ProxyServer::onLinkerFirstConnect(boost::shared_ptr<ServerLinker> linker, int listIndex)
+void ProxyServer::onLinkerFirstConnect(const boost::weak_ptr<ServerLinker>& linker, int listIndex)
 {
-	if (!linker.get() || 
+	if (linker.expired() || 
 		(listIndex <= MsgHeader::F_DEFAULT || listIndex >= MsgHeader::F_MAX))
 	{
 		LOG_PROXYSERVER.printLog("error");
@@ -124,7 +124,7 @@ void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSi
 	}
 
 	CommonBoost::UniqueLock lock(m_mtxLinkerList);
-	if (!m_linkerList[listIndex])
+	if (m_linkerList[listIndex].expired())
 	{
 		LOG_PROXYSERVER.printLog("m_linkerList[%d] NULL", listIndex);
 		return;
@@ -138,37 +138,29 @@ void ProxyServer::onSendToDstServer(int listIndex, const byte* data, uint dataSi
 	}
 	
 	// Do somthing.....[nothing now]
-
+	boost::shared_ptr<ServerLinker> sLinker = m_linkerList[listIndex].lock();
 	lock.lock();
-	m_linkerList[listIndex]->ayncSend(data, dataSize);
+	sLinker->ayncSend(data, dataSize);
 }
 
 void ProxyServer::onLinkerError(
-	boost::shared_ptr<ServerLinker> linker,
+	const boost::weak_ptr<ServerLinker>& linker,
 	const CommonBoost::ErrorCode& ec)
 {
-	bool bLinkerValid = false;
-	if(linker.get() != NULL)
-	{
-		bLinkerValid = true;
-	}
-	
 	// Client shuts down gracefully
 	if(ec.value() == ProxyServer::LOGOUT)
 	{
 		LOG_PROXYSERVER.printLog("once server has logout");
-		linker->closeSocket();
 		return;
 	}
 	else
 	{
 		// Ohter error
-		if(bLinkerValid)
+		if(!linker.expired())
 		{
 			LOG_PROXYSERVER.printLog("other error! ecode[%d],messages[%s]",
 				ec.value(),
 				ec.message().data());
-			linker->closeSocket();
 		}
 		else
 		{
@@ -181,7 +173,7 @@ void ProxyServer::onLinkerError(
 
 void ProxyServer::onAcceptHandler(
 	const CommonBoost::ErrorCode& err,
-	const boost::shared_ptr<ServerLinker>& linker
+	const boost::weak_ptr<ServerLinker>& linker
 )
 {
 	if(err)
@@ -190,13 +182,15 @@ void ProxyServer::onAcceptHandler(
 		accept();
 		return;
 	}
-	if(!linker)
+	if(linker.expired())
 	{
 		LOG_PROXYSERVER.printLog("linking linker is NULL");
 		accept();
 		return;
 	}
 
-	linker->ayncRead(true);
+	boost::shared_ptr<ServerLinker> sLinker = linker.lock();
+
+	sLinker->ayncRead(true);
 	accept();
 }
