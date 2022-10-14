@@ -33,8 +33,7 @@ User::User(CommonBoost::IOServer& ioserver, CommonBoost::IOServer& timerServe)
 	memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
 	m_pStrand = boost::make_shared<CommonBoost::Strand>(ioserver);
-	assert(m_pSocket != NULL);
-	assert(m_pStrand != NULL);
+	m_pStrandTimer = boost::make_shared<CommonBoost::Strand>(timerServe);
 }
 
 User::~User()
@@ -266,16 +265,17 @@ void User::onAyncSend(const CommonBoost::ErrorCode & ec, uint readSize)
 
 void User::onCheckUserValid()
 {
-	if (!m_pUesrCheckTimer)
+	if (!m_pUesrCheckTimer || !m_pStrandTimer)
 	{
-		LOG_GATESERVER.printLog("m_pUesrCheckTimer == NULL");
+		LOG_GATESERVER.printLog("!m_pUesrCheckTimer || !m_pStrandTimer");
 		return;
 	}
 	if (m_bUserValid)
 	{
 		// printf_color(PRINTF_YELLOW, "%s (client seq=%lld): m_bUserValid = [%d]\n", __FUNCTION__,getSeq(), m_bUserValid.load());
 		m_pUesrCheckTimer->expires_from_now(boost::posix_time::millisec(g_nTimingCheckUserMillisec));
-		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, shared_from_this()));
+		m_pUesrCheckTimer->async_wait(
+			m_pStrandTimer->wrap(BIND(&User::onCheckUserValid, shared_from_this())));
 		m_bUserValid = false;
 	}
 	else
@@ -341,10 +341,16 @@ bool User::sendUserError(const CommonBoost::ErrorCode& ec)
 
 void User::checkUserValid()
 {
+	if (!m_pStrandTimer)
+	{
+		LOG_GATESERVER.printLog("m_pStrandTimer NULL");
+		return;
+	}
 	if (!m_pUesrCheckTimer)
 	{
 		m_pUesrCheckTimer = boost::make_shared<CommonBoost::DeadlineTimer>(m_timerServer, boost::posix_time::millisec(g_nTimingCheckUserMillisec));
-		m_pUesrCheckTimer->async_wait(BIND(&User::onCheckUserValid, shared_from_this()));
+		m_pUesrCheckTimer->async_wait(
+			m_pStrandTimer->wrap(BIND(&User::onCheckUserValid, shared_from_this())));
 	}
 	m_bUserValid = true;
 }

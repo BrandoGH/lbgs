@@ -76,6 +76,7 @@ private:
 
 	// check user
 	boost::shared_ptr<CommonBoost::DeadlineTimer> m_pUesrCheckTimer;
+	CommonBoost::StrandPtr m_pStrandTimer;
 	CommonBoost::IOServer& m_timerServer;
 	boost::atomic_bool m_bUserValid;
 	boost::atomic_bool m_bHasSendError;
