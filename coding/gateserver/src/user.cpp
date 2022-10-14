@@ -17,6 +17,8 @@ namespace
 * Disconnect if there is no message communication within the specified time
 */
 const int g_nTimingCheckUserMillisec = 1000 * 120;
+
+const CString64 g_nGateToClientErrorMsg = "Error Msg (From GateServer)";
 }
 
 User::User(CommonBoost::IOServer& ioserver, CommonBoost::IOServer& timerServe)
@@ -105,6 +107,7 @@ void User::onAyncRead(
 	m_msgEnder.reset();
 	m_nHasReadDataSize = 0;
 
+	bool bGataErrorToClient = false;
 
 	/*
 		Only sticky packets are processed here, and half packets are controlled by the client. 
@@ -114,6 +117,12 @@ void User::onAyncRead(
 	while(m_nHasReadDataSize < readSize)
 	{
 		THREAD_SLEEP(1);
+
+		if (bGataErrorToClient)
+		{
+			ayncSend((const byte*)g_nGateToClientErrorMsg, strlen(g_nGateToClientErrorMsg));
+			bGataErrorToClient = false;
+		}
 		// Analysis Protocol
 		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
 
@@ -126,6 +135,7 @@ void User::onAyncRead(
 				m_msgHeader.m_nMsgLen, 
 				m_bytesReadBuffer);
 			m_nHasReadDataSize++;
+			bGataErrorToClient = true;
 			continue;
 		}
 
