@@ -221,6 +221,7 @@ void GateServer::runInnnerIOServerOnce()
 			catch(std::exception& e)
 			{
 				LOG_GATESERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
+				printf_color(PRINTF_RED, "%s : m_innerServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
 			}
 		}
 	}
@@ -239,6 +240,7 @@ void GateServer::runUserIOServerOnce()
 		} catch (std::exception& e)
 		{
 			LOG_GATESERVER.printLog("m_userIOServer run exception!! info[%s] server will re-start!!", e.what());
+			printf_color(PRINTF_RED, "%s : m_userIOServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
 		}
 	}
 }

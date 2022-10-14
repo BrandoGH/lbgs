@@ -102,6 +102,7 @@ void CacheServer::onRunInnnerIOServerOnce()
 			} catch (std::exception& e)
 			{
 				LOG_CACHESERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
+				printf_color(PRINTF_RED, "%s : m_innerServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
 			}
 		}
 	}
