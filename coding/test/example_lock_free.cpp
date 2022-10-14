@@ -16,6 +16,8 @@ void append(int val)
 	Node* newNode = new Node{ val,oldHead };
 
 	// what follows is equivalent to: list_head = newNode, but in a thread-safe way:
+	// [cur value] == [expect] , [cur value] set = [desired], return true
+	// [cur value] != [expect] , [expect] set = [cur value], return false
 	while (!list_head.compare_exchange_weak(oldHead, newNode))
 		newNode->next = oldHead;
 }
