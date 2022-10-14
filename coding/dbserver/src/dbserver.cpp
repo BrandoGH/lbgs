@@ -35,8 +35,12 @@ DBServer::~DBServer()
 
 void DBServer::start()
 {
-	boost::thread tConnect(BIND(&DBServer::onRunInnnerIOServerOnce, this));
-	tConnect.detach();
+	for (int i = 0; i < CPU_MAX_THREAD; ++i)
+	{
+		boost::thread tConnect(BIND(&DBServer::onRunInnnerIOServerOnce, this));
+		tConnect.detach();
+	}
+	
 	while (1) { THREAD_SLEEP(1); }
 }
 

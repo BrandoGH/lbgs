@@ -79,15 +79,15 @@ void GateServer::start()
 	{
 		boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
 		boost::thread tUserAync(BIND(&GateServer::runUserIOServerOnce, this));
+		boost::thread tConnect(BIND(&GateServer::runInnnerIOServerOnce, this));
 
 		tAccServer.detach();
 		tUserAync.detach();
+		tConnect.detach();
 	}
 	
 	printf_color(PRINTF_GREEN, 
 		"--Gateserver start successed!!!!!!!!!!port[%d],max link count[%d]\n", m_nPort, g_nConnectMaxCount);
-	boost::thread tConnect(BIND(&GateServer::runInnnerIOServerOnce, this));
-	tConnect.detach();
 	while (1) { THREAD_SLEEP(1); }
 }
 
