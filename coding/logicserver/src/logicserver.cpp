@@ -149,6 +149,10 @@ void LogicServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 			LOG_LOGICSERVER.printLog("will shutdown read channel");
 			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_receive, const_cast<CommonBoost::ErrorCode&>(ec));
 		}
+
+		LOG_LOGICSERVER.printLog("****** LogicServer will re-connect to proxyserver ******");
+		printf_color(PRINTF_RED, "****** LogicServer will re-connect to proxyserver ******\n");
+
 		connectInnerServer();
 		return;
 	}

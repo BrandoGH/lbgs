@@ -449,6 +449,10 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 			LOG_GATESERVER.printLog("will shutdown read channel");
 			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_receive, const_cast<CommonBoost::ErrorCode&>(ec));
 		}
+
+		LOG_GATESERVER.printLog("****** GateServer will re-connect to proxyserver ******");
+		printf_color(PRINTF_RED, "****** GateServer will re-connect to proxyserver ******\n");
+
 		connectInnerServer();
 		return;
 	}

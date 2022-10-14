@@ -114,11 +114,16 @@ void DBServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 		LOG_DBSERVER.printLog("ecode[%d],messages[%s]",
 			ec.value(),
 			ec.message().data());
+
 		if (m_pInnerSocket)
 		{
 			LOG_DBSERVER.printLog("will shutdown read channel");
 			m_pInnerSocket->shutdown(boost::asio::socket_base::shutdown_receive, const_cast<CommonBoost::ErrorCode&>(ec));
 		}
+
+		LOG_DBSERVER.printLog("****** DBServer will re-connect to proxyserver ******");
+		printf_color(PRINTF_RED, "****** DBServer will re-connect to proxyserver ******\n");
+
 		connectInnerServer();
 		return;
 	}
