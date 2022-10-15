@@ -78,11 +78,9 @@ void GateServer::start()
 	for (int i = 0; i < CPU_MAX_THREAD; ++i)
 	{
 		boost::thread tAccServer(BIND(&GateServer::onThreadRunAcceptorIOServer, this));
-		boost::thread tUserAync(BIND(&GateServer::runUserIOServerOnce, this));
 		boost::thread tConnect(BIND(&GateServer::runInnnerIOServerOnce, this));
 
 		tAccServer.detach();
-		tUserAync.detach();
 		tConnect.detach();
 	}
 	
@@ -104,7 +102,7 @@ void GateServer::accept()
 		return;
 	}
 
-	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_server, m_userIOServer);
+	boost::shared_ptr<User> newUser = boost::make_shared<User>(m_serverUserPool.getIOServer(), m_serverTimerPool.getIOServer());
 	newUser->slotConnect(this);
 	if (newUser->getSocket().get() == NULL)
 	{
@@ -127,6 +125,8 @@ void GateServer::initData()
 	initInnerClient();
 	m_innerSrvHeart.setGateServer(this);
 	m_innerSrvHeart.setInterval(info.heart_time);
+	m_serverUserPool.init();
+	m_serverTimerPool.init();
 }
 
 void GateServer::removeUserRelated(const boost::weak_ptr<User>& user)
@@ -196,36 +196,18 @@ void GateServer::closeInnerSocket()
 void GateServer::runInnnerIOServerOnce()
 {
 	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_innerServer));
-	while(1)
+	while (1)
 	{
 		THREAD_SLEEP(1);
 		try
 		{
 			m_innerServer.run();
 			break;
-		}
-		catch(std::exception& e)
+		} 
+		catch (std::exception& e)
 		{
 			LOG_GATESERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
 			printf_color(PRINTF_RED, "%s : m_innerServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
-		}
-	}
-}
-
-void GateServer::runUserIOServerOnce()
-{
-	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_userIOServer));
-	while (1)
-	{
-		THREAD_SLEEP(1);
-		try
-		{
-			m_userIOServer.run();
-			break;
-		} catch (std::exception& e)
-		{
-			LOG_GATESERVER.printLog("m_userIOServer run exception!! info[%s] server will re-start!!", e.what());
-			printf_color(PRINTF_RED, "%s : m_userIOServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
 		}
 	}
 }

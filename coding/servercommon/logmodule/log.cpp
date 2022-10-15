@@ -17,6 +17,7 @@ LogModule g_logProxyServer("/proxyserver/proxyserver.log");
 LogModule g_logLogicServer("/logicserver/logicserver.log");
 LogModule g_logCacheServer("/cacheserver/cacheserver.log");
 LogModule g_logDBServer("/dbserver/dbserver.log");
+LogModule g_logServerCommon("/servercommon/servercommon.log");
 
 LogModule g_logRole("/role/role.log");
 }

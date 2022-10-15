@@ -6,6 +6,7 @@
 #include "userseqmanager.h"
 
 #include <boostmodule/basedef.h>
+#include <boostmodule/ioserverpool.h>
 #include <boost/atomic.hpp>
 #include "queuemodule/safequeue.hpp"
 
@@ -70,7 +71,6 @@ private:
 	void connectInnerServer();
 	void closeInnerSocket();
 	void runInnnerIOServerOnce();
-	void runUserIOServerOnce();
 	//After each client connects, a message is sent to tell the client server information. Currently, the byte order storage method is sent, and the client assembles the message.
 	void sendServerInfo(const boost::weak_ptr<User>& user);
 	bool isConnectProxySrvSucc() { return m_bConnectProxySrv; }
@@ -80,6 +80,7 @@ private:
 
 private:
 	CommonBoost::IOServer m_server;
+	IOServerPool m_serverUserPool;
 	CommonBoost::Acceptor* m_pAcceptor;
 	UserSeqManager m_userSeqMgr;
 	boost::atomic<int> m_nConnectCount;
@@ -99,7 +100,8 @@ private:
 	TimerGateProxySrvHeart m_innerSrvHeart;
 	int m_nHasReadProxyDataSize;
 
-	CommonBoost::IOServer m_userIOServer;
+	IOServerPool m_serverTimerPool;
+
 
 };
 

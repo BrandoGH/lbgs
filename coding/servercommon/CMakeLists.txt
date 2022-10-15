@@ -2,6 +2,8 @@
 ./basedef.h
 ./boostmodule/basedef.h
 ./boostmodule/signalcommunication.h
+./boostmodule/ioserverpool.h
+./boostmodule/ioserverpool.cpp
 ./logmodule/log.h
 ./logmodule/log.cpp
 ./logmodule/logdef.h

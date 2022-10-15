@@ -92,6 +92,7 @@ extern LogModule g_logProxyServer;
 extern LogModule g_logLogicServer;
 extern LogModule g_logCacheServer;
 extern LogModule g_logDBServer;
+extern LogModule g_logServerCommon;
 
 extern LogModule g_logRole;
 }
