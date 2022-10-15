@@ -106,8 +106,6 @@ void User::onAyncRead(
 	m_msgEnder.reset();
 	m_nHasReadDataSize = 0;
 
-	bool bGataErrorToClient = false;
-
 	/*
 		Only sticky packets are processed here, and half packets are controlled by the client. 
 		For example, the client starts the timer after requesting the protocol. If there is no response for a period of time, it will re-request.
@@ -117,11 +115,6 @@ void User::onAyncRead(
 	{
 		THREAD_SLEEP(1);
 
-		if (bGataErrorToClient)
-		{
-			ayncSend((const byte*)g_nGateToClientErrorMsg, strlen(g_nGateToClientErrorMsg));
-			bGataErrorToClient = false;
-		}
 		// Analysis Protocol
 		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
 
@@ -134,7 +127,7 @@ void User::onAyncRead(
 				m_msgHeader.m_nMsgLen, 
 				m_bytesReadBuffer);
 			m_nHasReadDataSize++;
-			bGataErrorToClient = true;
+			// ayncSend((const byte*)g_nGateToClientErrorMsg, strlen(g_nGateToClientErrorMsg)); // debug
 			continue;
 		}
 
@@ -160,6 +153,7 @@ void User::onAyncRead(
 			// drop this msg
 			LOG_GATESERVER.printLog("msgtype[%d] md5 not eq or msgtype error", m_msgHeader.m_nMsgType);
 			m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
+			// ayncSend((const byte*)g_nGateToClientErrorMsg, strlen(g_nGateToClientErrorMsg));	 // debug
 			continue;
 		}
 
