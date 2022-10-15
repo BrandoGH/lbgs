@@ -501,13 +501,6 @@ void GateServer::onAcceptHandler(
 	const boost::weak_ptr<User>& user
 	)
 {
-	if (m_nConnectCount > g_nConnectMaxCount)
-	{
-		LOG_GATESERVER.printLog("connect size has over [%d]", g_nConnectMaxCount);
-		accept();
-		return;
-	}
-
 	if (err)
 	{
 		LOG_GATESERVER.printLog("new client connect error value[%d],message[%s]", err.value(), err.message().data());
@@ -522,6 +515,16 @@ void GateServer::onAcceptHandler(
 		return;
 	}
 	boost::shared_ptr<User> sUser = user.lock();
+
+	if (m_nConnectCount > g_nConnectMaxCount)
+	{
+		LOG_GATESERVER.printLog("connect size has over [%d]", g_nConnectMaxCount);
+		DEFINE_BYTE_ARRAY(mode, 1);
+		mode[0] = 0XFC;
+		sUser->ayncSend(mode, sizeof(mode));
+		accept();
+		return;
+	}
 
 	++m_nConnectCount;
 
