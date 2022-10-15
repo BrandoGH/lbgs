@@ -44,7 +44,6 @@ private:
 	CommonBoost::StrandPtr m_pInnerStrand;
 	CommonBoost::Endpoint m_innerEndpoint;
 	bool m_bConnectProxySrv;
-	bool m_bInnerRunOnce;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	int m_nHasReadProxyDataSize;

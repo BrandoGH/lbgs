@@ -120,7 +120,6 @@ void GateServer::initData()
 	m_pAcceptor = NULL;
 	m_nConnectCount = 0;
 	m_nPort = 0;
-	m_bInnerRunOnce = false;
 	m_bConnectProxySrv = false;
 	m_nHasReadProxyDataSize = 0;
 	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
@@ -196,23 +195,19 @@ void GateServer::closeInnerSocket()
 
 void GateServer::runInnnerIOServerOnce()
 {
-	if(!m_bInnerRunOnce)
+	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_innerServer));
+	while(1)
 	{
-		CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_innerServer));
-		m_bInnerRunOnce = true;
-		while(1)
+		THREAD_SLEEP(1);
+		try
 		{
-			THREAD_SLEEP(1);
-			try
-			{
-				m_innerServer.run();
-				break;
-			}
-			catch(std::exception& e)
-			{
-				LOG_GATESERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
-				printf_color(PRINTF_RED, "%s : m_innerServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
-			}
+			m_innerServer.run();
+			break;
+		}
+		catch(std::exception& e)
+		{
+			LOG_GATESERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
+			printf_color(PRINTF_RED, "%s : m_innerServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
 		}
 	}
 }

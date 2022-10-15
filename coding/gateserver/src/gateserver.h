@@ -89,7 +89,6 @@ private:
 	std::map< ullong, boost::shared_ptr<User> > m_mapSeqToUser;
 
 	// Communication with the proxy server
-	bool m_bInnerRunOnce;
 	bool m_bConnectProxySrv;
 	CommonBoost::IOServer m_innerServer;
 	CommonBoost::StrandPtr m_pInnerStrand;

@@ -14,7 +14,6 @@
 
 DBServer::DBServer()
 	: m_bConnectProxySrv(false)
-	, m_bInnerRunOnce(false)
 	, m_nHasReadProxyDataSize(0)
 {
 	DB_MGR->registerDBServer(this);
@@ -75,22 +74,18 @@ void DBServer::sendToCacheServer(const byte* data, uint size)
 
 void DBServer::onRunInnnerIOServerOnce()
 {
-	if (!m_bInnerRunOnce)
+	CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_innerServer));
+	while (1)
 	{
-		CommonBoost::WorkPtr work(new CommonBoost::IOServer::work(m_innerServer));
-		m_bInnerRunOnce = true;
-		while (1)
+		THREAD_SLEEP(1);
+		try
 		{
-			THREAD_SLEEP(1);
-			try
-			{
-				m_innerServer.run();
-				break;
-			} catch (std::exception& e)
-			{
-				LOG_DBSERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
-				printf_color(PRINTF_RED, "%s : m_innerServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
-			}
+			m_innerServer.run();
+			break;
+		} catch (std::exception& e)
+		{
+			LOG_DBSERVER.printLog("m_innerServer run exception!! info[%s] server will re-start!!", e.what());
+			printf_color(PRINTF_RED, "%s : m_innerServer run exception!! info[%s] server will re-start!!\n", __FUNCTION__, e.what());
 		}
 	}
 }
