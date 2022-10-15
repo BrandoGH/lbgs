@@ -98,7 +98,7 @@ private:
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	TimerGateProxySrvHeart m_innerSrvHeart;
-	ushort m_nHasReadProxyDataSize;
+	int m_nHasReadProxyDataSize;
 
 	CommonBoost::IOServer m_userIOServer;
 

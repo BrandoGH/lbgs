@@ -47,7 +47,7 @@ private:
 	bool m_bInnerRunOnce;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
-	ushort m_nHasReadProxyDataSize;
+	int m_nHasReadProxyDataSize;
 	// heart msg with proxy server
 	TimerLogicProxySrvHeart m_innerSrvHeart;
 };

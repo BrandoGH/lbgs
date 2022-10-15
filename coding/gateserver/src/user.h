@@ -70,7 +70,7 @@ private:
 	byte m_bytesOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	MsgHeader m_msgHeader;
 	MsgEnder m_msgEnder;
-	ushort m_nHasReadDataSize;
+	int m_nHasReadDataSize;
 	// this user seq num
 	ullong m_nSeq;
 
