@@ -7,7 +7,7 @@
 
 namespace MsgBuffer
 {
-	const int g_nReadBufferSize = 1024 * 50;	// Maximum buffer per read
+	const int g_nReadBufferSize = 1024 * 1024 * 4;	// Maximum buffer per read
 	const int g_nOnceMsgSize = 1024;			// A protocol maximum byte
 }
 

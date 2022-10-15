@@ -41,7 +41,7 @@ void RoleManager::removeRole(ullong roleSeq, int errCode)
 {
 	if (m_mapIdToRole.empty())
 	{
-		LOG_ROLE.printLog("m_mapIdToRole empty");
+		LOG_ROLE.printLog("m_mapIdToRole empty, roleSeq[%lld]", roleSeq);
 		return;
 	}
 
@@ -95,6 +95,14 @@ bool RoleManager::isRoleExists(const std::string& roleId)
 		m_mapIdToRole.find(roleId);
 
 	return (cit != m_mapIdToRole.end());
+}
+
+bool RoleManager::isRoleExists(ullong roleSeq)
+{
+	std::map<ullong, boost::shared_ptr<Role>>::const_iterator cit =
+		m_mapSeqToRole.find(roleSeq);
+
+	return (cit != m_mapSeqToRole.end());
 }
 
 boost::shared_ptr<Role> RoleManager::findRoleByClientSeq(ullong clientSeq)

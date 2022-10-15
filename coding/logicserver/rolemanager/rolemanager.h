@@ -24,6 +24,7 @@ public:
 	void createRole(const CreateRoleInput& input);
 	void removeRole(ullong roleSeq, int errCode);
 	bool isRoleExists(const std::string& roleId);
+	bool isRoleExists(ullong roleSeq);
 
 	boost::shared_ptr<Role> findRoleByClientSeq(ullong clientSeq);
 	

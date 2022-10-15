@@ -157,7 +157,13 @@ void onClientLogoutCS(LogicServer* pLogicServer,boost::shared_ptr<Role> role, by
 		return;
 	}
 
+	if (!ROLE_MGR->isRoleExists(header->m_nClientSrcSeq))
+	{
+		LOG_LOGICSERVER.printLog("m_nClientSrcSeq[%lld] is not exists, remove role fail!", header->m_nClientSrcSeq);
+		return;
+	}
 	ROLE_MGR->removeRole(header->m_nClientSrcSeq, msg->m_nErrorCode);
+
 }
 
 
