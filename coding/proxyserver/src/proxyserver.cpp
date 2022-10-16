@@ -55,6 +55,7 @@ void ProxyServer::initData()
 {
 	m_pAcceptor = NULL;
 	m_nPort = 0;
+	m_linkerServerPool.init();
 }
 
 void ProxyServer::accept()
@@ -65,7 +66,7 @@ void ProxyServer::accept()
 		return;
 	}
 
-	boost::shared_ptr<ServerLinker> linker = boost::make_shared<ServerLinker>(m_server);
+	boost::shared_ptr<ServerLinker> linker = boost::make_shared<ServerLinker>(m_linkerServerPool.getIOServer());
 	if(linker->getSocket().get() == NULL)
 	{
 		LOG_PROXYSERVER.printLog("linker->getSocket().get() == NULL");			// I've come here, this server like a shi--

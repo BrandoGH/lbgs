@@ -4,6 +4,7 @@
 #include "serverlinker.h"
 
 #include <boostmodule/basedef.h>
+#include <boostmodule/ioserverpool.h>
 #include <boost/atomic.hpp>
 #include <servercommon/msgmodule/msgcommondef.h>
 
@@ -40,6 +41,7 @@ HANDLER:
 
 private:
 	CommonBoost::IOServer m_server;
+	IOServerPool m_linkerServerPool;
 	CommonBoost::Acceptor* m_pAcceptor;
 	int m_nPort;
 
