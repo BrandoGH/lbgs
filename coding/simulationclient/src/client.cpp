@@ -9,6 +9,7 @@
 #include <servercommon/commontool/msgtool/msgtool.h>
 #include <servercommon/msgmodule/msgcommondef.h>
 #include <logicserver/communicationmsg/msgheart.h>
+#include "QtNetwork/QAbstractSocket"
 
 Client::Client(
 	const QString& ip,
@@ -18,6 +19,9 @@ Client::Client(
 	: QObject(parent)
 {
 	m_pTcpSoc = new QTcpSocket(this);
+	m_pTcpSoc->setSocketOption(QAbstractSocket::SocketOption::LowDelayOption, 1);
+	m_pTcpSoc->setSocketOption(QAbstractSocket::SocketOption::KeepAliveOption, 1);
+
 	m_pTcpSoc->connectToHost(
 		QHostAddress(ip),
 		port);
