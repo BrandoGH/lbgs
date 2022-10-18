@@ -490,7 +490,45 @@ void MainWindowObj::assembleProtocal(const char* bodyData, uint dataSize, int ms
 		if (CommonTool::MsgTool::data2Md5(m_pSendData, sizeof(MsgHeader) + dataSize, ender.m_bytesMD5))
 		{
 			memmove(m_pSendData + sizeof(MsgHeader) + dataSize, (const char*)&ender, sizeof(MsgEnder));
-			outData.setRawData((const char*)m_pSendData, msgLen);
+
+			// test to server
+			static bool bTCPStickyPacketsSwitch = true;
+			static bool bRunTCPStickyPacketsTest = false; // true/false
+			if (!bRunTCPStickyPacketsTest)
+			{
+				outData.setRawData((const char*)m_pSendData, msgLen);
+			}
+			else
+			{
+				/*
+				* [msg1][msg2:header+...]
+				* [...][msg3]
+				*/
+				int mode1 = sizeof(MsgHeader) + 10;
+
+				/*
+				* [msg1][msg2:hea]
+				* [der....][msg3]
+				*/
+				int mode2 = sizeof(MsgHeader) - 10;
+				if (bTCPStickyPacketsSwitch)
+				{
+					
+					outData.setRawData((const char*)m_pSendData, msgLen);
+					outData.append((const char*)m_pSendData, mode1);
+					bTCPStickyPacketsSwitch = false;
+				} else
+				{
+					// 
+					outData.setRawData((const char*)m_pSendData + mode1, msgLen - mode1);
+					outData.append((const char*)m_pSendData, msgLen);
+					outData.append((const char*)m_pSendData, msgLen);
+					bTCPStickyPacketsSwitch = true;
+				}
+				SIM_CLIENT_LOG(QString("bTCPStickyPacketsSwitch[%1]").arg(bTCPStickyPacketsSwitch));
+			}
+			
+			
 		}
 	};
 
