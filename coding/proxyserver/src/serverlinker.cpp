@@ -6,15 +6,44 @@
 #include "msgmodule/msgcommondef.h"
 #include "commontool/msgtool/msgtool.h"
 
+#define DO_PROXYSERVER_MSG_CHECK_HEADER \
+if (m_msgHeader.m_nSender < MsgHeader::F_DEFAULT ||\
+m_msgHeader.m_nSender >= MsgHeader::F_MAX ||\
+m_msgHeader.m_nReceiver < MsgHeader::F_DEFAULT ||\
+	m_msgHeader.m_nReceiver >= MsgHeader::F_MAX ||\
+	m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER)\
+{\
+	LOG_PROXYSERVER.printLog("m_msgHeader error");\
+	m_bHeaderIntegrated = true;\
+	m_nLastHasReadSize = 0;\
+	m_nNextNeedReadSize = 0;\
+	break;\
+}
+
+#define DO_PROXYSERVER_MSG_TO_DST_SERVER(callHandlerEndCode) \
+if (m_msgHeader.m_nReceiver == MsgHeader::F_PROXYSERVER)\
+{\
+	ProxyServerMsgHandler::callHandler(\
+		m_msgHeader.m_nMsgType,\
+		shared_from_this(),\
+		m_bytesOnceMsg + sizeof(MsgHeader),\
+		m_msgHeader.m_nMsgLen - sizeof(MsgHeader));\
+		callHandlerEndCode;\
+}\
+sigSendToDstServer(m_msgHeader.m_nReceiver,\
+	m_bytesOnceMsg,\
+	m_msgHeader.m_nMsgLen);
+
 namespace
 {
-#define PROXY_SERVER_READ_MSG_CONTINUE \
-	m_nHasReadDataSize += m_msgHeader.m_nMsgLen; \
-	continue
+
 }
 
 ServerLinker::ServerLinker(CommonBoost::IOServer& ioserver)
 	: m_nHasReadDataSize(0)
+	, m_nNextNeedReadSize(0)
+	, m_nLastHasReadSize(0)
+	, m_bHeaderIntegrated(true)
 {
 	m_pSocket = boost::make_shared<CommonBoost::Socket>(ioserver);
 	m_pStrand = boost::make_shared<CommonBoost::Strand>(ioserver);
@@ -158,70 +187,82 @@ void ServerLinker::onAyncRead(
 	m_msgHeader.reset();
 	m_nHasReadDataSize = 0;
 
+	int remainSize = 0;
+	int remainBodySize = 0;
+
 	while(m_nHasReadDataSize < readSize)
 	{
 		THREAD_SLEEP(1);
-		memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
 
-		// Judgment of the maximum length of a protocol
-		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
-
-		// 一条协议最大长度判断
-		if(m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
-			m_msgHeader.m_nMsgLen <= 0)
+		if (m_nLastHasReadSize > 0 && m_nNextNeedReadSize > 0)
 		{
-			LOG_PROXYSERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
-				m_msgHeader.m_nMsgType,
-				m_msgHeader.m_nMsgLen,
-				m_bytesReadBuffer);
-			m_nHasReadDataSize++;
+			memmove(m_bytesOnceMsg + m_nLastHasReadSize, m_bytesReadBuffer, m_nNextNeedReadSize);
+			m_msgHeader = *(MsgHeader*)(m_bytesOnceMsg + m_nHasReadDataSize);
+			DO_PROXYSERVER_MSG_CHECK_HEADER;
+
+			if (m_bHeaderIntegrated)
+			{
+				DO_PROXYSERVER_MSG_TO_DST_SERVER(
+					m_nHasReadDataSize += m_nNextNeedReadSize;
+					continue;
+				);
+
+				m_nHasReadDataSize += m_nNextNeedReadSize;
+			} 
+			else
+			{
+				remainBodySize = readSize - m_nNextNeedReadSize;
+				if (remainBodySize >= m_msgHeader.m_nMsgLen - sizeof(MsgHeader))
+				{
+					memmove(m_bytesOnceMsg + sizeof(MsgHeader), m_bytesReadBuffer + m_nNextNeedReadSize, m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+
+					DO_PROXYSERVER_MSG_TO_DST_SERVER(
+						m_nHasReadDataSize += (m_nNextNeedReadSize + m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+						continue;
+					);
+
+					m_nHasReadDataSize += (m_nNextNeedReadSize + m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+				}
+			}
+
+			m_bHeaderIntegrated = true;
+			m_nLastHasReadSize = 0;
+			m_nNextNeedReadSize = 0;
 			continue;
 		}
-		memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, m_msgHeader.m_nMsgLen);
 
-		if(m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER)
+		remainSize = readSize - m_nHasReadDataSize;
+		if (remainSize >= sizeof(MsgHeader))
 		{
-			LOG_PROXYSERVER.printLog("m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER");
-			PROXY_SERVER_READ_MSG_CONTINUE;
+			m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
+			DO_PROXYSERVER_MSG_CHECK_HEADER;
+
+			remainBodySize = remainSize - sizeof(MsgHeader);
+			if (remainBodySize >= m_msgHeader.m_nMsgLen - sizeof(MsgHeader))
+			{
+				memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, m_msgHeader.m_nMsgLen);
+
+				DO_PROXYSERVER_MSG_TO_DST_SERVER(
+					m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
+					continue;
+				);
+
+				m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
+				continue;
+			}
+			m_nLastHasReadSize = remainSize;
+			m_nNextNeedReadSize = (m_msgHeader.m_nMsgLen - remainBodySize - sizeof(MsgHeader));
+			memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, remainSize);
+			m_nHasReadDataSize += remainSize;
+			continue;
 		}
+		m_bHeaderIntegrated = false;
+		m_nLastHasReadSize = remainSize;
+		m_nNextNeedReadSize = (sizeof(MsgHeader) - m_nLastHasReadSize);
+		memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, remainSize);
+		m_nHasReadDataSize += remainSize;
 
-		// check sender
-		if (m_msgHeader.m_nSender < MsgHeader::F_DEFAULT ||
-			m_msgHeader.m_nSender >= MsgHeader::F_MAX)
-		{
-			LOG_PROXYSERVER.printLog("m_msgHeader.m_nSender error");
-			PROXY_SERVER_READ_MSG_CONTINUE;
-		}
-
-		// check receiver
-		if(m_msgHeader.m_nReceiver < MsgHeader::F_DEFAULT ||
-			m_msgHeader.m_nReceiver >= MsgHeader::F_MAX)
-		{
-			LOG_PROXYSERVER.printLog("m_msgHeader.m_nReceiver error");
-			PROXY_SERVER_READ_MSG_CONTINUE;
-		}
-
-		// if this msg is heart with proxy server
-
-		if(m_msgHeader.m_nReceiver == MsgHeader::F_PROXYSERVER)
-		{
-			ProxyServerMsgHandler::callHandler(
-				m_msgHeader.m_nMsgType,
-				shared_from_this(),
-				m_bytesOnceMsg + sizeof(MsgHeader),
-				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
-			PROXY_SERVER_READ_MSG_CONTINUE;
-		}
-
-		// forward to the target server
-		sigSendToDstServer(m_msgHeader.m_nReceiver,
-			m_bytesOnceMsg,
-			m_msgHeader.m_nMsgLen);
-
-		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
 	}
-
-	
 
 	ayncRead();
 }

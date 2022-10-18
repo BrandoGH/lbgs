@@ -10,6 +10,37 @@
 
 #include <logicserver/communicationmsg/msglogout.h>
 
+#define DO_GATESERVER_MSG_CHECK_HEADER \
+if (m_msgHeader.m_nMsgLen <= 0 ||\
+m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||\
+m_msgHeader.m_nMsgType < MSG_TYPE_CLIENT_START ||\
+	m_msgHeader.m_nMsgType >= MSG_CODE_MAX)\
+{\
+	LOG_GATESERVER.printLog("MsgHeader Error: m_msgHeader.m_nMsgLen[%d],"\
+		"m_msgHeader.m_nMsgType[%d], m_bytesReadBuffer[%s]", m_msgHeader.m_nMsgLen, m_msgHeader.m_nMsgType, m_bytesReadBuffer);\
+	m_bHeaderIntegrated = true;\
+	m_nLastHasReadSize = 0;\
+	m_nNextNeedReadSize = 0;\
+	break;\
+}
+
+#define DO_GATESERVER_MSG_TO_PROXY \
+ushort userDataSize = m_msgHeader.m_nMsgLen - sizeof(MsgHeader) - sizeof(MsgEnder);\
+m_msgEnder = *(MsgEnder*)(m_bytesOnceMsg + sizeof(MsgHeader) + userDataSize);\
+DEFINE_BYTE_ARRAY(md5, 16);\
+CommonTool::MsgTool::data2Md5(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize, md5);\
+if (!CommonTool::MsgTool::isBytesMd5EQ(md5, m_msgEnder.m_bytesMD5) ||\
+	(m_msgHeader.m_nMsgType < MSG_TYPE_HEART_CS ||\
+		m_msgHeader.m_nMsgType >= MSG_CODE_MAX))\
+{\
+	LOG_GATESERVER.printLog("msgtype[%d] md5 not eq or msgtype error", m_msgHeader.m_nMsgType);\
+	m_bHeaderIntegrated = true;\
+	m_nLastHasReadSize = 0;\
+	m_nNextNeedReadSize = 0;\
+	break;\
+}\
+forwardToProxy(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize);
+
 namespace
 {
 /*
@@ -28,6 +59,9 @@ User::User(CommonBoost::IOServer& ioserver, CommonBoost::IOServer& timerServe)
 	, m_timerServer(timerServe)
 	, m_bUserValid(false)
 	, m_bHasSendError(false)
+	, m_nNextNeedReadSize(0)
+	, m_nLastHasReadSize(0)
+	, m_bHeaderIntegrated(true)
 {
 	memset(m_bytesReadBuffer, 0, sizeof(m_bytesReadBuffer));
 	memset(m_bytesOnceMsg, 0, sizeof(m_bytesOnceMsg));
@@ -106,62 +140,74 @@ void User::onAyncRead(
 	m_msgEnder.reset();
 	m_nHasReadDataSize = 0;
 
-	/*
-		Only sticky packets are processed here, and half packets are controlled by the client. 
-		For example, the client starts the timer after requesting the protocol. If there is no response for a period of time, it will re-request.
-		Then you can also specify the maximum number of requests, which is determined by the client
-	*/
+	int remainSize = 0;
+	int remainBodySize = 0;
+	
 	while(m_nHasReadDataSize < readSize)
 	{
 		THREAD_SLEEP(1);
 
-		// Analysis Protocol
-		m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
-
-		// Judgment of the maximum length of a protocol
-		if(m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
-			m_msgHeader.m_nMsgLen <= 0)		
+		if (m_nLastHasReadSize > 0 && m_nNextNeedReadSize > 0)
 		{
-			LOG_GATESERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
-				m_msgHeader.m_nMsgType, 
-				m_msgHeader.m_nMsgLen, 
-				m_bytesReadBuffer);
-			m_nHasReadDataSize++;
-			// ayncSend((const byte*)g_nGateToClientErrorMsg, strlen(g_nGateToClientErrorMsg)); // debug
+			memmove(m_bytesOnceMsg + m_nLastHasReadSize, m_bytesReadBuffer, m_nNextNeedReadSize);
+			m_msgHeader = *(MsgHeader*)(m_bytesOnceMsg + m_nHasReadDataSize);
+			DO_GATESERVER_MSG_CHECK_HEADER;
+
+			if (m_bHeaderIntegrated)
+			{
+				DO_GATESERVER_MSG_TO_PROXY;
+
+				m_nHasReadDataSize += m_nNextNeedReadSize;
+			}
+			else
+			{
+				remainBodySize = readSize - m_nNextNeedReadSize;
+				if (remainBodySize >= m_msgHeader.m_nMsgLen - sizeof(MsgHeader))
+				{
+					memmove(m_bytesOnceMsg + sizeof(MsgHeader), m_bytesReadBuffer + m_nNextNeedReadSize, m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+
+					DO_GATESERVER_MSG_TO_PROXY;
+
+					m_nHasReadDataSize += (m_nNextNeedReadSize + m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+				}
+			}
+
+			m_bHeaderIntegrated = true;
+			m_nLastHasReadSize = 0;
+			m_nNextNeedReadSize = 0;
 			continue;
 		}
 
-		if (m_msgHeader.m_nMsgLen <= (sizeof(MsgHeader) + sizeof(MsgEnder)))
+		remainSize = readSize - m_nHasReadDataSize;
+		if (remainSize >= sizeof(MsgHeader))
 		{
-			// There is a high possibility that the protocol format of the client and the server is inconsistent.
-			LOG_GATESERVER.printLog("m_msgHeader.m_nMsgLen[%d] <= (sizeof(MsgHeader) + sizeof(MsgEnder)%d)", 
-				m_msgHeader.m_nMsgLen, sizeof(MsgHeader) + sizeof(MsgEnder));
-			break;
-		}
+			m_msgHeader = *(MsgHeader*)(m_bytesReadBuffer + m_nHasReadDataSize);
+			DO_GATESERVER_MSG_CHECK_HEADER;
 
-		memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, m_msgHeader.m_nMsgLen);
-		ushort userDataSize = m_msgHeader.m_nMsgLen - sizeof(MsgHeader) - sizeof(MsgEnder);
-		m_msgEnder = *(MsgEnder*)(m_bytesOnceMsg + sizeof(MsgHeader) + userDataSize);
+			remainBodySize = remainSize - sizeof(MsgHeader);
+			if (remainBodySize >= m_msgHeader.m_nMsgLen - sizeof(MsgHeader))
+			{
+				memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, m_msgHeader.m_nMsgLen);
 
-		// MD5 check protocol
-		DEFINE_BYTE_ARRAY(md5,16);
-		CommonTool::MsgTool::data2Md5(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize, md5);
-		if(!CommonTool::MsgTool::isBytesMd5EQ(md5, m_msgEnder.m_bytesMD5) || 
-			(m_msgHeader.m_nMsgType < MSG_TYPE_HEART_CS || 
-				m_msgHeader.m_nMsgType >= MSG_CODE_MAX))
-		{
-			// drop this msg
-			LOG_GATESERVER.printLog("msgtype[%d] md5 not eq or msgtype error", m_msgHeader.m_nMsgType);
-			m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
-			// ayncSend((const byte*)g_nGateToClientErrorMsg, strlen(g_nGateToClientErrorMsg));	 // debug
+				DO_GATESERVER_MSG_TO_PROXY;
+
+				m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
+				m_nLastHasReadSize = 0;
+				m_nNextNeedReadSize = 0;
+				continue;
+			} 
+			m_nLastHasReadSize = remainSize;
+			m_nNextNeedReadSize = (m_msgHeader.m_nMsgLen - remainBodySize - sizeof(MsgHeader));
+			memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, remainSize);
+			m_nHasReadDataSize += remainSize;
 			continue;
-		}
+		} 
 
-		// Reassemble the message : MsgHeader + m_bytesOnceMsg
-		// Need not md5 check
-		forwardToProxy(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize);
-
-		m_nHasReadDataSize += m_msgHeader.m_nMsgLen;
+		m_bHeaderIntegrated = false;
+		m_nLastHasReadSize = remainSize;
+		m_nNextNeedReadSize = (sizeof(MsgHeader) - m_nLastHasReadSize);
+		memmove(m_bytesOnceMsg, m_bytesReadBuffer + m_nHasReadDataSize, remainSize);
+		m_nHasReadDataSize += remainSize;
 	}
 
 	ayncRead();

@@ -7,13 +7,44 @@
 #include <msgmodule/msgcommondef.h>
 #include <msgmodule/singletoproxymsghandler.h>
 
-#define CACHE_SERVER_READ_MSG_CONTINUE \
-	m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen; \
-	continue
+#define DO_CACHESERVER_MSG_CHECK_HEADER \
+if (m_msgHeader.m_nReceiver != MsgHeader::F_CACHESERVER ||\
+m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER)\
+{\
+	LOG_PROXYSERVER.printLog("m_msgHeader error");\
+	m_bHeaderIntegrated = true;\
+	m_nLastHasReadSize = 0;\
+	m_nNextNeedReadSize = 0;\
+	break;\
+}
+
+#define DO_CACHESERVER_MSG_FROM_PROXY \
+if (m_msgHeader.m_nMsgType >= MSG_TYPE_GATE_PROXY_HEART_GP &&\
+m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX&&\
+	m_msgHeader.m_nMsgType == MSG_TYPE_CACHE_PROXY_HEART_PC\
+	)\
+{\
+	SingleToProxyMsgHandler::callHandler(\
+		m_msgHeader.m_nMsgType,\
+		(const byte*)this,\
+		m_bytesInnerSrvOnceMsg + sizeof(MsgHeader),\
+		m_msgHeader.m_nMsgLen - sizeof(MsgHeader));\
+} else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&\
+	m_msgHeader.m_nMsgType < MSG_CODE_MAX)\
+{\
+	CacheMsgHandler::callHandler(\
+		m_msgHeader.m_nMsgType,\
+		this,\
+		m_bytesInnerSrvOnceMsg,\
+		m_msgHeader.m_nMsgLen);\
+}
 
 CacheServer::CacheServer()
 	: m_bConnectProxySrv(false)
 	, m_nHasReadProxyDataSize(0)
+	, m_nNextNeedReadSize(0)
+	, m_nLastHasReadSize(0)
+	, m_bHeaderIntegrated(true)
 {
 	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	m_innerSrvHeart.setCacheServer(this);
@@ -151,59 +182,72 @@ void CacheServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize
 	MsgHeader m_msgHeader;
 	m_nHasReadProxyDataSize = 0;
 
+	int remainSize = 0;
+	int remainBodySize = 0;
+
 	while (m_nHasReadProxyDataSize < readSize)
 	{
 		THREAD_SLEEP(1);
-		memset(m_bytesInnerSrvOnceMsg, 0, sizeof(m_bytesInnerSrvOnceMsg));
 
-		m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize);
-		// Judgment of the maximum length of a protocol
-		if (m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||
-			m_msgHeader.m_nMsgLen <= 0)
+		if (m_nLastHasReadSize > 0 && m_nNextNeedReadSize > 0)
 		{
-			LOG_CACHESERVER.printLog("msgtype[%d] size[%d] error, read buff[%s]",
-				m_msgHeader.m_nMsgType,
-				m_msgHeader.m_nMsgLen,
-				m_bytesInnerSrvBuffer);
-			m_nHasReadProxyDataSize++;
+			memmove(m_bytesInnerSrvOnceMsg + m_nLastHasReadSize, m_bytesInnerSrvBuffer, m_nNextNeedReadSize);
+			m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvOnceMsg + m_nHasReadProxyDataSize);
+			DO_CACHESERVER_MSG_CHECK_HEADER;
+
+			if (m_bHeaderIntegrated)
+			{
+				DO_CACHESERVER_MSG_FROM_PROXY;
+
+				m_nHasReadProxyDataSize += m_nNextNeedReadSize;
+			}
+			else
+			{
+				remainBodySize = readSize - m_nNextNeedReadSize;
+				if (remainBodySize >= m_msgHeader.m_nMsgLen - sizeof(MsgHeader))
+				{
+					memmove(m_bytesInnerSrvOnceMsg + sizeof(MsgHeader), m_bytesInnerSrvBuffer + m_nNextNeedReadSize, m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+
+					DO_CACHESERVER_MSG_FROM_PROXY;
+
+					m_nHasReadProxyDataSize += (m_nNextNeedReadSize + m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+
+				}
+			}
+
+			m_bHeaderIntegrated = true;
+			m_nLastHasReadSize = 0;
+			m_nNextNeedReadSize = 0;
 			continue;
 		}
-		memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, m_msgHeader.m_nMsgLen);
-
-		if (m_msgHeader.m_nProxyer != MsgHeader::F_PROXYSERVER ||
-			m_msgHeader.m_nReceiver != MsgHeader::F_CACHESERVER
-			)
+		remainSize = readSize - m_nHasReadProxyDataSize;
+		if (remainSize >= sizeof(MsgHeader))
 		{
-			LOG_CACHESERVER.printLog("MsgHeader Info Error");
-			CACHE_SERVER_READ_MSG_CONTINUE;
-		}
+			m_msgHeader = *(MsgHeader*)(m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize);
 
-		// if this msg is heart with proxy server
-		if (m_msgHeader.m_nMsgType >= MSG_TYPE_GATE_PROXY_HEART_GP &&
-			m_msgHeader.m_nMsgType < MSG_IN_TYPE_MAX &&
-			m_msgHeader.m_nMsgType == MSG_TYPE_CACHE_PROXY_HEART_PC
-			)
-		{
-			SingleToProxyMsgHandler::callHandler(
-				m_msgHeader.m_nMsgType,
-				(const byte*)this,
-				m_bytesInnerSrvOnceMsg + sizeof(MsgHeader),
-				m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
-			CACHE_SERVER_READ_MSG_CONTINUE;
-		}
-		// communicate with the cache server 
-		else if (m_msgHeader.m_nMsgType >= MSG_TYPE_CLIENT_START &&
-			m_msgHeader.m_nMsgType < MSG_CODE_MAX)
-		{
-			CacheMsgHandler::callHandler(
-				m_msgHeader.m_nMsgType, 
-				this, 
-				m_bytesInnerSrvOnceMsg, 
-				m_msgHeader.m_nMsgLen);
-			CACHE_SERVER_READ_MSG_CONTINUE;
-		}
+			DO_CACHESERVER_MSG_CHECK_HEADER;
 
-		m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
+			remainBodySize = remainSize - sizeof(MsgHeader);
+			if (remainBodySize >= m_msgHeader.m_nMsgLen - sizeof(MsgHeader))
+			{
+				memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, m_msgHeader.m_nMsgLen);
+
+				DO_CACHESERVER_MSG_FROM_PROXY;
+
+				m_nHasReadProxyDataSize += m_msgHeader.m_nMsgLen;
+				continue;
+			}
+			m_nLastHasReadSize = remainSize;
+			m_nNextNeedReadSize = (m_msgHeader.m_nMsgLen - remainBodySize - sizeof(MsgHeader));
+			memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, remainSize);
+			m_nHasReadProxyDataSize += remainSize;
+			continue;
+		}
+		m_bHeaderIntegrated = false;
+		m_nLastHasReadSize = remainSize;
+		m_nNextNeedReadSize = (sizeof(MsgHeader) - m_nLastHasReadSize);
+		memmove(m_bytesInnerSrvOnceMsg, m_bytesInnerSrvBuffer + m_nHasReadProxyDataSize, remainSize);
+		m_nHasReadProxyDataSize += remainSize;
 	}
 
 

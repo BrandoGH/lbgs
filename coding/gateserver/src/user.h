@@ -71,6 +71,9 @@ private:
 	MsgHeader m_msgHeader;
 	MsgEnder m_msgEnder;
 	int m_nHasReadDataSize;
+	int m_nNextNeedReadSize;
+	int m_nLastHasReadSize;
+	bool m_bHeaderIntegrated;
 	// this user seq num
 	ullong m_nSeq;
 

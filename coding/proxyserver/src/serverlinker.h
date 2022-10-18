@@ -57,6 +57,9 @@ private:
 	byte m_bytesOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	MsgHeader m_msgHeader;
 	int m_nHasReadDataSize;
+	int m_nNextNeedReadSize;
+	int m_nLastHasReadSize;
+	bool m_bHeaderIntegrated;
 };
 
 #endif // !__SERVER_LINKER_H__

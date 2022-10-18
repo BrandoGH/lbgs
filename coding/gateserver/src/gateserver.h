@@ -99,6 +99,9 @@ private:
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
 	TimerGateProxySrvHeart m_innerSrvHeart;
 	int m_nHasReadProxyDataSize;
+	int m_nNextNeedReadSize;
+	int m_nLastHasReadSize;
+	bool m_bHeaderIntegrated;
 
 	IOServerPool m_serverTimerPool;
 
