@@ -90,7 +90,7 @@ public:
 		const std::string& ip, 
 		ushort port, 
 		const CacheServerConnectBaseCfgInfo* timeoutInfo = NULL,
-		const std::string password = std::string());
+		const std::string& password = std::string());
 	void end();
 
 	const std::string getRedisServerIp();
@@ -121,11 +121,11 @@ HANDLER:
 		const std::string& ip,
 		ushort port,
 		const CacheServerConnectBaseCfgInfo* timeoutInfo,
-		const std::string password);
+		const std::string& password);
 
 private:
 	bool connect(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo);
-	bool auth(const std::string password);
+	bool auth(const std::string& password);
 	void CloseAllHandle();
 
 private:

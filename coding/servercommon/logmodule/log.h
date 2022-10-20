@@ -40,7 +40,7 @@ public:
 	LogModule(const std::string& logFilePath, int level = LogModule::LV_INFO, int logType = LogModule::TYPE_DAILY);
 	~LogModule();
 
-	void setLogDir(const std::string dir);
+	void setLogDir(const std::string& dir);
 	LogModule& setLevel(int level);
 	LogModule& setLogHeader(
 		const char* function,

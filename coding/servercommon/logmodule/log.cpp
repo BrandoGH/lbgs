@@ -63,7 +63,7 @@ LogModule::~LogModule()
 
 }
 
-void LogModule::setLogDir(const std::string dir)
+void LogModule::setLogDir(const std::string& dir)
 {
 	m_strLogDir = dir;
 

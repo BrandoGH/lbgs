@@ -42,7 +42,7 @@ BaseRedis::~BaseRedis()
 	end();
 }
 
-void BaseRedis::start(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo, const std::string password)
+void BaseRedis::start(const std::string& ip, ushort port, const CacheServerConnectBaseCfgInfo* timeoutInfo, const std::string& password)
 {
 	boost::thread tStart(
 		BIND(&BaseRedis::onThreadStart, shared_from_this(), ip, port, timeoutInfo, password));
@@ -254,7 +254,7 @@ void BaseRedis::onThreadStart(
 	const std::string& ip,
 	ushort port,
 	const CacheServerConnectBaseCfgInfo* timeoutInfo = NULL,
-	const std::string password = std::string())
+	const std::string& password = std::string())
 {
 	m_strConnectIp = ip;
 	m_nConnectPort = port;
@@ -296,7 +296,7 @@ bool BaseRedis::connect(const std::string& ip, ushort port, const CacheServerCon
 	return true;
 }
 
-bool BaseRedis::auth(const std::string password)
+bool BaseRedis::auth(const std::string& password)
 {
 	if (!m_redisCont)
 	{
