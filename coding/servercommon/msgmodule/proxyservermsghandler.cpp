@@ -139,14 +139,14 @@ void onHandlerDBHeartSC(const boost::shared_ptr<ServerLinker>& linker, byte* dat
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 {
-	onHandlerGateHeartCS,
-	onHandlerGateHeartSC,
-	onHandlerLogicHeartCS,
-	onHandlerLogicHeartSC,
-	onHandlerCacheHeartCS,
-	onHandlerCacheHeartSC,
-	onHandlerDBHeartCS,
-	onHandlerDBHeartSC,
+	onHandlerGateHeartCS,	// 0
+	onHandlerGateHeartSC,	// 1
+	onHandlerLogicHeartCS,	// 2
+	onHandlerLogicHeartSC,	// 3
+	onHandlerCacheHeartCS,	// 4
+	onHandlerCacheHeartSC,	// 5
+	onHandlerDBHeartCS,		// 6
+	onHandlerDBHeartSC,		// 7
 };
 
 void callHandler(int msgType, const boost::shared_ptr<ServerLinker>& linker, byte* data, uint dataSize)

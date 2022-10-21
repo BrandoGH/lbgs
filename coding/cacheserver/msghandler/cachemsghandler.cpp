@@ -189,9 +189,9 @@ HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 {
 	NULL,
 	NULL,
-	onLoginLC,
-	onLoginCL,
-	onLogoutLC,
+	onLoginLC,		// 152
+	onLoginCL,		// 153
+	onLogoutLC,		// 154
 };
 
 

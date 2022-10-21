@@ -170,11 +170,11 @@ void onClientLogoutCS(LogicServer* pLogicServer,boost::shared_ptr<Role> role, by
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 {
-	onClientHeartCS,
-	onClientHeartSC,
-	onClientLoginCS,
-	onClientLoginSC,
-	onClientLogoutCS,
+	onClientHeartCS,		// 150
+	onClientHeartSC,		// 151
+	onClientLoginCS,		// 152
+	onClientLoginSC,		// 153
+	onClientLogoutCS,		// 154
 };
 
 void callHandler(int msgType, LogicServer* pLogicServer,boost::shared_ptr<Role> role, byte* data, uint dataSize)

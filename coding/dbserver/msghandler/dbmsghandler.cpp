@@ -113,8 +113,8 @@ HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 {
 	NULL,
 	NULL,
-	onLoginCD,
-	onLoginDC,
+	onLoginCD,		// 152
+	onLoginDC,		// 153
 };
 
 void callHandler(int msgType, DBServer* pDBServer, byte* data, uint dataSize)

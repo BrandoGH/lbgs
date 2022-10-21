@@ -93,14 +93,14 @@ void onHandlerPDHeartSC(const byte* objServer, byte* data, uint dataSize)
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_IN_TYPE_MAX] =
 {
-	onHandlerGPHeartCS,
-	onHandlerPGHeartSC,
-	onHandlerLPHeartCS,
-	onHandlerPLHeartSC,
-	onHandlerCPHeartCS,
-	onHandlerPCHeartSC,
-	onHandlerDPHeartCS,
-	onHandlerPDHeartSC,
+	onHandlerGPHeartCS,		// 0
+	onHandlerPGHeartSC,		// 1
+	onHandlerLPHeartCS,		// 2
+	onHandlerPLHeartSC,		// 3
+	onHandlerCPHeartCS,		// 4
+	onHandlerPCHeartSC,		// 5
+	onHandlerDPHeartCS,		// 6
+	onHandlerPDHeartSC,		// 7
 };
 
 void callHandler(int msgType, const byte* objServer, byte* data, uint dataSize)
