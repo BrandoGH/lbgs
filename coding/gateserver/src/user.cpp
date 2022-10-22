@@ -10,6 +10,17 @@
 
 #include <logicserver/communicationmsg/msglogout.h>
 
+namespace
+{
+/*
+* more than the heart time
+* Disconnect if there is no message communication within the specified time
+*/
+const int g_nTimingCheckUserMillisec = 1000 * 120;
+
+const CString64 g_nGateToClientErrorMsg = "Hello, Message Error -- (From GateServer)";
+}
+
 #define DO_GATESERVER_MSG_CHECK_HEADER \
 if (m_msgHeader.m_nMsgLen <= 0 ||\
 m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||\
@@ -18,6 +29,7 @@ m_msgHeader.m_nMsgType < MSG_TYPE_CLIENT_START ||\
 {\
 	LOG_GATESERVER.printLog("MsgHeader Error: m_msgHeader.m_nMsgLen[%d],"\
 		"m_msgHeader.m_nMsgType[%d], m_bytesReadBuffer[%s]", m_msgHeader.m_nMsgLen, m_msgHeader.m_nMsgType, m_bytesReadBuffer);\
+	ayncSend((const byte*)g_nGateToClientErrorMsg, strlen(g_nGateToClientErrorMsg));\
 	m_bHeaderIntegrated = true;\
 	m_nLastHasReadSize = 0;\
 	m_nNextNeedReadSize = 0;\
@@ -41,16 +53,6 @@ if (!CommonTool::MsgTool::isBytesMd5EQ(md5, m_msgEnder.m_bytesMD5) ||\
 }\
 forwardToProxy(m_bytesOnceMsg, sizeof(MsgHeader) + userDataSize);
 
-namespace
-{
-/*
-* more than the heart time
-* Disconnect if there is no message communication within the specified time
-*/
-const int g_nTimingCheckUserMillisec = 1000 * 120;
-
-const CString64 g_nGateToClientErrorMsg = "Error Msg (From GateServer)";
-}
 
 User::User(CommonBoost::IOServer& ioserver, CommonBoost::IOServer& timerServe)
 	: m_nHasReadDataSize(0)

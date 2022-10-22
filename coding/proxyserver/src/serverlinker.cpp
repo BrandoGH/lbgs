@@ -6,6 +6,11 @@
 #include "msgmodule/msgcommondef.h"
 #include "commontool/msgtool/msgtool.h"
 
+namespace
+{
+	// Something...
+}
+
 #define DO_PROXYSERVER_MSG_CHECK_HEADER \
 if (m_msgHeader.m_nSender < MsgHeader::F_DEFAULT ||\
 m_msgHeader.m_nSender >= MsgHeader::F_MAX ||\
@@ -34,10 +39,6 @@ sigSendToDstServer(m_msgHeader.m_nReceiver,\
 	m_bytesOnceMsg,\
 	m_msgHeader.m_nMsgLen);
 
-namespace
-{
-
-}
 
 ServerLinker::ServerLinker(CommonBoost::IOServer& ioserver)
 	: m_nHasReadDataSize(0)
@@ -204,6 +205,9 @@ void ServerLinker::onAyncRead(
 			{
 				DO_PROXYSERVER_MSG_TO_DST_SERVER(
 					m_nHasReadDataSize += m_nNextNeedReadSize;
+					m_bHeaderIntegrated = true;
+					m_nLastHasReadSize = 0;
+					m_nNextNeedReadSize = 0;
 					continue;
 				);
 
@@ -218,6 +222,9 @@ void ServerLinker::onAyncRead(
 
 					DO_PROXYSERVER_MSG_TO_DST_SERVER(
 						m_nHasReadDataSize += (m_nNextNeedReadSize + m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+						m_bHeaderIntegrated = true;
+						m_nLastHasReadSize = 0;
+						m_nNextNeedReadSize = 0;
 						continue;
 					);
 

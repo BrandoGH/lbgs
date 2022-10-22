@@ -11,6 +11,14 @@
 #include <msgmodule/singletoproxymsghandler.h>
 #include <logicserver/communicationmsg/msgheart.h>
 
+namespace
+{
+// Maximum number of connections per server -- Maximum number of connections in available memory
+const int g_nConnectMaxCount =
+int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / sizeof(User) * 1.0);
+
+}
+
 #define DO_GATESERVER_FROM_PROXY_MSG_CHECK_HEADER \
 if (m_msgHeader.m_nMsgLen <= 0 ||\
 m_msgHeader.m_nMsgLen > MsgBuffer::g_nOnceMsgSize ||\
@@ -47,14 +55,6 @@ if (userIt != m_mapSeqToUser.cend())\
 	{\
 		sendMsgToClient(callbackUser, m_bytesInnerSrvOnceMsg);\
 	}\
-}
-
-namespace 
-{
-// Maximum number of connections per server -- Maximum number of connections in available memory
-const int g_nConnectMaxCount = 
-	int(SystemInfo::getAvailableMemory(SystemInfo::UNIT_B) / sizeof(User) * 1.0);
-
 }
 
 using CommonBoost::Endpoint;
@@ -489,6 +489,9 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 			{
 				DO_GATESERVER_MSG_FROM_PROXY(
 					m_nHasReadProxyDataSize += m_nNextNeedReadSize;
+					m_bHeaderIntegrated = true;
+					m_nLastHasReadSize = 0;
+					m_nNextNeedReadSize = 0;
 					continue;
 				);
 
@@ -503,6 +506,9 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 
 					DO_GATESERVER_MSG_FROM_PROXY(
 						m_nHasReadProxyDataSize += (m_nNextNeedReadSize + m_msgHeader.m_nMsgLen - sizeof(MsgHeader));
+						m_bHeaderIntegrated = true;
+						m_nLastHasReadSize = 0;
+						m_nNextNeedReadSize = 0;
 						continue;
 					);
 
