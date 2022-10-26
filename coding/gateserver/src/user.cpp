@@ -226,7 +226,15 @@ void User::getLinkIP(std::string& outIp)
 {
 	if (m_pSocket && m_pSocket->is_open())
 	{
-		outIp = m_pSocket->remote_endpoint().address().to_string();
+		try
+		{
+			outIp = m_pSocket->remote_endpoint().address().to_string();
+		} catch (boost::system::system_error se)
+		{
+			LOG_GATESERVER.printLog("call remote_endpoint() function error!!!!, error info[%s]", se.what());
+			printf_color(PRINTF_RED, "%s: call remote_endpoint() function error!!!! error info[%s]\n", __FUNCTION__, se.what());
+			closeSocket();
+		}
 	}
 }
 
@@ -234,7 +242,15 @@ void User::getLinkPort(ushort& outPort)
 {
 	if (m_pSocket && m_pSocket->is_open())
 	{
-		outPort = m_pSocket->remote_endpoint().port();
+		try
+		{
+			outPort = m_pSocket->remote_endpoint().port();
+		} catch (boost::system::system_error se)
+		{
+			LOG_GATESERVER.printLog("call remote_endpoint() function error!!!!, error info[%s]", se.what());
+			printf_color(PRINTF_RED, "%s: call remote_endpoint() function error!!!! error info[%s]\n", __FUNCTION__, se.what());
+			closeSocket();
+		}
 	}
 }
 
