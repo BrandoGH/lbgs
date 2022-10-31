@@ -55,13 +55,13 @@ TEST(CommonTool_MsgTool, byteSeqTransformN2B_2byte)
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
 	memmove(bArr, (char*)&num, sizeof(ushort));
-	if(bArr[0] == 1)		// µÕ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	if(bArr[0] == 1)		// little endian system test
 	{
 		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
 
 		// 2 byte
-		ushort twoByteLittle = 102;				// –°∂Àƒ⁄¥Ê¥Ê¥¢∑Ω Ω:[01100110][00000000]
-		ushort twoByteLittle2Big = 26112;		// –°∂Àƒ⁄¥Ê¥Ê¥¢∑Ω Ω:[00000000][01100110]
+		ushort twoByteLittle = 102;				// little endian storage method: [01100110][00000000]
+		ushort twoByteLittle2Big = 26112;		// big endian storage method: [00000000][01100110]
 		DEFINE_BYTE_ARRAY(ushortByteArr, sizeof(ushort));
 		memmove(ushortByteArr,(char*)&twoByteLittle,sizeof(ushort));
 		EXPECT_EQ(ushortByteArr[0], 102);
@@ -73,7 +73,7 @@ TEST(CommonTool_MsgTool, byteSeqTransformN2B_2byte)
 		EXPECT_EQ(ushortByteArr[0], 0);
 		EXPECT_EQ(ushortByteArr[1], 102);
 	}
-	else				// ∏ﬂ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	else				// big endian system test
 	{
 		EXPECT_FALSE(CommonTool::MsgTool::isLittleEndian());
 	}
@@ -84,12 +84,12 @@ TEST(CommonTool_MsgTool, byteSeqTransformN2B_4byte)
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
 	memmove(bArr, (char*)&num, sizeof(ushort));
-	if(bArr[0] == 1)		// µÕ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	if(bArr[0] == 1)		// little endian system test
 	{
 		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
 
-		uint fourByteLittle = 102;						// –°∂Àƒ⁄¥Ê¥Ê¥¢∑Ω Ω:[01100110][00000000][00000000][00000000]
-		uint fourByteLittle2Big = 1711276032;			// –°∂Àƒ⁄¥Ê¥Ê¥¢∑Ω Ω:[00000000][00000000][00000000][01100110]
+		uint fourByteLittle = 102;						// little endian storage method: [01100110][00000000][00000000][00000000]
+		uint fourByteLittle2Big = 1711276032;			// big endian storage method: [00000000][00000000][00000000][01100110]
 		DEFINE_BYTE_ARRAY(intByteArr, sizeof(uint));
 		memmove(intByteArr, (char*)&fourByteLittle, sizeof(uint));
 		EXPECT_EQ(intByteArr[0], 102);
@@ -105,7 +105,7 @@ TEST(CommonTool_MsgTool, byteSeqTransformN2B_4byte)
 		EXPECT_EQ(intByteArr[2], 0);
 		EXPECT_EQ(intByteArr[3], 102);
 	}
-	else				// ∏ﬂ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	else				// big endian system test
 	{
 		EXPECT_FALSE(CommonTool::MsgTool::isLittleEndian());
 	}
@@ -116,7 +116,7 @@ TEST(CommonTool_MsgTool, byteSeqTransformN2B_byteArrayMemberIsNotOneByte)
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
 	memmove(bArr, (char*)&num, sizeof(ushort));
-	if(bArr[0] == 1)		// µÕ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	if(bArr[0] == 1)		// little endian system test
 	{
 		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
 
@@ -124,7 +124,7 @@ TEST(CommonTool_MsgTool, byteSeqTransformN2B_byteArrayMemberIsNotOneByte)
 		int intByteArr[sizeof(uint)] = {0};
 		EXPECT_FALSE(CommonTool::MsgTool::byteSeqTransformN2B(fourByteLittle, intByteArr));
 	}
-	else				// ∏ﬂ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	else				// big endian system test
 	{
 		EXPECT_FALSE(CommonTool::MsgTool::isLittleEndian());
 	}
@@ -135,7 +135,7 @@ TEST(CommonTool_MsgTool, byteSeqTransformN2B_lengthConsistency)
 	ushort num = 1;
 	DEFINE_BYTE_ARRAY(bArr, sizeof(ushort));
 	memmove(bArr, (char*)&num, sizeof(ushort));
-	if(bArr[0] == 1)		// µÕ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	if(bArr[0] == 1)		// little endian system test
 	{
 		EXPECT_TRUE(CommonTool::MsgTool::isLittleEndian());
 
@@ -146,7 +146,7 @@ TEST(CommonTool_MsgTool, byteSeqTransformN2B_lengthConsistency)
 		DEFINE_BYTE_ARRAY(byteArr2, sizeof(ushort));
 		EXPECT_TRUE(CommonTool::MsgTool::byteSeqTransformN2B(num, byteArr2));
 	}
-	else				// ∏ﬂ∂À¥Ê¥¢œµÕ≥≤‚ ‘
+	else				// big endian system test
 	{
 		EXPECT_FALSE(CommonTool::MsgTool::isLittleEndian());
 	}
