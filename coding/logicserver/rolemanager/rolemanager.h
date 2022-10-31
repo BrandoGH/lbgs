@@ -27,6 +27,8 @@ public:
 	bool isRoleExists(ullong roleSeq);
 
 	boost::shared_ptr<Role> findRoleByClientSeq(ullong clientSeq);
+
+	void createRoleModel(boost::shared_ptr<Role> myself);
 	
 private:
 	void deleteInstance();

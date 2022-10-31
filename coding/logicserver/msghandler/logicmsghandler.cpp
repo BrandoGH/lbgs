@@ -9,6 +9,39 @@
 
 #include <logmodule/logdef.h>
 #include <commontool/msgtool/msgtool.h>
+#include "communicationmsg/msgcreaterole.h"
+
+#define LOGIC_REV_MSG_CHECK_MSG_STRUCT(msg_struct) \
+if (!pLogicServer || !data)\
+{\
+	LOG_LOGICSERVER.printLog("pLogicServer NULL");\
+	return;\
+}\
+MsgHeader* header = (MsgHeader*)data;\
+if (!header)\
+{\
+	LOG_LOGICSERVER.printLog("header NULL");\
+	return;\
+}\
+msg_struct* msg = (msg_struct*)(data + sizeof(MsgHeader));\
+if (!msg)\
+{\
+	LOG_LOGICSERVER.printLog("msg NULL");\
+	return;\
+}
+
+#define LOGIC_REV_MSG_CHECK \
+if (!pLogicServer || !data)\
+{\
+	LOG_LOGICSERVER.printLog("pLogicServer NULL");\
+	return;\
+}\
+MsgHeader* header = (MsgHeader*)data;\
+if (!header)\
+{\
+	LOG_LOGICSERVER.printLog("header NULL");\
+	return;\
+}
 
 namespace LogicMsgHandler
 {
@@ -166,6 +199,24 @@ void onClientLogoutCS(LogicServer* pLogicServer,boost::shared_ptr<Role> role, by
 
 }
 
+void onCreateRoleCS(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize)
+{
+	LOGIC_REV_MSG_CHECK_MSG_STRUCT(MsgCreateRoleCS);
+
+	callHandler(MSG_TYPE_CREATE_ROLE_SC, pLogicServer, role, data, dataSize);
+}
+
+void onCreateRoleSC(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize)
+{
+	LOGIC_REV_MSG_CHECK;
+
+	// create my role model
+	if (ROLE_MGR)
+	{
+		ROLE_MGR->createRoleModel(role);
+	}
+}
+
 
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
@@ -175,6 +226,8 @@ HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 	onClientLoginCS,		// 152
 	onClientLoginSC,		// 153
 	onClientLogoutCS,		// 154
+	onCreateRoleCS,			// 155
+	onCreateRoleSC,			// 156
 };
 
 void callHandler(int msgType, LogicServer* pLogicServer,boost::shared_ptr<Role> role, byte* data, uint dataSize)

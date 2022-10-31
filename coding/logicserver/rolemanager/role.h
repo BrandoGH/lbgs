@@ -1,6 +1,7 @@
 #ifndef __ROLE_H__
 #define __ROLE_H__
 #include "communicationmsg/msglogin.h"
+#include "communicationmsg/msgcreaterole.h"
 
 #include <servercommon/boostmodule/basedef.h>
 #include <servercommon/basedef.h>

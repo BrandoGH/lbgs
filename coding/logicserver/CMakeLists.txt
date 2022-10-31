@@ -11,6 +11,7 @@ msghandler/logicmsghandler.cpp
 communicationmsg/msgheart.h
 communicationmsg/msglogin.h
 communicationmsg/msglogout.h
+communicationmsg/msgcreaterole.h
 rolemanager/rolemanager.h
 rolemanager/rolemanager.cpp
 rolemanager/role.h
