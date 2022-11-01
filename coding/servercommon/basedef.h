@@ -71,6 +71,54 @@ typedef char					CString64[64];
 typedef char					CString128[128];
 typedef char					CString512[512];
 
+union MsgFloat
+{
+	MsgFloat()
+	{
+		reset();
+	}
+	MsgFloat(float inFloat)
+	{
+		m_float = inFloat;
+	}
+	MsgFloat& operator=(float inFloat)
+	{
+		m_float = inFloat;
+		return *this;
+	}
+	void reset()
+	{
+		m_float = 0.f;
+	}
+
+	float m_float;
+	byte m_bytes[sizeof(float)];
+};
+
+union MsgDouble
+{
+	MsgDouble()
+	{
+		reset();
+	}
+	MsgDouble(double inDouble)
+	{
+		m_double = inDouble;
+	}
+	MsgDouble& operator=(double inDouble)
+	{
+		m_double = inDouble;
+		return *this;
+	}
+	void reset()
+	{
+		m_double = 0.0;
+	}
+
+	double m_double;
+	byte m_bytes[sizeof(double)];
+};
+
 namespace Common
 {
 // log
