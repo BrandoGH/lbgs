@@ -193,8 +193,6 @@ void ServerLinker::onAyncRead(
 
 	while(m_nHasReadDataSize < readSize)
 	{
-		THREAD_SLEEP(1);
-
 		if (m_nLastHasReadSize > 0 && m_nNextNeedReadSize > 0)
 		{
 			memmove(m_bytesOnceMsg + m_nLastHasReadSize, m_bytesReadBuffer, m_nNextNeedReadSize);

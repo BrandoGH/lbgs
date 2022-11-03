@@ -147,7 +147,6 @@ void User::onAyncRead(
 	
 	while(m_nHasReadDataSize < readSize)
 	{
-		THREAD_SLEEP(1);
 
 		if (m_nLastHasReadSize > 0 && m_nNextNeedReadSize > 0)
 		{

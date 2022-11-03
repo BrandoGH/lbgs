@@ -476,8 +476,6 @@ void GateServer::onProxySrvRead(const CommonBoost::ErrorCode& ec, uint readSize)
 
 	while (m_nHasReadProxyDataSize < readSize)
 	{
-		THREAD_SLEEP(1);
-
 		if (m_nLastHasReadSize > 0 && m_nNextNeedReadSize > 0)
 		{
 			memmove(m_bytesInnerSrvOnceMsg + m_nLastHasReadSize, m_bytesInnerSrvBuffer, m_nNextNeedReadSize);
