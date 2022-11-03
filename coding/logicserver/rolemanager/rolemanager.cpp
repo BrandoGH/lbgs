@@ -31,7 +31,6 @@ void RoleManager::createRole(const CreateRoleInput& input)
 	// insert to map
 	CommonBoost::UniqueLock lock(m_mtxMap);
 	m_mapIdToRole[input.m_param.m_strRoleId] = newRole;
-	m_mapSeqToRole[input.m_nClientSeq] = newRole;
 	lock.unlock();
 
 	newRole->login();
@@ -83,11 +82,6 @@ void RoleManager::removeRole(ullong roleSeq, int errCode)
 		
 	}
 
-	// delete from m_mapSeqToRole
-	if (onceRole.get())
-	{
-		m_mapSeqToRole.erase(onceRole->getClientSeq());
-	}
 }
 
 bool RoleManager::isRoleExists(const std::string& roleId)
@@ -100,20 +94,43 @@ bool RoleManager::isRoleExists(const std::string& roleId)
 
 bool RoleManager::isRoleExists(ullong roleSeq)
 {
-	std::map<ullong, boost::shared_ptr<Role>>::const_iterator cit =
-		m_mapSeqToRole.find(roleSeq);
+	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit =
+		m_mapIdToRole.cbegin();
 
-	return (cit != m_mapSeqToRole.end());
+	for (; cit != m_mapIdToRole.cend(); ++cit)
+	{
+		if (!cit->second)
+		{
+			continue;
+		}
+
+		if (cit->second->getClientSeq() == roleSeq)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 boost::shared_ptr<Role> RoleManager::findRoleByClientSeq(ullong clientSeq)
 {
-	std::map<ullong, boost::shared_ptr<Role>>::const_iterator cit =
-		m_mapSeqToRole.find(clientSeq);
-	if (cit != m_mapSeqToRole.cend())
+	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit =
+		m_mapIdToRole.cbegin();
+
+	for (; cit != m_mapIdToRole.cend(); ++cit)
 	{
-		return cit->second;
+		if (!cit->second)
+		{
+			continue;
+		}
+
+		if (cit->second->getClientSeq() == clientSeq)
+		{
+			return cit->second;
+		}
 	}
+
 	return NULL;
 }
 
@@ -123,7 +140,7 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 	{
 		return;
 	}
-	// 1. tell other role, i will create model
+	// 1. tell all role, i will create model
 	DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgCreateRoleSC));
 	MsgHeader* header = (MsgHeader*)sendData;
 	if (!header)
@@ -137,8 +154,8 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 	memmove(sc.m_strCreateRoleName, myself->getRoleName().data(), myself->getRoleName().size());
 
 	boost::shared_ptr<Role> targetRole;
-	std::map<ullong, boost::shared_ptr<Role>>::const_iterator cit = m_mapSeqToRole.begin();
-	for (;cit != m_mapSeqToRole.end();++cit)
+	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit = m_mapIdToRole.cbegin();
+	for (;cit != m_mapIdToRole.cend();++cit)
 	{
 		targetRole = cit->second;
 		if (!targetRole)
@@ -151,7 +168,7 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 		{
 			continue;
 		}
-		header->m_nClientSrcSeq = cit->first;
+		header->m_nClientSrcSeq = targetRole->getClientSeq();
 
 		memmove(sendData, (const char*)header, sizeof(MsgHeader));
 		memmove(sendData + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgCreateRoleSC));
@@ -164,8 +181,8 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 
 	// 2. create other role on my client
 	header->m_nClientSrcSeq = myself->getClientSeq();
-	std::map<ullong, boost::shared_ptr<Role>>::const_iterator cit2 = m_mapSeqToRole.begin();
-	for (; cit2 != m_mapSeqToRole.end(); ++cit2)
+	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit2 = m_mapIdToRole.cbegin();
+	for (; cit2 != m_mapIdToRole.cend(); ++cit2)
 	{
 		targetRole = cit2->second;
 		if (!targetRole || targetRole->getRoleId() == myself->getRoleId())
