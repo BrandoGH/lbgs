@@ -4,7 +4,7 @@
 #include <servercommon/timermodule/timer.h>
 
 class LogicServer;
-class TimerLogicProxySrvHeart : public Timer
+class [[deprecated]] TimerLogicProxySrvHeart : public Timer
 {
 public:
 	TimerLogicProxySrvHeart();

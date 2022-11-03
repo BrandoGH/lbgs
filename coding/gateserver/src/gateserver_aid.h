@@ -4,7 +4,7 @@
 #include <servercommon/timermodule/timer.h>
 
 class GateServer;
-class TimerGateProxySrvHeart : public Timer
+class [[deprecated]] TimerGateProxySrvHeart : public Timer
 {
 public:
 	TimerGateProxySrvHeart();

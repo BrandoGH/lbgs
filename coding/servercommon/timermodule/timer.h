@@ -4,7 +4,7 @@
 #include "boostmodule/basedef.h"
 #include "servercommon/basedef.h"
 
-class Timer
+class [[deprecated]] Timer
 {
 public:
 	Timer();

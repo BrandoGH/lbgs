@@ -4,7 +4,7 @@
 #include <servercommon/timermodule/timer.h>
 
 class DBServer;
-class TimerDBProxySrvHeart : public Timer
+class [[deprecated]] TimerDBProxySrvHeart : public Timer
 {
 public:
 	TimerDBProxySrvHeart();

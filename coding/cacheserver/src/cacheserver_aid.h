@@ -4,7 +4,7 @@
 #include <servercommon/timermodule/timer.h>
 
 class CacheServer;
-class TimerCacheProxySrvHeart : public Timer
+class [[deprecated]] TimerCacheProxySrvHeart : public Timer
 {
 public:
 	TimerCacheProxySrvHeart();
