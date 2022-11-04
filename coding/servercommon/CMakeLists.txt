@@ -37,6 +37,8 @@
 ./commontool/serializememory/serializememory.cpp
 ./timermodule/timer.h
 ./timermodule/timer.cpp
+./timermodule/timer2.h
+./timermodule/timer2.cpp
 ./queuemodule/safequeue.hpp
 )
 
