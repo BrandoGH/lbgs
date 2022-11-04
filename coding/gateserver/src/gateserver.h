@@ -2,13 +2,13 @@
 #define __GATESERVER_H__
 
 #include "user.h"
-#include "gateserver_aid.h"
 #include "userseqmanager.h"
 
 #include <boostmodule/basedef.h>
 #include <boostmodule/ioserverpool.h>
 #include <boost/atomic.hpp>
 #include "queuemodule/safequeue.hpp"
+#include <timermodule/timer2.h>
 
 /*
 * gateserver
@@ -21,7 +21,6 @@ struct GateServerConfigInfo;
 class GateServer
 {
 	friend class User;
-	friend class TimerGateProxySrvHeart;
 public:
 	enum EnUserStatus
 	{
@@ -75,6 +74,7 @@ private:
 	void sendServerInfo(const boost::weak_ptr<User>& user);
 	bool isConnectProxySrvSucc() { return m_bConnectProxySrv; }
 	void readFromProxySrv();
+	void sendProxyHeartInfo();
 
 	void sendMsgToClient(const boost::weak_ptr<User>& targetUser, byte* proxyData);
 
@@ -97,7 +97,7 @@ private:
 	CommonBoost::Endpoint m_innerEndpoint;
 	byte m_bytesInnerSrvBuffer[MsgBuffer::g_nReadBufferSize];
 	byte m_bytesInnerSrvOnceMsg[MsgBuffer::g_nOnceMsgSize];
-	TimerGateProxySrvHeart m_innerSrvHeart;
+	boost::shared_ptr<Timer2> m_innerSrvHeart;
 	int m_nHasReadProxyDataSize;
 	int m_nNextNeedReadSize;
 	int m_nLastHasReadSize;

@@ -1,14 +1,13 @@
 #ifndef __DB_SERVER_H
 #define __DB_SERVER_H
 
-#include "dbserver_aid.h"
 
 #include <boostmodule/basedef.h>
 #include <msgmodule/msgcommondef.h>
+#include <timermodule/timer2.h>
 
 class DBServer
 {
-	friend class TimerDBProxySrvHeart;
 public:
 	DBServer();
 	~DBServer();
@@ -38,6 +37,7 @@ private:
 	void connectInnerServer();
 	void closeInnerSocket();
 	void readFromProxySrv();
+	void sendProxyHeartInfo();
 
 	// sql
 	void initPostgresql();
@@ -54,7 +54,7 @@ private:
 	int m_nLastHasReadSize;
 	bool m_bHeaderIntegrated;
 	// heart msg with proxy server
-	TimerDBProxySrvHeart m_innerSrvHeart;
+	boost::shared_ptr<Timer2> m_innerSrvHeart;
 };
 
 #endif  //__DB_SERVER_H

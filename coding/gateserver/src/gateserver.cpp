@@ -148,7 +148,6 @@ void GateServer::accept()
 
 void GateServer::initData()
 {
-	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
 	m_pAcceptor = NULL;
 	m_nConnectCount = 0;
 	m_nPort = 0;
@@ -160,8 +159,6 @@ void GateServer::initData()
 	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
 	memset(m_bytesInnerSrvOnceMsg, 0, MsgBuffer::g_nOnceMsgSize);
 	initInnerClient();
-	m_innerSrvHeart.setGateServer(this);
-	m_innerSrvHeart.setInterval(info.heart_time);
 	m_serverUserPool.init();
 	m_serverTimerPool.init();
 }
@@ -198,6 +195,8 @@ void GateServer::initInnerClient()
 	
 	m_pInnerSocket = boost::make_shared<CommonBoost::Socket>(m_innerServer);
 	m_pInnerStrand = boost::make_shared<CommonBoost::Strand>(m_innerServer);
+	m_innerSrvHeart = boost::make_shared<Timer2>(m_innerServer);
+	m_innerSrvHeart->setInterval(info.heart_time);
 	m_innerEndpoint = CommonBoost::Endpoint(
 		boost::asio::ip::address::from_string(info.ip),info.port
 		);
@@ -291,6 +290,16 @@ void GateServer::readFromProxySrv()
 		MSG_BUFFER(m_bytesInnerSrvBuffer, sizeof(m_bytesInnerSrvBuffer)),
 		m_pInnerStrand->wrap(BIND(&GateServer::onProxySrvRead, this, boost::placeholders::_1, boost::placeholders::_2))
 	);
+}
+
+void GateServer::sendProxyHeartInfo()
+{
+	SingleToProxyMsgHandler::callHandler(
+		MSG_TYPE_GATE_PROXY_HEART_GP,
+		(const byte*)this,
+		NULL,
+		0);
+	sendToProxySrv(SingleToProxyMsgHandler::g_GateSendProxy, sizeof(SingleToProxyMsgHandler::g_GateSendProxy));
 }
 
 void GateServer::sendMsgToClient(const boost::weak_ptr<User>& targetUser, byte* proxyData)
@@ -416,7 +425,10 @@ void GateServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 	printf_color(PRINTF_GREEN, "\nlink proxy server succ\n");
 	m_bConnectProxySrv = true;
 
-	m_innerSrvHeart.start();
+	if (m_innerSrvHeart)
+	{
+		m_innerSrvHeart->start(BIND(&GateServer::sendProxyHeartInfo, this));
+	}
 
 	// send a byte info,tell proxy server my identity
 	DEFINE_BYTE_ARRAY(firstData, 1);

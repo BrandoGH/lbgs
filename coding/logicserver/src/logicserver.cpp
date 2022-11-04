@@ -52,9 +52,6 @@ LogicServer::LogicServer()
 {
 	GLOBAL_LOGIC->registerGlobal(this);
 
-	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
-	m_innerSrvHeart.setLogicServer(this);
-	m_innerSrvHeart.setInterval(info.heart_time);
 	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
 
 	initInnerClient();
@@ -277,6 +274,8 @@ void LogicServer::initInnerClient()
 
 	m_pInnerSocket = boost::make_shared<CommonBoost::Socket>(m_innerServer);
 	m_pInnerStrand = boost::make_shared<CommonBoost::Strand>(m_innerServer);
+	m_innerSrvHeart = boost::make_shared<Timer2>(m_innerServer);
+	m_innerSrvHeart->setInterval(info.heart_time);
 	m_innerEndpoint = CommonBoost::Endpoint(
 		boost::asio::ip::address::from_string(info.ip), info.port
 	);
@@ -325,6 +324,16 @@ void LogicServer::readFromProxySrv()
 	);
 }
 
+void LogicServer::sendProxyHeartInfo()
+{
+	SingleToProxyMsgHandler::callHandler(
+		MSG_TYPE_LOGIC_PROXY_HEART_LP,
+		(const byte*)this,
+		NULL,
+		0);
+	sendToProxySrv(SingleToProxyMsgHandler::g_LogicSendProxy, sizeof(SingleToProxyMsgHandler::g_LogicSendProxy));
+}
+
 void LogicServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 {
 	if (err)
@@ -344,7 +353,10 @@ void LogicServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 	printf_color(PRINTF_GREEN, "\nlink proxy server succ\n");
 	m_bConnectProxySrv = true;
 
-	m_innerSrvHeart.start();
+	if (m_innerSrvHeart)
+	{
+		m_innerSrvHeart->start(BIND(&LogicServer::sendProxyHeartInfo, this));
+	}
 
 	// send a byte info,tell proxy server my identity
 	DEFINE_BYTE_ARRAY(firstData, 1);

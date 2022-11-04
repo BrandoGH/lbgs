@@ -50,9 +50,6 @@ DBServer::DBServer()
 {
 	DB_MGR->registerDBServer(this);
 
-	const ProxyServerConfigInfo info = *(CONFIG_MGR->GetProxyServerConfig()->getConfigInfo());
-	m_innerSrvHeart.setDBServer(this);
-	m_innerSrvHeart.setInterval(info.heart_time);
 	memset(m_bytesInnerSrvBuffer, 0, MsgBuffer::g_nReadBufferSize);
 
 	initInnerClient();
@@ -271,6 +268,8 @@ void DBServer::initInnerClient()
 
 	m_pInnerSocket = boost::make_shared<CommonBoost::Socket>(m_innerServer);	
 	m_pInnerStrand = boost::make_shared<CommonBoost::Strand>(m_innerServer);
+	m_innerSrvHeart = boost::make_shared<Timer2>(m_innerServer);
+	m_innerSrvHeart->setInterval(info.heart_time);
 	m_innerEndpoint = CommonBoost::Endpoint(
 		boost::asio::ip::address::from_string(info.ip), info.port
 	);
@@ -319,6 +318,16 @@ void DBServer::readFromProxySrv()
 	);
 }
 
+void DBServer::sendProxyHeartInfo()
+{
+	SingleToProxyMsgHandler::callHandler(
+		MSG_TYPE_DB_PROXY_HEART_DP,
+		(const byte*)this,
+		NULL,
+		0);
+	sendToProxySrv(SingleToProxyMsgHandler::g_DBSendProxy, sizeof(SingleToProxyMsgHandler::g_DBSendProxy));
+}
+
 void DBServer::initPostgresql()
 {
 	DB_MGR->connectDB(BIND(&DBServer::onSqlConnectResult, this, boost::placeholders::_1, boost::placeholders::_2));
@@ -343,7 +352,11 @@ void DBServer::onConnectInnerServer(const CommonBoost::ErrorCode& err)
 	printf_color(PRINTF_GREEN, "\nlink proxy server succ\n");
 	m_bConnectProxySrv = true;
 
-	m_innerSrvHeart.start();
+	if (m_innerSrvHeart)
+	{
+		m_innerSrvHeart->start(BIND(&DBServer::sendProxyHeartInfo, this));
+	}
+
 
 	// send a byte info,tell proxy server my identity
 	DEFINE_BYTE_ARRAY(firstData, 1);

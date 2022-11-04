@@ -1,14 +1,12 @@
 #ifndef __LOGIC_SERVER_H
 #define __LOGIC_SERVER_H
 
-#include "logicserver_aid.h"
-
 #include <boostmodule/basedef.h>
 #include <msgmodule/msgcommondef.h>
+#include <timermodule/timer2.h>
 
 class LogicServer
 {
-	friend class TimerLogicProxySrvHeart;
 public:
 	LogicServer();
 	~LogicServer();
@@ -37,6 +35,7 @@ private:
 	void connectInnerServer();
 	void closeInnerSocket();
 	void readFromProxySrv();
+	void sendProxyHeartInfo();
 
 private:
 	CommonBoost::IOServer m_innerServer;
@@ -51,7 +50,7 @@ private:
 	int m_nLastHasReadSize;
 	bool m_bHeaderIntegrated;
 	// heart msg with proxy server
-	TimerLogicProxySrvHeart m_innerSrvHeart;
+	boost::shared_ptr<Timer2> m_innerSrvHeart;
 };
 
 #endif  //__LOGIC_SERVER_H

@@ -1,17 +1,16 @@
 #ifndef __CACHE_SERVER_H
 #define __CACHE_SERVER_H
 
-#include "cacheserver_aid.h"
 #include "redis/rediscluster.h"
 
 #include <boostmodule/basedef.h>
 #include <msgmodule/msgcommondef.h>
 #include <servercommon/cacheserverconfig.h>
+#include <timermodule/timer2.h>
 
 
 class CacheServer
 {
-	friend class TimerCacheProxySrvHeart;
 public:
 	CacheServer();
 	~CacheServer();
@@ -43,6 +42,7 @@ private:
 	void connectInnerServer();
 	void closeInnerSocket();
 	void readFromProxySrv();
+	void sendProxyHeartInfo();
 
 	// redis
 	void initRedisCluster();
@@ -60,7 +60,8 @@ private:
 	int m_nLastHasReadSize;
 	bool m_bHeaderIntegrated;
 	// heart msg with proxy server
-	TimerCacheProxySrvHeart m_innerSrvHeart;
+	boost::shared_ptr<Timer2> m_innerSrvHeart;
+
 
 	// redis cluster
 	RedisCluster m_redisCluster;
