@@ -354,6 +354,9 @@ void MainWindowObj::onLoginMsg(const QByteArray& data)
 		case MsgLoginSC::ER_HAS_LOGIN_ERROR:
 			strTipInfo = "this role has been logined!!";
 			break;
+		case MsgLoginSC::ER_RELOGIN_ERROR:
+			strTipInfo = "last time logout error, please login again!!";
+			break;
 		}
 
 		QMessageBox::information(m_mw, "error", strTipInfo);
