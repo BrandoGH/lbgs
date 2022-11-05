@@ -5,7 +5,9 @@
 
 #include <servercommon/boostmodule/basedef.h>
 #include <servercommon/basedef.h>
+#include <eigen3/Eigen/Core>
 
+struct MsgRoleInfoUpdateCS;
 class Role : public boost::enable_shared_from_this<Role>
 {
 public:
@@ -23,6 +25,9 @@ public:
 	void setLogoutErrorCode(int ec);
 	int getLogoutErrorCode();
 
+	void updateInfoWhenRoleOperation(MsgRoleInfoUpdateCS* csData);
+
+	const Eigen::Vector3d& getCurrentLocation();
 private:
 	void sendDeleteLoginCacheInfo();
 
@@ -31,6 +36,7 @@ private:
 	RoleLoginInfoParam m_paramLogin;
 
 	int m_nLogoutErrorCode;
+	Eigen::Vector3d m_vecLocation;
 };
 
 #endif // !__ROLE_H__

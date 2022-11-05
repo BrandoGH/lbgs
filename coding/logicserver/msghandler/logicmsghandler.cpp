@@ -10,6 +10,7 @@
 #include <logmodule/logdef.h>
 #include <commontool/msgtool/msgtool.h>
 #include "communicationmsg/msgcreaterole.h"
+#include "communicationmsg/msgroleinfoupdate.h"
 
 #define LOGIC_REV_MSG_CHECK_MSG_STRUCT(msg_struct) \
 if (!pLogicServer || !data)\
@@ -127,10 +128,11 @@ void onClientLoginSC(LogicServer* pLogicServer,boost::shared_ptr<Role> role, byt
 		return;
 	}
 
+	std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
+
 	if (msg->m_cLoginStatus == MsgLoginSC::LS_LOGIN_OK && msg->m_cErrorReason == MsgLoginSC::ER_NO_ERROR)
 	{
 		// create role
-		std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
 		RoleManager::CreateRoleInput input;
 		RoleLoginInfoParam param;
 		memmove(param.m_strRoleId, roleId.data(), sizeof(param.m_strRoleId));
@@ -142,13 +144,12 @@ void onClientLoginSC(LogicServer* pLogicServer,boost::shared_ptr<Role> role, byt
 		ROLE_MGR->createRole(input);
 	}
 	else if (msg->m_cErrorReason == MsgLoginSC::ER_HAS_LOGIN_ERROR && 
-		!ROLE_MGR->isRoleExists(CommonTool::genRoleIdByUserName(msg->m_strRoleName)))
+		!ROLE_MGR->isRoleExists(roleId))
 	{
 		/*
 		*	Due to network delay, the role is not online but the loginstatus cache is still there
 		*	This time back ER_HAS_LOGIN_ERROR,a second click to log in is required to log in normally
 		*/
-		std::string roleId = CommonTool::genRoleIdByUserName(msg->m_strRoleName);
 		DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgLogoutCS));
 
 		MsgLogoutCS cs;
@@ -165,6 +166,8 @@ void onClientLoginSC(LogicServer* pLogicServer,boost::shared_ptr<Role> role, byt
 		{
 			pLogicServer->sendToCache(sendData, sizeof(sendData));
 		}
+
+		msg->m_cErrorReason = MsgLoginSC::ER_RELOGIN_ERROR;
 	}
 
 	pLogicServer->sendToClient(data, dataSize);
@@ -190,13 +193,23 @@ void onClientLogoutCS(LogicServer* pLogicServer,boost::shared_ptr<Role> role, by
 		return;
 	}
 
-	if (!ROLE_MGR->isRoleExists(header->m_nClientSrcSeq))
+	if (role)
 	{
-		LOG_LOGICSERVER.printLog("m_nClientSrcSeq[%lld] is not exists, remove role fail!", header->m_nClientSrcSeq);
+		if (!ROLE_MGR->isRoleExists(role->getRoleId()))
+		{
+			LOG_LOGICSERVER.printLog("role[%s],id[%s] is not exists, remove role fail!", role->getRoleName().data(),role->getRoleId().data());
+			return;
+		}
+		ROLE_MGR->removeRole(role->getRoleId(), msg->m_nErrorCode);
 		return;
 	}
-	ROLE_MGR->removeRole(header->m_nClientSrcSeq, msg->m_nErrorCode);
 
+	if (!ROLE_MGR->tryToDetermineIfExists(header->m_nClientSrcSeq))
+	{
+		LOG_LOGICSERVER.printLog("clientSeq[%lld] is not exists, remove role fail!", header->m_nClientSrcSeq);
+		return;
+	}
+	ROLE_MGR->tryRemoveRole(header->m_nClientSrcSeq, msg->m_nErrorCode);
 }
 
 void onCreateRoleCS(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize)
@@ -217,6 +230,28 @@ void onCreateRoleSC(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byt
 	}
 }
 
+void onRoleInfoUpdateCS(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize)
+{
+	LOGIC_REV_MSG_CHECK_MSG_STRUCT(MsgRoleInfoUpdateCS);
+
+	if (role)
+	{
+		role->updateInfoWhenRoleOperation(msg);
+	}
+
+	callHandler(MSG_TYPE_ROLE_INFO_UPDATE_SC, pLogicServer, role, data, dataSize);
+}
+
+void onRoleInfoUpdateSC(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize)
+{
+	LOGIC_REV_MSG_CHECK;
+
+	if (ROLE_MGR)
+	{
+		ROLE_MGR->notifyRoleInfoChange(role);
+	}
+}
+
 
 // Non-handler jump part
 HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
@@ -228,6 +263,8 @@ HandlerFunc g_handlerList[EnMsgType::MSG_TYPE_CLIENT_SIZE] =
 	onClientLogoutCS,		// 154
 	onCreateRoleCS,			// 155
 	onCreateRoleSC,			// 156
+	onRoleInfoUpdateCS,		// 157
+	onRoleInfoUpdateSC,		// 158
 };
 
 void callHandler(int msgType, LogicServer* pLogicServer,boost::shared_ptr<Role> role, byte* data, uint dataSize)

@@ -5,11 +5,13 @@
 
 #include <msgmodule/msgcommondef.h>
 #include <logmodule/logdef.h>
+#include "communicationmsg/msgroleinfoupdate.h"
 
 Role::Role()
 	: m_nLogoutErrorCode(0)
 	, m_nClientSeq(0)
 {
+	m_vecLocation.setZero();
 }
 
 Role::~Role()
@@ -61,6 +63,24 @@ void Role::setLogoutErrorCode(int ec)
 int Role::getLogoutErrorCode()
 {
 	return m_nLogoutErrorCode;
+}
+
+void Role::updateInfoWhenRoleOperation(MsgRoleInfoUpdateCS* csData)
+{
+	if (!csData)
+	{
+		return;
+	}
+
+	m_vecLocation <<
+		csData->m_roleX.m_double,
+		csData->m_roleY.m_double, 
+		csData->m_roleZ.m_double;
+}
+
+const Eigen::Vector3d& Role::getCurrentLocation()
+{
+	return m_vecLocation;
 }
 
 void Role::sendDeleteLoginCacheInfo()

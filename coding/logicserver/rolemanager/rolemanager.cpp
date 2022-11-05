@@ -3,9 +3,12 @@
 #include "src/logicserver.h"
 #include "role.h"
 #include "communicationmsg/msgcreaterole.h"
+#include "communicationmsg/msgroleinfoupdate.h"
 
 #include <logmodule/logdef.h>
 #include <msgmodule/msgcommondef.h>
+#include <eigen3/Eigen/Core>
+
 
 RoleManager::RoleManager()
 {
@@ -37,51 +40,75 @@ void RoleManager::createRole(const CreateRoleInput& input)
 
 }
 
-void RoleManager::removeRole(ullong roleSeq, int errCode)
+void RoleManager::removeRole(const std::string& roleId, int errCode)
 {
 	if (m_mapIdToRole.empty())
 	{
-		LOG_ROLE.printLog("m_mapIdToRole empty, roleSeq[%lld]", roleSeq);
+		LOG_ROLE.printLog("m_mapIdToRole empty, roleId[%s]", roleId.data());
+		return;
+	}
+
+	typedef std::map<std::string, boost::shared_ptr<Role>>::const_iterator MapRoleCIT;
+	CommonBoost::UniqueLock lock(m_mtxMap);
+	
+	// delete from m_mapIdToRole
+	MapRoleCIT cit = m_mapIdToRole.find(roleId);
+	if (cit == m_mapIdToRole.cend())
+	{
+		LOG_ROLE.printLog("RoleManager is not have roleId[%s]", roleId.data());
+		return;
+	}
+
+	boost::shared_ptr<Role> onceRole = m_mapIdToRole[roleId];
+
+	m_mapIdToRole.erase(cit);
+	LOG_ROLE.printLog("roleId[%s] has remove from RoleManager", roleId.data());
+
+	if (onceRole)
+	{
+		onceRole->setLogoutErrorCode(errCode);
+		onceRole->logout();
+	}
+
+}
+
+void RoleManager::tryRemoveRole(ullong roleSeq, int errCode)
+{
+	if (m_mapIdToRole.empty())
+	{
+		LOG_ROLE.printLog("m_mapIdToRole empty, roleSeq[%lld] is not exists", roleSeq);
 		return;
 	}
 
 	typedef std::map<std::string, boost::shared_ptr<Role>>::const_iterator MapRoleCIT;
 
 	CommonBoost::UniqueLock lock(m_mtxMap);
-	
+
 	// delete from m_mapIdToRole
 	boost::shared_ptr<Role> onceRole;
 	ullong seq = 0;
-	std::string id;
-	for (MapRoleCIT cit = m_mapIdToRole.begin(); cit != m_mapIdToRole.end();)
+	for (MapRoleCIT cit = m_mapIdToRole.cbegin(); cit != m_mapIdToRole.cend(); ++cit)
 	{
 		onceRole = cit->second;
 
-		if (!onceRole.get())
+		if (!onceRole)
 		{
-			cit++;
+			continue;
 		}
-
 
 		seq = onceRole->getClientSeq();
-		id = onceRole->getRoleId();
-
-		if ((seq == roleSeq) &&
-			(id.length() > 0))
+		if (seq != roleSeq)
 		{
-			onceRole->setLogoutErrorCode(errCode);
-			onceRole->logout();
-			m_mapIdToRole.erase(cit++);
-			break;
-		} else
-		{
-			cit++;
+			continue;
 		}
-		
 
-		
+		onceRole->setLogoutErrorCode(errCode);
+		onceRole->logout();
+		m_mapIdToRole.erase(cit);
+		break;
 	}
 
+	LOG_ROLE.printLog("has remove roleSeq[%lld]", roleSeq);
 }
 
 bool RoleManager::isRoleExists(const std::string& roleId)
@@ -92,7 +119,7 @@ bool RoleManager::isRoleExists(const std::string& roleId)
 	return (cit != m_mapIdToRole.end());
 }
 
-bool RoleManager::isRoleExists(ullong roleSeq)
+bool RoleManager::tryToDetermineIfExists(ullong roleSeq)
 {
 	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit =
 		m_mapIdToRole.cbegin();
@@ -202,6 +229,49 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 		}
 	}
 
+}
+
+void RoleManager::notifyRoleInfoChange(boost::shared_ptr<Role> notifyRole)
+{
+	if (!notifyRole)
+	{
+		return;
+	}
+
+	DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgRoleInfoUpdateSC));
+	MsgHeader* header = (MsgHeader*)sendData;
+	if (!header)
+	{
+		return;
+	}
+	header->m_nMsgLen = sizeof(sendData);
+	header->m_nMsgType = MSG_TYPE_ROLE_INFO_UPDATE_SC;
+
+	MsgRoleInfoUpdateSC sc;
+	memmove(sc.m_targetRoleName, notifyRole->getRoleName().data(), sizeof(sc.m_targetRoleName));
+	sc.m_roleX = notifyRole->getCurrentLocation().x();
+	sc.m_roleY = notifyRole->getCurrentLocation().y();
+	sc.m_roleZ = notifyRole->getCurrentLocation().z();
+	
+	boost::shared_ptr<Role> targetRole;
+	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit = m_mapIdToRole.cbegin();
+	for (; cit != m_mapIdToRole.cend(); ++cit)
+	{
+		if (!cit->second ||
+			cit->second->getClientSeq() == notifyRole->getClientSeq())
+		{
+			continue;
+		}
+
+		header->m_nClientSrcSeq = cit->second->getClientSeq();
+		memmove(sendData, (const char*)header, sizeof(MsgHeader));
+		memmove(sendData + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgRoleInfoUpdateSC));
+
+		if (GLOBAL_LOGIC->getLogicServer())
+		{
+			GLOBAL_LOGIC->getLogicServer()->sendToClient(sendData, sizeof(sendData));
+		}
+	}
 }
 
 void RoleManager::deleteInstance()

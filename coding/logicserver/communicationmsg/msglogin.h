@@ -41,6 +41,7 @@ struct MsgLoginSC
 		ER_NO_ERROR,
 		ER_PASSWORD_ERROR,
 		ER_HAS_LOGIN_ERROR,
+		ER_RELOGIN_ERROR,
 	};
 
 	MsgLoginSC()

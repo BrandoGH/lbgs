@@ -22,13 +22,15 @@ public:
 	static RoleManager* instance();
 
 	void createRole(const CreateRoleInput& input);
-	void removeRole(ullong roleSeq, int errCode);
+	void removeRole(const std::string& roleId, int errCode);
+	void tryRemoveRole(ullong roleSeq, int errCode);
 	bool isRoleExists(const std::string& roleId);
-	bool isRoleExists(ullong roleSeq);
+	bool tryToDetermineIfExists(ullong roleSeq);
 
 	boost::shared_ptr<Role> findRoleByClientSeq(ullong clientSeq);
 
 	void createRoleModel(boost::shared_ptr<Role> myself);
+	void notifyRoleInfoChange(boost::shared_ptr<Role> notifyRole);
 	
 private:
 	void deleteInstance();

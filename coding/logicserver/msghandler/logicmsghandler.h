@@ -18,6 +18,8 @@ void onClientLoginSC(LogicServer* pLogicServer, boost::shared_ptr<Role> role, by
 void onClientLogoutCS(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize);
 void onCreateRoleCS(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize);
 void onCreateRoleSC(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize);
+void onRoleInfoUpdateCS(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize);
+void onRoleInfoUpdateSC(LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize);
 
 void callHandler(int msgType, LogicServer* pLogicServer, boost::shared_ptr<Role> role, byte* data, uint dataSize);
 }
