@@ -170,6 +170,10 @@ void onClientLoginSC(LogicServer* pLogicServer,boost::shared_ptr<Role> role, byt
 		msg->m_cErrorReason = MsgLoginSC::ER_RELOGIN_ERROR;
 	}
 
+	// client is not need password
+	memset(msg->m_strPassword, 0, sizeof(msg->m_strPassword));
+
+	// send msg to client
 	pLogicServer->sendToClient(data, dataSize);
 }
 
