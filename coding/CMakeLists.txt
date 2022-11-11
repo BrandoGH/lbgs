@@ -42,7 +42,7 @@ if (WIN32)
 	add_definitions(-DWIN_OS)
 	#visual studio optimization options£¬release mode can be debug¡¾Essentially reuses the value of FLAGS_DEBUG¡¿¡¾win development machine is debuggable by default¡¿
 	# visual studio 2022 add hot code
-	if(MSVC_VERSION EQUAL 1930)
+	if(MSVC_VERSION EQUAL 1934)
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} /ZI /JMC")
 		message("-- visual studio version is 2022, support hot reload !!")
 	else()
