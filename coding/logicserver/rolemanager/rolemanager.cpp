@@ -167,6 +167,7 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 	{
 		return;
 	}
+
 	// 1. tell all role, i will create model
 	DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgCreateRoleSC));
 	MsgHeader* header = (MsgHeader*)sendData;
@@ -202,10 +203,11 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 
 		if (GLOBAL_LOGIC->getLogicServer())
 		{
+			// printf_color(PRINTF_YELLOW, "tell [%s][%lld]  will create [%s][%lld] \n", targetRole->getRoleName().data(), targetRole->getClientSeq(), myself->getRoleName().data(), myself->getClientSeq());
 			GLOBAL_LOGIC->getLogicServer()->sendToClient(sendData, sizeof(sendData));
 		}
 	}
-
+	
 	// 2. create other role on my client
 	header->m_nClientSrcSeq = myself->getClientSeq();
 	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit2 = m_mapIdToRole.cbegin();
@@ -225,6 +227,7 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 
 		if (GLOBAL_LOGIC->getLogicServer())
 		{
+			// printf_color(PRINTF_GREEN, "tell [%s][%lld] will create [%s][%lld]\n",  myself->getRoleName().data(), header->m_nClientSrcSeq, targetRole->getRoleName().data(), targetRole->getClientSeq());
 			GLOBAL_LOGIC->getLogicServer()->sendToClient(sendData, sizeof(sendData));
 		}
 	}

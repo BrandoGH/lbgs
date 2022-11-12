@@ -76,6 +76,8 @@ void Role::updateInfoWhenRoleOperation(MsgRoleInfoUpdateCS* csData)
 		csData->m_roleX.m_double,
 		csData->m_roleY.m_double, 
 		csData->m_roleZ.m_double;
+
+	// printf_color(PRINTF_YELLOW, "[%s]: move X[%lf] Y[%lf] Z[%lf] \n", getRoleName().data(), csData->m_roleX.m_double, csData->m_roleY.m_double, csData->m_roleZ.m_double);
 }
 
 const Eigen::Vector3d& Role::getCurrentLocation()
