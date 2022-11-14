@@ -25,12 +25,18 @@ struct MsgCreateRoleSC
 	void reset()
 	{
 		memset(m_strCreateRoleName, 0, sizeof(m_strCreateRoleName));
+		m_roleX = 0.0;
+		m_roleY = 0.0;
+		m_roleZ = 0.0;
 	}
 
 	CString32 m_strCreateRoleName;
+	MsgDouble m_roleX;
+	MsgDouble m_roleY;
+	MsgDouble m_roleZ;
 
 };
-BOOST_STATIC_ASSERT(sizeof(MsgCreateRoleSC) == 32);
+BOOST_STATIC_ASSERT(sizeof(MsgCreateRoleSC) == 56);
 
 #pragma pack(pop)
 

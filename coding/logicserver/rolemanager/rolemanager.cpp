@@ -9,6 +9,12 @@
 #include <msgmodule/msgcommondef.h>
 #include <eigen3/Eigen/Core>
 
+namespace
+{
+const double g_nDefaultSpawnX = 0.0;
+const double g_nDefaultSpawnY = 0.0;
+const double g_nDefaultSpawnZ = 190.0;
+}
 
 RoleManager::RoleManager()
 {
@@ -180,6 +186,9 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 
 	MsgCreateRoleSC sc;
 	memmove(sc.m_strCreateRoleName, myself->getRoleName().data(), myself->getRoleName().size());
+	sc.m_roleY = g_nDefaultSpawnX;
+	sc.m_roleZ = g_nDefaultSpawnY;
+	sc.m_roleZ = g_nDefaultSpawnZ;
 
 	boost::shared_ptr<Role> targetRole;
 	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit = m_mapIdToRole.cbegin();
@@ -221,9 +230,13 @@ void RoleManager::createRoleModel(boost::shared_ptr<Role> myself)
 
 		sc.reset();
 		memmove(sc.m_strCreateRoleName, targetRole->getRoleName().data(), targetRole->getRoleName().size());
+		sc.m_roleX = targetRole->getCurrentLocation().x();
+		sc.m_roleY = targetRole->getCurrentLocation().y();
+		sc.m_roleZ = targetRole->getCurrentLocation().z();
 
 		memmove(sendData, (const char*)header, sizeof(MsgHeader));
 		memmove(sendData + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgCreateRoleSC));
+
 
 		if (GLOBAL_LOGIC->getLogicServer())
 		{
