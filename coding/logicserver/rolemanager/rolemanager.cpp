@@ -268,6 +268,8 @@ void RoleManager::notifyRoleInfoChange(boost::shared_ptr<Role> notifyRole)
 	sc.m_roleX = notifyRole->getCurrentLocation().x();
 	sc.m_roleY = notifyRole->getCurrentLocation().y();
 	sc.m_roleZ = notifyRole->getCurrentLocation().z();
+	sc.m_jumpFlag = notifyRole->isJumping() ? MsgRoleInfoUpdateCS::EJF_JUMPING : MsgRoleInfoUpdateCS::EJF_NORMAL;
+	sc.m_velocity = notifyRole->getMoveVelocity();
 	
 	boost::shared_ptr<Role> targetRole;
 	std::map<std::string, boost::shared_ptr<Role>>::const_iterator cit = m_mapIdToRole.cbegin();

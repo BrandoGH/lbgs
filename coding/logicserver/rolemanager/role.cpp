@@ -10,6 +10,7 @@
 Role::Role()
 	: m_nLogoutErrorCode(0)
 	, m_nClientSeq(0)
+	, m_velocity(0)
 {
 	m_vecLocation.setZero();
 }
@@ -77,7 +78,11 @@ void Role::updateInfoWhenRoleOperation(MsgRoleInfoUpdateCS* csData)
 		csData->m_roleY.m_double, 
 		csData->m_roleZ.m_double;
 
-	// printf_color(PRINTF_YELLOW, "[%s]: move X[%lf] Y[%lf] Z[%lf] \n", getRoleName().data(), csData->m_roleX.m_double, csData->m_roleY.m_double, csData->m_roleZ.m_double);
+	m_velocity = csData->m_velocity;
+	m_bJumping = (csData->m_jumpFlag == MsgRoleInfoUpdateCS::EJF_JUMPING) ? true : false;
+
+	/*printf_color(PRINTF_YELLOW, "[%s]: move X[%lf] Y[%lf] Z[%lf] m_velocity[%d] m_jumpFlag[%d]\n", 
+		getRoleName().data(), csData->m_roleX.m_double, csData->m_roleY.m_double, csData->m_roleZ.m_double, csData->m_velocity, int(csData->m_jumpFlag));*/
 }
 
 const Eigen::Vector3d& Role::getCurrentLocation()

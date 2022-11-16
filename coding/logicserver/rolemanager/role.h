@@ -28,6 +28,9 @@ public:
 	void updateInfoWhenRoleOperation(MsgRoleInfoUpdateCS* csData);
 
 	const Eigen::Vector3d& getCurrentLocation();
+	ushort getMoveVelocity() { return m_velocity; }
+	bool isJumping() { return m_bJumping; }
+
 private:
 	void sendDeleteLoginCacheInfo();
 
@@ -37,6 +40,8 @@ private:
 
 	int m_nLogoutErrorCode;
 	Eigen::Vector3d m_vecLocation;
+	ushort m_velocity;
+	bool m_bJumping;
 };
 
 #endif // !__ROLE_H__
