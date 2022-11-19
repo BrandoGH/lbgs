@@ -32,6 +32,8 @@ public:
 	bool isJumping() { return m_bJumping; }
 
 private:
+	void sendLogoutInfo();
+	void sendRemoveMyModelInfo();
 	void sendDeleteLoginCacheInfo();
 
 private:

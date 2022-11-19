@@ -6,6 +6,7 @@
 #include <msgmodule/msgcommondef.h>
 #include <logmodule/logdef.h>
 #include "communicationmsg/msgroleinfoupdate.h"
+#include "rolemanager.h"
 
 Role::Role()
 	: m_nLogoutErrorCode(0)
@@ -28,7 +29,7 @@ void Role::login()
 void Role::logout()
 {
 	LOG_ROLE.printLog("role [%s]  has logout!!",getRoleName().data());
-	sendDeleteLoginCacheInfo();
+	sendLogoutInfo();
 }
 
 void Role::setClientSeq(ullong seq)
@@ -88,6 +89,54 @@ void Role::updateInfoWhenRoleOperation(MsgRoleInfoUpdateCS* csData)
 const Eigen::Vector3d& Role::getCurrentLocation()
 {
 	return m_vecLocation;
+}
+
+void Role::sendLogoutInfo()
+{
+	sendDeleteLoginCacheInfo();
+	sendRemoveMyModelInfo();
+}
+
+void Role::sendRemoveMyModelInfo()
+{
+	if (!ROLE_MGR)
+	{
+		LOG_ROLE.printLog("ROLE_MGR == NULL");
+		return;
+	}
+
+	DEFINE_BYTE_ARRAY(sendData, sizeof(MsgHeader) + sizeof(MsgLogoutSC));
+
+	MsgHeader* header = (MsgHeader*)sendData;
+	header->m_nMsgLen = sizeof(MsgHeader) + sizeof(MsgLogoutSC);
+	header->m_nMsgType = MSG_TYPE_ROLE_MODEL_REMOVE;
+
+	MsgLogoutSC sc;
+	memmove(sc.m_strRoleName, getRoleName().data(), sizeof(sc.m_strRoleName));
+
+	memmove(sendData + sizeof(MsgHeader), (const char*)&sc, sizeof(MsgLogoutSC));
+
+	// tell other role remove my model on its client
+	const std::map<std::string, boost::shared_ptr<Role>> roleMap = ROLE_MGR->getRoleMap();
+	std::map<std::string, boost::shared_ptr<Role>>::const_iterator it = roleMap.cbegin();
+	boost::shared_ptr<Role> targetRole;
+	for (; it != roleMap.cend(); ++it)
+	{
+		targetRole = it->second;
+		if (!targetRole || 
+			(targetRole->getRoleId() == getRoleId()))
+		{
+			continue;
+		}
+
+		header->m_nClientSrcSeq = targetRole->getClientSeq();
+
+		if (GLOBAL_LOGIC->getLogicServer())
+		{
+			GLOBAL_LOGIC->getLogicServer()->sendToClient(sendData, sizeof(sendData));
+		}
+
+	}
 }
 
 void Role::sendDeleteLoginCacheInfo()

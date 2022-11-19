@@ -25,5 +25,17 @@ struct MsgLogoutCS
 };
 BOOST_STATIC_ASSERT(sizeof(MsgLogoutCS) == 68);
 
+// 159 MSG_TYPE_ROLE_MODEL_REMOVE
+struct MsgLogoutSC
+{
+	MsgLogoutSC()
+	{
+		memset(m_strRoleName, 0, sizeof(m_strRoleName));
+	}
+
+	CString32 m_strRoleName;
+};
+BOOST_STATIC_ASSERT(sizeof(MsgLogoutSC) == 32);
+
 #pragma pack(pop)
 #endif // !__MSG_LOGOUT_H__

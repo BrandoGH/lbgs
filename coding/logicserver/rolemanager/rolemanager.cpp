@@ -66,15 +66,14 @@ void RoleManager::removeRole(const std::string& roleId, int errCode)
 	}
 
 	boost::shared_ptr<Role> onceRole = m_mapIdToRole[roleId];
-
-	m_mapIdToRole.erase(cit);
-	LOG_ROLE.printLog("roleId[%s] has remove from RoleManager", roleId.data());
-
 	if (onceRole)
 	{
 		onceRole->setLogoutErrorCode(errCode);
 		onceRole->logout();
 	}
+
+	m_mapIdToRole.erase(cit);
+	LOG_ROLE.printLog("roleId[%s] has remove from RoleManager", roleId.data());
 
 }
 

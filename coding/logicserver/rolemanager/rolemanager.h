@@ -31,6 +31,9 @@ public:
 
 	void createRoleModel(boost::shared_ptr<Role> myself);
 	void notifyRoleInfoChange(boost::shared_ptr<Role> notifyRole);
+
+	const std::map<std::string, boost::shared_ptr<Role>>&
+		getRoleMap() { return m_mapIdToRole; }
 	
 private:
 	void deleteInstance();
