@@ -100,6 +100,10 @@ elseif(UNIX)
 	file(GLOB SH_SCRIPT_REMOVE_ERR_NOHUP_LOG ${LBGS_ROOT_DIR}/coding/removeserver_err_nohup_log.sh)
 	file(COPY ${SH_SCRIPT_REMOVE_ERR_NOHUP_LOG} DESTINATION ${LBGS_ROOT_DIR}/build)
 	message("-- ${SH_SCRIPT_REMOVE_ERR_NOHUP_LOG} script has copy to ${LBGS_ROOT_DIR}/build")
+
+	file(GLOB SH_SCRIPT_GENERATOR ${LBGS_ROOT_DIR}/coding/unixgen.sh)
+	file(COPY ${SH_SCRIPT_GENERATOR} DESTINATION ${LBGS_ROOT_DIR}/build)
+	message("-- ${SH_SCRIPT_GENERATOR} script has copy to ${LBGS_ROOT_DIR}/build")
 endif()
 
 #global macro definition
