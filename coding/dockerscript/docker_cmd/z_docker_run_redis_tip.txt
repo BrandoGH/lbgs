@@ -3,6 +3,8 @@ redis.conf felid daemonize should be no
 otherwise run docker redis by config will be faild~~~~~~~~~~~~   liubin write
 
 #-- docker run cluster example
+0.rm -rf /var/docker/redis/   [ docker run [-v] option(your path) ]
+
 1. run 6 redis server by config
 sh redis_run_cluster.sh docker_redis_cluster_7000 7000 17000 redis7000.conf
 sh redis_run_cluster.sh docker_redis_cluster_7001 7001 17001 redis7001.conf
@@ -19,3 +21,7 @@ redis-cli --cluster create --cluster-replicas 1 --pass 123456 192.168.43.122:700
 
 4.you can input once of cluster server //////need to add -c option/////////
 redis-cli -p 7000 -c --pass 123456
+
+#-- Fix redis problem
+docker exec -it docker_redis_cluster_7000 /bin/bash
+redis-cli --cluster fix 192.168.43.122:7000
